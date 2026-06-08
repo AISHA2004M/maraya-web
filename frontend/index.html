@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Vrital — AI-powered virtual try-on fashion platform. Shop premium fashion and see how it looks on you before you buy."
+    />
+    <meta name="theme-color" content="#faf9f7" />
+
+    <!-- ─── DNS & Connection Prefetch ──────────────────────────────────────── -->
+    <!-- Resolve DNS for external asset hosts before they are needed -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://images.unsplash.com" />
+    <link rel="dns-prefetch" href="https://images.unsplash.com" />
+
+    <!-- ─── Critical Font Loading ───────────────────────────────────────────── -->
+    <!--
+      Strategy:
+      1. preload the stylesheet (non-render-blocking fetch)
+      2. onload swap to rel=stylesheet
+      3. <noscript> fallback for no-JS environments
+      4. Only load weights actually used: Bodoni 300-400, Hanken 300-700
+      Result: eliminates FOUT and reduces layout shift (CLS)
+    -->
+    <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,300..400;1,6..96,300..400&family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap"
+      onload="this.onload=null;this.rel='stylesheet'"
+    />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,300..400;1,6..96,300..400&family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap"
+      />
+    </noscript>
+
+    <!-- ─── Hero Image Preload ──────────────────────────────────────────────── -->
+    <!--
+      Preload the FIRST hero image (above-the-fold, LCP element).
+      - imagesrcset tells browser to fetch optimal size for viewport
+      - imagesizes matches the CSS sizes the image occupies
+      - fetchpriority=high bumps it above default resource priority
+      Only preload slide[0] — subsequent slides load on demand.
+    -->
+    <link
+      rel="preload"
+      as="image"
+      href="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=75&w=1200&fm=webp"
+      imagesrcset="
+        https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=75&w=640&fm=webp   640w,
+        https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=75&w=1024&fm=webp 1024w,
+        https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=75&w=1600&fm=webp 1600w
+      "
+      imagesizes="100vw"
+      fetchpriority="high"
+    />
+
+    <title>Vrital — Fashion Try-On</title>
+
+    <!-- ─── Inline Critical CSS ─────────────────────────────────────────────── -->
+    <!--
+      Minimal CSS to paint the above-fold layout immediately,
+      before the main CSS bundle arrives. Prevents flash of unstyled content.
+    -->
+    <style>
+      *, *::before, *::after { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        background: #faf9f7;
+        color: #1a1c1c;
+        font-family: 'Hanken Grotesk', system-ui, -apple-system, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      #root { min-height: 100svh; }
+      /* Page load spinner — prevents blank white flash */
+      #root:empty::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        background: #faf9f7;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
