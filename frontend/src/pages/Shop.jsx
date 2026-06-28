@@ -7,12 +7,11 @@ import ProductCard from "../components/product/ProductCard";
 import SkeletonCard from "../components/ui/SkeletonCard";
 import { Search, SlidersHorizontal, X, ArrowUpDown, Sparkles } from "lucide-react";
 import api from "../api/client";
-import { formatPrice } from "../utils/formatPrice";
 
 export default function Shop() {
   const { brand_slug } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
-  
+
   // Brand CMS details
   const [brand, setBrand] = useState(null);
   const [brandLoading, setBrandLoading] = useState(true);
@@ -27,7 +26,7 @@ export default function Shop() {
   const [selectedBrands, setSelectedBrands] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedMoods, setSelectedMoods] = useState([]);
-  const [maxPrice, setMaxPrice] = useState(1000000);
+  const [maxPrice, setMaxPrice] = useState(1000);
   const [sortBy, setSortBy] = useState("default");
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [isEditorialLayout, setIsEditorialLayout] = useState(true);
@@ -54,7 +53,7 @@ export default function Shop() {
   useEffect(() => {
     if (brand) {
       const fontName = brand.font_family || "Hanken Grotesk, sans-serif";
-      
+
       // Inject Google Font link if custom typography is selected
       if (brand.font_family && brand.font_family.includes("Bodoni Moda")) {
         const link = document.createElement("link");
@@ -83,14 +82,6 @@ export default function Shop() {
   useEffect(() => {
     setSearchQuery(searchParams.get("search") || "");
   }, [searchParams]);
-
-  // Set max price when products are loaded
-  useEffect(() => {
-    if (products && products.length > 0) {
-      const prices = products.map((p) => Number(p.price));
-      setMaxPrice(Math.ceil(Math.max(...prices)));
-    }
-  }, [products]);
 
   const handleBrandChange = (brandId) => {
     setSelectedBrands((prev) =>
@@ -171,8 +162,8 @@ export default function Shop() {
             {brand ? `${brand.name} Catalog` : "The Catalog"}
           </h1>
           <p className="text-secondary text-sm font-light max-w-xl leading-relaxed">
-            {brand 
-              ? brand.description 
+            {brand
+              ? brand.description
               : "Browse our unified edit of high-fashion garments from the world's most progressive design houses. Filter, select, and try them on virtually."}
           </p>
         </div>
@@ -181,7 +172,7 @@ export default function Shop() {
       {/* Content Layout */}
       <section className="max-w-[1600px] mx-auto px-6 md:px-12 py-12">
         <div className="grid lg:grid-cols-[280px_1fr] gap-12 items-start">
-          
+
           {/* Sidebar Filters */}
           <aside className="hidden lg:block space-y-8 sticky top-28 bg-white p-6 border border-rule rounded-sm shadow-sm">
             <div className="flex justify-between items-center border-b border-rule pb-4">
@@ -208,11 +199,10 @@ export default function Shop() {
                     <button
                       key={mood}
                       onClick={() => handleMoodChange(mood)}
-                      className={`px-3 py-1.5 text-[9px] font-bold tracking-widest uppercase border transition-all duration-300 rounded-full ${
-                        isSelected
+                      className={`px-3 py-1.5 text-[9px] font-bold tracking-widest uppercase border transition-all duration-300 rounded-full ${isSelected
                           ? "bg-black text-white border-black"
                           : "bg-transparent text-secondary border-[#eae6df] hover:border-black hover:text-primary"
-                      }`}
+                        }`}
                     >
                       {mood}
                     </button>
@@ -238,11 +228,10 @@ export default function Shop() {
                         <button
                           key={b.id}
                           onClick={() => handleBrandChange(b.id)}
-                          className={`px-3 py-1.5 text-[9px] font-bold tracking-widest uppercase border transition-all duration-300 rounded-full ${
-                            isSelected
+                          className={`px-3 py-1.5 text-[9px] font-bold tracking-widest uppercase border transition-all duration-300 rounded-full ${isSelected
                               ? "bg-black text-white border-black"
                               : "bg-transparent text-secondary border-[#eae6df] hover:border-black hover:text-primary"
-                          }`}
+                            }`}
                         >
                           {b.name}
                         </button>
@@ -269,11 +258,10 @@ export default function Shop() {
                       <button
                         key={cat.id}
                         onClick={() => handleCategoryChange(cat.id)}
-                        className={`px-3 py-1.5 text-[9px] font-bold tracking-widest uppercase border transition-all duration-300 rounded-full ${
-                          isSelected
+                        className={`px-3 py-1.5 text-[9px] font-bold tracking-widest uppercase border transition-all duration-300 rounded-full ${isSelected
                             ? "bg-black text-white border-black"
                             : "bg-transparent text-secondary border-[#eae6df] hover:border-black hover:text-primary"
-                        }`}
+                          }`}
                       >
                         {cat.name}
                       </button>
@@ -287,7 +275,7 @@ export default function Shop() {
             <div className="space-y-4">
               <div className="flex justify-between items-baseline">
                 <h4 className="text-xs font-bold tracking-wider uppercase text-secondary">Max Price</h4>
-                <span className="text-sm font-semibold">{formatPrice(maxPrice)}</span>
+                <span className="text-sm font-semibold">${maxPrice}</span>
               </div>
               <input
                 type="range"
@@ -320,21 +308,19 @@ export default function Shop() {
                 <div className="flex items-center border border-rule rounded-sm overflow-hidden">
                   <button
                     onClick={() => setIsEditorialLayout(true)}
-                    className={`px-3 py-1.5 text-[9px] font-bold uppercase tracking-wider transition-colors ${
-                      isEditorialLayout
+                    className={`px-3 py-1.5 text-[9px] font-bold uppercase tracking-wider transition-colors ${isEditorialLayout
                         ? "bg-black text-white dark:bg-white dark:text-black"
                         : "hover:bg-neutral-50 dark:hover:bg-neutral-800 text-secondary"
-                    }`}
+                      }`}
                   >
                     Editorial Canvas
                   </button>
                   <button
                     onClick={() => setIsEditorialLayout(false)}
-                    className={`px-3 py-1.5 text-[9px] font-bold uppercase tracking-wider transition-colors border-l border-rule ${
-                      !isEditorialLayout
+                    className={`px-3 py-1.5 text-[9px] font-bold uppercase tracking-wider transition-colors border-l border-rule ${!isEditorialLayout
                         ? "bg-black text-white dark:bg-white dark:text-black"
                         : "hover:bg-neutral-50 dark:hover:bg-neutral-800 text-secondary"
-                    }`}
+                      }`}
                   >
                     Standard Grid
                   </button>
@@ -447,11 +433,10 @@ export default function Shop() {
                       <button
                         key={mood}
                         onClick={() => handleMoodChange(mood)}
-                        className={`px-3 py-1.5 text-[9px] font-bold tracking-widest uppercase border transition-all duration-300 rounded-full ${
-                          isSelected
+                        className={`px-3 py-1.5 text-[9px] font-bold tracking-widest uppercase border transition-all duration-300 rounded-full ${isSelected
                             ? "bg-black text-white border-black"
                             : "bg-transparent text-secondary border-[#eae6df] hover:border-black hover:text-primary"
-                        }`}
+                          }`}
                       >
                         {mood}
                       </button>
@@ -471,11 +456,10 @@ export default function Shop() {
                         <button
                           key={b.id}
                           onClick={() => handleBrandChange(b.id)}
-                          className={`px-3 py-1.5 text-[9px] font-bold tracking-widest uppercase border transition-all duration-300 rounded-full ${
-                            isSelected
+                          className={`px-3 py-1.5 text-[9px] font-bold tracking-widest uppercase border transition-all duration-300 rounded-full ${isSelected
                               ? "bg-black text-white border-black"
                               : "bg-transparent text-secondary border-[#eae6df] hover:border-black hover:text-primary"
-                          }`}
+                            }`}
                         >
                           {b.name}
                         </button>

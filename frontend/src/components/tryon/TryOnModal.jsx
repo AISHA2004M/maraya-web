@@ -27,7 +27,6 @@ import {
 } from "lucide-react";
 import { submitTryOn, waitForTryOnResult, pollTryOnStatus, getTryOnResult } from "../../api/tryon";
 import { useUserStore } from "../../store/useUserStore";
-import { formatPrice } from "../../utils/formatPrice";
 
 const PRESET_MODELS = [
   {
@@ -76,24 +75,24 @@ const urlToFile = async (url, filename) => {
 // ─── Stage definitions ────────────────────────────────────────────────────────
 
 const STAGES = {
-  idle:       "idle",
-  preparing:  "preparing",   // < 300ms: instant skeleton
+  idle: "idle",
+  preparing: "preparing",   // < 300ms: instant skeleton
   generating: "generating",  // AI processing
-  result:     "result",
-  error:      "error",
+  result: "result",
+  error: "error",
 };
 
 // Simulated progress checkpoints synced to backend polling states
 // Real progress will jump ahead if backend completes early
 const PROGRESS_TIMELINE = [
-  { at:  0, pct: 5,   label: "Preparing your silhouette…" },
-  { at:  1, pct: 18,  label: "Uploading portrait…" },
-  { at:  3, pct: 35,  label: "Analyzing body contours…" },
-  { at:  6, pct: 52,  label: "Extracting garment texture…" },
-  { at:  9, pct: 67,  label: "Compositing garment layers…" },
-  { at: 12, pct: 78,  label: "Neural drape rendering…" },
-  { at: 16, pct: 88,  label: "Finalising silhouette…" },
-  { at: 20, pct: 94,  label: "Almost ready…" },
+  { at: 0, pct: 5, label: "Preparing your silhouette…" },
+  { at: 1, pct: 18, label: "Uploading portrait…" },
+  { at: 3, pct: 35, label: "Analyzing body contours…" },
+  { at: 6, pct: 52, label: "Extracting garment texture…" },
+  { at: 9, pct: 67, label: "Compositing garment layers…" },
+  { at: 12, pct: 78, label: "Neural drape rendering…" },
+  { at: 16, pct: 88, label: "Finalising silhouette…" },
+  { at: 20, pct: 94, label: "Almost ready…" },
 ];
 
 // ─── Shimmer silhouette skeleton ──────────────────────────────────────────────
@@ -256,11 +255,10 @@ function PortraitUploader({ preview, onUpload, onClear, disabled }) {
       onDragOver={(e) => { e.preventDefault(); if (!disabled) setIsDragOver(true); }}
       onDragLeave={() => setIsDragOver(false)}
       onClick={() => !disabled && inputRef.current?.click()}
-      className={`w-full aspect-[3/4] border-2 border-dashed rounded-lg flex flex-col items-center justify-center gap-4 transition-all duration-200 ${
-        disabled ? "opacity-40 cursor-not-allowed" :
-        isDragOver ? "border-black bg-neutral-50 scale-[1.01] cursor-copy" :
-        "border-neutral-200 hover:border-neutral-400 hover:bg-neutral-50/50 cursor-pointer"
-      }`}
+      className={`w-full aspect-[3/4] border-2 border-dashed rounded-lg flex flex-col items-center justify-center gap-4 transition-all duration-200 ${disabled ? "opacity-40 cursor-not-allowed" :
+          isDragOver ? "border-black bg-neutral-50 scale-[1.01] cursor-copy" :
+            "border-neutral-200 hover:border-neutral-400 hover:bg-neutral-50/50 cursor-pointer"
+        }`}
     >
       <div className="w-14 h-14 rounded-full bg-neutral-100 flex items-center justify-center">
         <Camera size={22} className="text-neutral-400" />
@@ -607,7 +605,7 @@ export default function TryOnModal({ isOpen, onClose, product }) {
   };
 
   const isGenerating = stage === STAGES.preparing || stage === STAGES.generating;
-  const canGenerate  = !!portrait && !!product?.id && !isGenerating;
+  const canGenerate = !!portrait && !!product?.id && !isGenerating;
 
   return (
     <AnimatePresence>
@@ -690,11 +688,10 @@ export default function TryOnModal({ isOpen, onClose, product }) {
                               type="button"
                               disabled={isGenerating || loadingPresetId}
                               onClick={() => handleSelectPreset(model)}
-                              className={`flex flex-col items-center shrink-0 p-1.5 rounded-lg border transition-all ${
-                                selectedPresetId === model.id
+                              className={`flex flex-col items-center shrink-0 p-1.5 rounded-lg border transition-all ${selectedPresetId === model.id
                                   ? "border-black bg-black/5 dark:bg-white/5"
                                   : "border-neutral-200 hover:border-neutral-400 bg-white dark:bg-neutral-900"
-                              }`}
+                                }`}
                               style={{ width: "80px" }}
                             >
                               <div className="w-12 h-16 rounded overflow-hidden border border-neutral-100 dark:border-neutral-800 bg-neutral-50 relative shrink-0">
@@ -738,7 +735,7 @@ export default function TryOnModal({ isOpen, onClose, product }) {
                         )}
                         <p className="text-sm font-medium text-primary truncate">{product?.name}</p>
                         {product?.price && (
-                          <p className="text-xs text-secondary font-light mt-0.5">{formatPrice(product.price)}</p>
+                          <p className="text-xs text-secondary font-light mt-0.5">${Number(product.price).toFixed(2)}</p>
                         )}
                       </div>
                       <CheckCircle2 size={16} className="text-green-500 shrink-0" />
@@ -762,11 +759,10 @@ export default function TryOnModal({ isOpen, onClose, product }) {
                           type="button"
                           disabled={isGenerating}
                           onClick={() => setModelVariant(opt.id)}
-                          className={`flex flex-col items-center justify-center p-2 rounded-lg border text-center transition-all ${
-                            modelVariant === opt.id
+                          className={`flex flex-col items-center justify-center p-2 rounded-lg border text-center transition-all ${modelVariant === opt.id
                               ? "border-black bg-black text-white"
                               : "border-neutral-200 hover:border-neutral-400 text-neutral-600 bg-white"
-                          }`}
+                            }`}
                         >
                           <span className="text-[9px] font-bold uppercase tracking-wider">{opt.label}</span>
                           <span className={`text-[7px] mt-0.5 leading-tight ${modelVariant === opt.id ? "text-neutral-300" : "text-neutral-400"}`}>
@@ -851,8 +847,8 @@ export default function TryOnModal({ isOpen, onClose, product }) {
                         {stage === STAGES.result
                           ? "Rendered Silhouette"
                           : stage === STAGES.preparing || stage === STAGES.generating
-                          ? "Generating Outfit…"
-                          : "Awaiting Silhouette"}
+                            ? "Generating Outfit…"
+                            : "Awaiting Silhouette"}
                       </motion.p>
                     </AnimatePresence>
                   </div>
