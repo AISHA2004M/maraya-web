@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, Fragment } from "react";
 import { useSearchParams, Link, useParams } from "react-router-dom";
 import { useProducts, useBrands, useCategories } from "../hooks/useProducts";
 import Navbar from "../components/layout/Navbar";
@@ -7,6 +7,7 @@ import ProductCard from "../components/product/ProductCard";
 import SkeletonCard from "../components/ui/SkeletonCard";
 import { Search, SlidersHorizontal, X, ArrowUpDown, Sparkles } from "lucide-react";
 import api from "../api/client";
+import { formatPrice } from "../utils/formatPrice";
 
 export default function Shop() {
   const { brand_slug } = useParams();
@@ -26,7 +27,7 @@ export default function Shop() {
   const [selectedBrands, setSelectedBrands] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedMoods, setSelectedMoods] = useState([]);
-  const [maxPrice, setMaxPrice] = useState(1000);
+  const [maxPrice, setMaxPrice] = useState(1000000);
   const [sortBy, setSortBy] = useState("default");
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [isEditorialLayout, setIsEditorialLayout] = useState(true);
@@ -82,6 +83,14 @@ export default function Shop() {
   useEffect(() => {
     setSearchQuery(searchParams.get("search") || "");
   }, [searchParams]);
+
+  // Set max price when products are loaded
+  useEffect(() => {
+    if (products && products.length > 0) {
+      const prices = products.map((p) => Number(p.price));
+      setMaxPrice(Math.ceil(Math.max(...prices)));
+    }
+  }, [products]);
 
   const handleBrandChange = (brandId) => {
     setSelectedBrands((prev) =>
@@ -278,7 +287,7 @@ export default function Shop() {
             <div className="space-y-4">
               <div className="flex justify-between items-baseline">
                 <h4 className="text-xs font-bold tracking-wider uppercase text-secondary">Max Price</h4>
-                <span className="text-sm font-semibold">${maxPrice}</span>
+                <span className="text-sm font-semibold">{formatPrice(maxPrice)}</span>
               </div>
               <input
                 type="range"
@@ -391,23 +400,23 @@ export default function Shop() {
                     ? (idx % 3 === 1 ? "editorial-grid-item-stagger" : idx % 3 === 2 ? "editorial-grid-item-stagger-neg" : "")
                     : "";
 
-                  // Inject visual editorial quotes in middle of lookbook catalog (only in editorial layout)
-                  if (isEditorialLayout && idx === 2) {
-                    return (
-                      <div key="quote-card" className="flex flex-col justify-center bg-neutral-900 text-white p-8 aspect-[3/4] rounded-sm shadow-sm space-y-4">
-                        <span className="text-[8px] font-bold tracking-[0.25em] text-white/50 uppercase">Atelier Note</span>
-                        <p className="heading-serif text-xl italic font-light leading-relaxed">
-                          "Fashions fade, style is eternal."
-                        </p>
-                        <p className="text-[9px] uppercase tracking-widest text-white/40">— Yves Saint Laurent</p>
-                      </div>
-                    );
-                  }
+                  const quoteCard = (isEditorialLayout && idx === 2) ? (
+                    <div key="quote-card" className="flex flex-col justify-center bg-neutral-900 text-white p-8 aspect-[3/4] rounded-sm shadow-sm space-y-4">
+                      <span className="text-[8px] font-bold tracking-[0.25em] text-white/50 uppercase">Atelier Note</span>
+                      <p className="heading-serif text-xl italic font-light leading-relaxed">
+                        "Fashions fade, style is eternal."
+                      </p>
+                      <p className="text-[9px] uppercase tracking-widest text-white/40">— Yves Saint Laurent</p>
+                    </div>
+                  ) : null;
 
                   return (
-                    <div key={product.id} className={`${staggerClass} transition-transform duration-500`}>
-                      <ProductCard product={product} />
-                    </div>
+                    <Fragment key={product.id}>
+                      {quoteCard}
+                      <div className={`${staggerClass} transition-transform duration-500`}>
+                        <ProductCard product={product} />
+                      </div>
+                    </Fragment>
                   );
                 })}
               </div>

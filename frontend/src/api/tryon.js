@@ -18,11 +18,21 @@ import api from "./client";
  * @param {string} modelVariant   - AI model variant: fast | balanced | quality
  * @returns {Promise<{ job_id: string, status: string, progress: number }>}
  */
-export async function submitTryOn(userImageFile, productId, modelVariant = "balanced") {
+export async function submitTryOn(userImageFile, productId, modelVariant = "balanced", extraData = {}) {
   const formData = new FormData();
   formData.append("user_image", userImageFile);
   formData.append("product_id", productId);
   formData.append("model_variant", modelVariant);
+
+  if (extraData.product_ids) {
+    formData.append("product_ids", JSON.stringify(extraData.product_ids));
+  }
+  if (extraData.avatar) formData.append("avatar", extraData.avatar);
+  if (extraData.height) formData.append("height", extraData.height);
+  if (extraData.weight) formData.append("weight", extraData.weight);
+  if (extraData.body_bust) formData.append("body_bust", extraData.body_bust);
+  if (extraData.body_waist) formData.append("body_waist", extraData.body_waist);
+  if (extraData.body_hips) formData.append("body_hips", extraData.body_hips);
 
   const res = await api.post("/ai/try-on", formData, {
     headers: { "Content-Type": "multipart/form-data" },
@@ -85,14 +95,27 @@ export function waitForTryOnResult(
   jobId,
   onProgress = () => {},
   intervalMs = 1000,
-  timeoutMs = 120_000
+  timeoutMs = 120_000,
+  options = {}
 ) {
   return new Promise((resolve, reject) => {
     const start = Date.now();
 
     const interval = setInterval(async () => {
+      if (options.cancelled) {
+        clearInterval(interval);
+        reject(new Error("Try-on cancelled."));
+        return;
+      }
+
       try {
         const data = await pollTryOnStatus(jobId);
+        if (options.cancelled) {
+          clearInterval(interval);
+          reject(new Error("Try-on cancelled."));
+          return;
+        }
+
         onProgress(data.progress, data.status);
 
         if (data.status === "completed" || data.progress === 100) {
@@ -111,9 +134,15 @@ export function waitForTryOnResult(
           reject(new Error("Try-on timed out. Please try again."));
         }
       } catch (err) {
+        if (options.cancelled) {
+          clearInterval(interval);
+          reject(new Error("Try-on cancelled."));
+          return;
+        }
         clearInterval(interval);
         reject(new Error("Lost connection while generating your look. Please retry."));
       }
     }, intervalMs);
   });
 }
+

@@ -103,7 +103,7 @@ function ProductCard({ product, angles, onDelete, deleting, brandSlug }) {
         </div>
 
         <div className="flex justify-between items-baseline">
-          <p className="text-sm font-light text-primary">${Number(product.price).toFixed(2)}</p>
+          <p className="text-sm font-light text-primary">{Number(product.price).toLocaleString("en-US", { maximumFractionDigits: 0 })} د.ع</p>
           <p className="text-[10px] text-secondary">Stock: <strong className="font-semibold text-primary">{product.stock_quantity}</strong></p>
         </div>
 

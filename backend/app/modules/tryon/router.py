@@ -224,7 +224,14 @@ ai_router = APIRouter()
 async def create_ai_try_on(
     user_image: UploadFile = File(..., description="Front-facing portrait photo (JPEG/PNG/WebP, max 10 MB)"),
     product_id: str = Form(..., description="ID of the clothing product to try on"),
+    product_ids: Optional[str] = Form(None, description="JSON array of product IDs to try on"),
     model_variant: Optional[str] = Form("balanced", description="Model variant: fast | balanced | quality"),
+    avatar: Optional[str] = Form(None, description="Selected avatar profile name"),
+    height: Optional[int] = Form(None, description="Height in cm"),
+    weight: Optional[int] = Form(None, description="Weight in kg"),
+    body_bust: Optional[int] = Form(None, description="Bust size in cm"),
+    body_waist: Optional[int] = Form(None, description="Waist size in cm"),
+    body_hips: Optional[int] = Form(None, description="Hips size in cm"),
     return_mode: Optional[str] = Form("async", description="Return mode: async | sync"),
     db: Session = Depends(get_db),
     credentials=Depends(security),
@@ -253,24 +260,44 @@ async def create_ai_try_on(
     # Read original image bytes
     contents = await user_image.read()
     
+    # ── Parse product IDs list ───────────────────────────────────────────
+    parsed_ids = [product_id]
+    if product_ids:
+        try:
+            temp_ids = json.loads(product_ids)
+            if isinstance(temp_ids, list) and len(temp_ids) > 0:
+                parsed_ids = [str(pid) for pid in temp_ids]
+        except Exception:
+            pass
+
     # ── Hashing & Caching Check ──────────────────────────────────────────
     image_hash = calculate_image_hash(contents)
     logger.info(f"[TryOn API] Image hash computed: {image_hash}. Checking cache...")
     
-    # Check if a completed try-on session already exists for this image + product
+    # Check if a completed try-on session already exists for this image + exact garments list
     cached_session = (
         db.query(TryOnSession)
         .filter(
             TryOnSession.image_hash == image_hash,
-            TryOnSession.product_id == product_id,
-            TryOnSession.status == "completed"
+            TryOnSession.garments_list == json.dumps(parsed_ids),
+            TryOnSession.avatar == avatar,
+            TryOnSession.height == height,
+            TryOnSession.weight == weight,
+            TryOnSession.body_bust == body_bust,
+            TryOnSession.body_waist == body_waist,
+            TryOnSession.body_hips == body_hips,
+            TryOnSession.status == "completed",
+            # Only reuse real AI results — never cache local pipeline fallback
+            TryOnSession.ai_model_version.like("%banana%")
+            | TryOnSession.ai_model_version.like("%idm%")
+            | TryOnSession.ai_model_version.like("%replicate%")
         )
         .order_by(TryOnSession.created_at.desc())
         .first()
     )
     
     if cached_session:
-        logger.info(f"[TryOn API] Cache HIT for image {image_hash} + product {product_id}. Reusing result session {cached_session.id} immediately.")
+        logger.info(f"[TryOn API] Cache HIT for image {image_hash} + garments {parsed_ids}. Reusing result session {cached_session.id} immediately.")
         
         # Create a new TryOnSession record for the user's history but mark it completed immediately
         import uuid as _uuid
@@ -301,7 +328,13 @@ async def create_ai_try_on(
             model_variant=model_variant,
             ai_model_version=cached_session.ai_model_version,
             inference_time_ms=0, # Cache hit is instantaneous!
-            garments_list=json.dumps([product_id]),
+            garments_list=json.dumps(parsed_ids),
+            avatar=avatar,
+            height=height,
+            weight=weight,
+            body_bust=body_bust,
+            body_waist=body_waist,
+            body_hips=body_hips,
         )
         db.add(new_session)
         db.commit()
@@ -313,7 +346,7 @@ async def create_ai_try_on(
             progress=100
         )
 
-    logger.info(f"[TryOn API] Cache MISS for image {image_hash} + product {product_id}. Validating image...")
+    logger.info(f"[TryOn API] Cache MISS for image {image_hash} + garments {parsed_ids}. Validating image...")
     # ── Image Validation ─────────────────────────────────────────────────
     try:
         validate_image_bytes(contents, user_image.filename or "upload.jpg")
@@ -372,7 +405,13 @@ async def create_ai_try_on(
         progress=0,
         image_hash=image_hash,
         model_variant=model_variant,
-        garments_list=json.dumps([product_id]),
+        garments_list=json.dumps(parsed_ids),
+        avatar=avatar,
+        height=height,
+        weight=weight,
+        body_bust=body_bust,
+        body_waist=body_waist,
+        body_hips=body_hips,
     )
     db.add(session)
     db.commit()

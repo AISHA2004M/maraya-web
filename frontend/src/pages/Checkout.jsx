@@ -5,6 +5,7 @@ import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import api from "../api/client";
 import { Loader2, CheckCircle2, ArrowRight, ArrowLeft, CreditCard } from "lucide-react";
+import { formatPrice, getShippingCost, formatShipping } from "../utils/formatPrice";
 
 export default function Checkout() {
   const { brand_slug } = useParams();
@@ -28,7 +29,7 @@ export default function Checkout() {
   const [orderResult, setOrderResult] = useState(null);
 
   const subtotal = items.reduce((sum, i) => sum + Number(i.price) * i.quantity, 0);
-  const shipping = subtotal > 100 ? 0 : 9.99;
+  const shipping = getShippingCost(subtotal);
   const total = subtotal + shipping;
 
   const handleCheckout = async (e) => {
@@ -89,7 +90,7 @@ export default function Checkout() {
             </div>
             <div className="flex justify-between">
               <span>Amount Transacted:</span>
-              <span className="text-primary font-bold">${Number(orderResult.total_amount).toFixed(2)}</span>
+              <span className="text-primary font-bold">{formatPrice(orderResult.total_amount)}</span>
             </div>
           </div>
           <Link to={brand_slug ? `/brands/${brand_slug}` : "/"} className="btn-black py-4 px-12 text-[10px] font-bold tracking-widest uppercase rounded-none">
@@ -137,37 +138,37 @@ export default function Checkout() {
               {/* Shipping Information */}
               <div className="space-y-8">
                 <h2 className="text-[10px] font-bold tracking-widest uppercase border-b border-rule pb-4 text-secondary">
-                  1. Shipping Information
+                  1. معلومات الشحن · Shipping Information
                 </h2>
                 <div className="space-y-6">
                   <div>
-                    <label className="block text-[9px] font-bold uppercase tracking-[0.2em] text-secondary mb-2">Full Name *</label>
+                    <label className="block text-[9px] font-bold uppercase tracking-[0.2em] text-secondary mb-2">الاسم الكامل · Full Name *</label>
                     <input
                       type="text"
                       className="input-white py-3 text-xs tracking-wider"
-                      placeholder="Jane Doe"
+                      placeholder="محمد علي"
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-[9px] font-bold uppercase tracking-[0.2em] text-secondary mb-2">Email Address *</label>
+                    <label className="block text-[9px] font-bold uppercase tracking-[0.2em] text-secondary mb-2">البريد الإلكتروني · Email *</label>
                     <input
                       type="email"
                       className="input-white py-3 text-xs tracking-wider"
-                      placeholder="jane.doe@example.com"
+                      placeholder="example@gmail.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-[9px] font-bold uppercase tracking-[0.2em] text-secondary mb-2">Street Address *</label>
+                    <label className="block text-[9px] font-bold uppercase tracking-[0.2em] text-secondary mb-2">العنوان · Street Address *</label>
                     <input
                       type="text"
                       className="input-white py-3 text-xs tracking-wider"
-                      placeholder="123 Luxury Avenue"
+                      placeholder="اسم المنطقة والشارع وأقرب نقطة دالة"
                       value={address}
                       onChange={(e) => setAddress(e.target.value)}
                       required
@@ -175,22 +176,40 @@ export default function Checkout() {
                   </div>
                   <div className="grid grid-cols-2 gap-8">
                     <div>
-                      <label className="block text-[9px] font-bold uppercase tracking-[0.2em] text-secondary mb-2">City *</label>
-                      <input
-                        type="text"
-                        className="input-white py-3 text-xs tracking-wider"
-                        placeholder="Paris"
+                      <label className="block text-[9px] font-bold uppercase tracking-[0.2em] text-secondary mb-2">المحافظة · Province *</label>
+                      <select
+                        className="input-white py-3 text-xs tracking-wider bg-white cursor-pointer"
                         value={city}
                         onChange={(e) => setCity(e.target.value)}
                         required
-                      />
+                      >
+                        <option value="">اختر المحافظة</option>
+                        <option value="بغداد">بغداد</option>
+                        <option value="البصرة">البصرة</option>
+                        <option value="أربيل">أربيل</option>
+                        <option value="النجف">النجف</option>
+                        <option value="كربلاء">كربلاء</option>
+                        <option value="السليمانية">السليمانية</option>
+                        <option value="كركوك">كركوك</option>
+                        <option value="الموصل">الموصل</option>
+                        <option value="ذي قار">ذي قار</option>
+                        <option value="بابل">بابل</option>
+                        <option value="واسط">واسط</option>
+                        <option value="ميسان">ميسان</option>
+                        <option value="المثنى">المثنى</option>
+                        <option value="القادسية">القادسية</option>
+                        <option value="صلاح الدين">صلاح الدين</option>
+                        <option value="ديالى">ديالى</option>
+                        <option value="الأنبار">الأنبار</option>
+                        <option value="دهوك">دهوك</option>
+                      </select>
                     </div>
                     <div>
-                      <label className="block text-[9px] font-bold uppercase tracking-[0.2em] text-secondary mb-2">Zip / Postal Code *</label>
+                      <label className="block text-[9px] font-bold uppercase tracking-[0.2em] text-secondary mb-2">رقم الهاتف · Phone *</label>
                       <input
-                        type="text"
+                        type="tel"
                         className="input-white py-3 text-xs tracking-wider"
-                        placeholder="75001"
+                        placeholder="07XX XXX XXXX"
                         value={zipCode}
                         onChange={(e) => setZipCode(e.target.value)}
                         required
@@ -203,11 +222,11 @@ export default function Checkout() {
               {/* Payment Details */}
               <div className="space-y-8">
                 <h2 className="text-[10px] font-bold tracking-widest uppercase border-b border-rule pb-4 text-secondary">
-                  2. Payment Method
+                  2. طريقة الدفع · Payment Method
                 </h2>
 
                 <div className="flex gap-4 border border-rule p-1.5 bg-[#fcfcfa] mb-8">
-                  {["Credit Card", "Apple Pay", "PayPal"].map((method) => {
+                  {["دفع عند الاستلام", "Credit Card", "زين كاش"].map((method) => {
                     const active = paymentMethod === method;
                     return (
                       <button
@@ -299,7 +318,7 @@ export default function Checkout() {
                   </>
                 ) : (
                   <>
-                    <span>Place Order · ${total.toFixed(2)}</span>
+                    <span>تأكيد الطلب · {formatPrice(total)}</span>
                     <ArrowRight size={12} />
                   </>
                 )}
@@ -329,7 +348,7 @@ export default function Checkout() {
                       <h4 className="heading-serif text-sm font-light text-primary truncate leading-tight">{item.name}</h4>
                       {item.brand && <p className="text-[9px] text-secondary font-bold uppercase tracking-wider">{item.brand.name}</p>}
                       <p className="text-secondary uppercase">Qty: {item.quantity}</p>
-                      <p className="text-primary font-medium">${Number(item.price).toFixed(2)}</p>
+                      <p className="text-primary font-medium">{formatPrice(item.price)}</p>
                     </div>
                   </div>
                 ))}
@@ -339,19 +358,19 @@ export default function Checkout() {
 
               <div className="space-y-4 text-xs font-light">
                 <div className="flex justify-between text-secondary">
-                  <span className="uppercase tracking-wider">Subtotal</span>
-                  <span className="text-primary font-medium">${subtotal.toFixed(2)}</span>
+                  <span className="uppercase tracking-wider">المجموع الفرعي</span>
+                  <span className="text-primary font-medium">{formatPrice(subtotal)}</span>
                 </div>
                 <div className="flex justify-between text-secondary">
-                  <span className="uppercase tracking-wider">Shipping</span>
+                  <span className="uppercase tracking-wider">الشحن</span>
                   <span className="text-green-700 font-semibold uppercase tracking-wider">
-                    {shipping === 0 ? "Complimentary" : `$${shipping.toFixed(2)}`}
+                    {formatShipping(subtotal)}
                   </span>
                 </div>
                 <div className="rule pt-2" />
                 <div className="flex justify-between text-sm font-semibold text-primary pt-2">
-                  <span className="uppercase tracking-widest font-bold">Total</span>
-                  <span className="heading-serif text-lg font-light">${total.toFixed(2)}</span>
+                  <span className="uppercase tracking-widest font-bold">المجموع</span>
+                  <span className="heading-serif text-lg font-light">{formatPrice(total)}</span>
                 </div>
               </div>
             </div>

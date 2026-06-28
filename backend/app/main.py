@@ -41,11 +41,11 @@ app = FastAPI(
 app.add_middleware(GZipMiddleware, minimum_size=500)
 
 # 2. CORS
-#    In production, replace ["*"] with your domain list.
+#    Allows any port on localhost or 127.0.0.1 dynamically for local development.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=False,
+    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1)(:\d+)?",
+    allow_credentials=True,
     allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )

@@ -132,7 +132,7 @@ export default function Navbar() {
               <div className="flex items-center gap-4">
                 {role === "admin" && (
                   <a
-                    href="http://localhost:5175/admin"
+                    href="http://localhost:5174/admin"
                     className="label-upper hover:text-ink transition-colors hidden md:block"
                   >
                     Dashboard
@@ -140,7 +140,7 @@ export default function Navbar() {
                 )}
                 {role === "partner" && (
                   <a
-                    href={`http://localhost:5175/partner/${brandSlug || "zara"}`}
+                    href={`http://localhost:5174/partner/${brandSlug || "zara"}`}
                     className="label-upper hover:text-ink transition-colors hidden md:block"
                   >
                     Dashboard
@@ -366,10 +366,10 @@ export default function Navbar() {
             {token ? (
               <>
                 {role === "admin" && (
-                  <a href="http://localhost:5175/admin" className="label-upper text-left" onClick={() => setMenuOpen(false)}>Dashboard</a>
+                  <a href="http://localhost:5174/admin" className="label-upper text-left" onClick={() => setMenuOpen(false)}>Dashboard</a>
                 )}
                 {role === "partner" && (
-                  <a href={`http://localhost:5175/partner/${brandSlug || "zara"}`} className="label-upper text-left" onClick={() => setMenuOpen(false)}>Dashboard</a>
+                  <a href={`http://localhost:5174/partner/${brandSlug || "zara"}`} className="label-upper text-left" onClick={() => setMenuOpen(false)}>Dashboard</a>
                 )}
                 <Link to={brand_slug ? `/brands/${brand_slug}/profile` : "/profile"} className="label-upper text-left" onClick={() => setMenuOpen(false)}>Profile</Link>
                 <button onClick={() => { logout(); setMenuOpen(false); }} className="label-upper text-left">Sign Out</button>

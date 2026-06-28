@@ -138,6 +138,19 @@ def generate_tryon_task(self, session_id: str):
             except (json.JSONDecodeError, TypeError):
                 garments_ids = []
 
+        garment_details = []
+        if garments_ids:
+            for p_id in garments_ids:
+                p = db.query(Product).filter(Product.id == str(p_id)).first()
+                if p:
+                    cat_name = p.category.name if p.category else ""
+                    desc = p.description or p.name or "apparel garment product description"
+                    garment_details.append({
+                        "image_url": p.main_image_url,
+                        "category": cat_name,
+                        "description": desc
+                    })
+
         logger.info(f"[TryOn Worker] Session {session_id} progress set to 40%...")
         session.progress = 40
         db.commit()
@@ -148,14 +161,20 @@ def generate_tryon_task(self, session_id: str):
 
         model_variant = getattr(session, "model_variant", "balanced") or "balanced"
         
-        # Retrieve product category name
+        # Retrieve product category name and description
         category_name = ""
+        description = "apparel garment product description"
         if session.product_id:
             product = db.query(Product).filter(Product.id == str(session.product_id)).first()
-            if product and product.category:
-                category_name = product.category.name
+            if product:
+                if product.category:
+                    category_name = product.category.name
+                if product.description:
+                    description = product.description
+                elif product.name:
+                    description = product.name
                 
-        logger.info(f"[TryOn Worker] Session {session_id} progress set to 60%. Invoking AI generation (category={category_name}, variant={model_variant})...")
+        logger.info(f"[TryOn Worker] Session {session_id} progress set to 60%. Invoking AI generation (category={category_name}, variant={model_variant}, desc={description})...")
         logger.info(f"[TryOn Worker] AI generation started for session {session_id} with portrait: {user_image_url} and garment: {cloth_image}")
         session.progress = 60
         db.commit()
@@ -166,7 +185,15 @@ def generate_tryon_task(self, session_id: str):
                 cloth_image,
                 category=category_name,
                 model_variant=model_variant,
-                session_id=session_id
+                session_id=session_id,
+                description=description,
+                garment_details=garment_details,
+                avatar=session.avatar,
+                height=session.height,
+                weight=session.weight,
+                body_bust=session.body_bust,
+                body_waist=session.body_waist,
+                body_hips=session.body_hips
             )
         )
         result_url = result.get("result_url", "")
@@ -174,23 +201,6 @@ def generate_tryon_task(self, session_id: str):
         logger.info(f"[TryOn Worker] AI generation completed for session {session_id}. Result URL: {result_url}")
         session.progress = 85
         db.commit()
-
-        # 6. Apply multi-garment overrides
-        if len(garments_ids) > 1:
-            logger.info(f"[TryOn Worker] Applying multi-garment composite overrides for session {session_id}...")
-            result_url = (
-                "https://images.unsplash.com/photo-1490481651871-ab68de25d43d"
-                "?q=80&w=600"
-            )
-            # Check for outerwear
-            for p_id in garments_ids:
-                p = db.query(Product).filter(Product.id == str(p_id)).first()
-                if p and p.category_id == 5:
-                    result_url = (
-                        "https://images.unsplash.com/photo-1551028719-00167b16eac5"
-                        "?q=80&w=600"
-                    )
-                    break
 
         # 7. Update session with completed result
         logger.info(f"[TryOn Worker] Saving result and marking session {session_id} as completed (progress=100)...")

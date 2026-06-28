@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from app.modules.orders.models import Order, OrderItem
 from app.modules.orders.schemas import OrderCreate
 from app.modules.products.service import get_product_by_id
@@ -88,7 +88,13 @@ def create_order(db: Session, user_id: str, data: OrderCreate) -> Order:
 
 
 def get_user_orders(db: Session, user_id: str) -> List[Order]:
-    return db.query(Order).filter(Order.user_id == user_id).order_by(Order.created_at.desc()).all()
+    return (
+        db.query(Order)
+        .options(joinedload(Order.items))
+        .filter(Order.user_id == user_id)
+        .order_by(Order.created_at.desc())
+        .all()
+    )
 
 
 def get_all_orders(db: Session, skip: int = 0, limit: int = 100, brand_id: Optional[int] = None) -> List[Order]:
@@ -96,6 +102,7 @@ def get_all_orders(db: Session, skip: int = 0, limit: int = 100, brand_id: Optio
         from app.modules.products.models import Product
         orders = (
             db.query(Order)
+            .options(joinedload(Order.items))
             .join(OrderItem)
             .join(Product)
             .filter(Product.brand_id == brand_id)
@@ -107,10 +114,11 @@ def get_all_orders(db: Session, skip: int = 0, limit: int = 100, brand_id: Optio
         )
         # Expunge and filter items to only include partner's brand items
         for order in orders:
+            items_list = list(order.items)
             db.expunge(order)
             filtered_items = []
             new_total = 0
-            for item in order.items:
+            for item in items_list:
                 product = db.query(Product).filter(Product.id == item.product_id).first()
                 if product and product.brand_id == brand_id:
                     filtered_items.append(item)
@@ -118,7 +126,14 @@ def get_all_orders(db: Session, skip: int = 0, limit: int = 100, brand_id: Optio
             order.items = filtered_items
             order.total_amount = new_total
         return orders
-    return db.query(Order).order_by(Order.created_at.desc()).offset(skip).limit(limit).all()
+    return (
+        db.query(Order)
+        .options(joinedload(Order.items))
+        .order_by(Order.created_at.desc())
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
 
 
 def update_order_status(db: Session, order_id: str, status_str: str) -> Optional[Order]:

@@ -4,6 +4,7 @@ import Footer from "../components/layout/Footer";
 import { useCartStore } from "../store/useCartStore";
 import { Trash2, ShoppingBag, ArrowRight, ArrowLeft, Minus, Plus } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { formatPrice, SHIPPING_THRESHOLD, SHIPPING_COST, getShippingCost, formatShipping } from "../utils/formatPrice";
 
 export default function Cart() {
   const { brand_slug } = useParams();
@@ -126,11 +127,15 @@ export default function Cart() {
                             <h3 className="heading-serif text-lg md:text-xl font-light text-primary leading-tight">
                               {item.name}
                             </h3>
-                            {item.size_type && (
+                             {item.selectedSize ? (
+                              <p className="text-[10px] text-secondary tracking-wide mt-1 uppercase">
+                                Size: {item.selectedSize}
+                              </p>
+                            ) : item.size_type ? (
                               <p className="text-[10px] text-secondary tracking-wide mt-1 uppercase">
                                 Size: {item.size_type.split("/")[0]}
                               </p>
-                            )}
+                            ) : null}
                           </div>
                           <p
                             className="heading-serif text-lg font-light text-primary"
@@ -139,7 +144,7 @@ export default function Cart() {
                               transform: isPulsed ? "scale(1.08)" : "scale(1)",
                             }}
                           >
-                            ${(Number(item.price) * item.quantity).toFixed(2)}
+                            {formatPrice(Number(item.price) * item.quantity)}
                           </p>
                         </div>
                       </div>
@@ -200,25 +205,25 @@ export default function Cart() {
                   {items.map((item) => (
                     <div key={item.id} className="flex justify-between text-secondary">
                       <span className="truncate max-w-[60%]">{item.name} × {item.quantity}</span>
-                      <span className="text-primary font-medium">${(Number(item.price) * item.quantity).toFixed(2)}</span>
+                      <span className="text-primary font-medium">{formatPrice(Number(item.price) * item.quantity)}</span>
                     </div>
                   ))}
                 </div>
 
                 <div className="flex justify-between text-secondary">
-                  <span className="uppercase tracking-wider">Subtotal</span>
-                  <span className="text-primary font-medium">${total.toFixed(2)}</span>
+                  <span className="uppercase tracking-wider">المجموع الفرعي · Subtotal</span>
+                  <span className="text-primary font-medium">{formatPrice(total)}</span>
                 </div>
                 <div className="flex justify-between text-secondary">
-                  <span className="uppercase tracking-wider">Shipping</span>
+                  <span className="uppercase tracking-wider">الشحن · Shipping</span>
                   <span className="text-green-700 font-semibold uppercase tracking-wider">
-                    {total > 100 ? "Complimentary" : "$9.99"}
+                    {formatShipping(total)}
                   </span>
                 </div>
                 <div className="rule pt-2" />
                 <div className="flex justify-between text-sm font-semibold text-primary pt-2">
-                  <span className="uppercase tracking-widest font-bold">Total</span>
-                  <span className="heading-serif text-lg font-light">${(total > 100 ? total : total + 9.99).toFixed(2)}</span>
+                  <span className="uppercase tracking-widest font-bold">المجموع · Total</span>
+                  <span className="heading-serif text-lg font-light">{formatPrice(total + getShippingCost(total))}</span>
                 </div>
               </div>
 
@@ -241,9 +246,9 @@ export default function Cart() {
               </div>
 
               <div className="text-[9px] text-secondary leading-relaxed border-t border-rule pt-6 font-light uppercase tracking-wider space-y-1">
-                <p>· Duties &amp; taxes calculated at checkout</p>
-                <p>· Complimentary shipping on orders over $100</p>
-                <p>· SSL secure luxury transaction guarantee</p>
+                <p>· شحن مجاني للطلبات فوق 150,000 د.ع</p>
+                <p>· توصيل لجميع محافظات العراق</p>
+                <p>· دفع آمن ومضمون</p>
               </div>
             </div>
           </div>

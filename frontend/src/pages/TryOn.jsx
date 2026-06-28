@@ -10,6 +10,50 @@ import { useUserStore } from "../store/useUserStore";
 import { submitTryOn, waitForTryOnResult, getTryOnResult, pollTryOnStatus } from "../api/tryon";
 
 
+const PRESET_MODELS = [
+  {
+    id: "female_slim",
+    name: "عارضة ممشوقة (Slim)",
+    gender: "female",
+    size: "S / M",
+    url: "https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=500&auto=format&fit=crop",
+  },
+  {
+    id: "female_medium",
+    name: "عارضة قوام معتدل (Medium)",
+    gender: "female",
+    size: "M / L",
+    url: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=500&auto=format&fit=crop",
+  },
+  {
+    id: "female_plus",
+    name: "عارضة قوام ممتلئ (Plus Size)",
+    gender: "female",
+    size: "XL / XXL",
+    url: "https://images.unsplash.com/photo-1608748010899-18f300247112?q=80&w=500&auto=format&fit=crop",
+  },
+  {
+    id: "male_slim",
+    name: "عارض ممشوق (Slim)",
+    gender: "male",
+    size: "M",
+    url: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=500&auto=format&fit=crop",
+  },
+  {
+    id: "male_medium",
+    name: "عارض قوام معتدل (Medium)",
+    gender: "male",
+    size: "L / XL",
+    url: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?q=80&w=500&auto=format&fit=crop",
+  }
+];
+
+const urlToFile = async (url, filename) => {
+  const res = await fetch(url);
+  const blob = await res.blob();
+  return new File([blob], filename, { type: "image/jpeg" });
+};
+
 export default function TryOn() {
   const { brand_slug } = useParams();
   const location = useLocation();
@@ -109,6 +153,26 @@ export default function TryOn() {
   // User portrait upload
   const [userFile, setUserFile] = useState(null);
   const [userImagePreview, setUserImagePreview] = useState(null);
+  const [selectedPresetId, setSelectedPresetId] = useState(null);
+  const [loadingPresetId, setLoadingPresetId] = useState(null);
+
+  const handleSelectPreset = async (model) => {
+    if (loading || jobStatus === "queued" || jobStatus === "processing") return;
+    setLoadingPresetId(model.id);
+    setError(null);
+    try {
+      const file = await urlToFile(model.url, `${model.id}.jpg`);
+      setUserFile(file);
+      setUserImagePreview(model.url);
+      setSelectedPresetId(model.id);
+      setResult(null); // Reset result on new upload/preset
+    } catch (err) {
+      console.error("Failed to load preset model image", err);
+      setError("فشل تحميل صورة العارض الجاهزة. يرجى محاولة رفع صورتك بدلاً من ذلك.");
+    } finally {
+      setLoadingPresetId(null);
+    }
+  };
 
   // Body profile state
   const [avatar, setAvatar] = useState("Athletic M");
@@ -141,13 +205,13 @@ export default function TryOn() {
   const [label, setLabel] = useState("Preparing your silhouette…");
   const [isDelayed, setIsDelayed] = useState(false);
   const [modelVariant, setModelVariant] = useState("balanced"); // fast | balanced | quality
-  const pollingRef = useRef(null);
+  const pollingOptionsRef = useRef({ cancelled: false });
   const delayTimerRef = useRef(null);
 
   // Cleanup polling on unmount
   useEffect(() => {
     return () => {
-      if (pollingRef.current) clearInterval(pollingRef.current);
+      pollingOptionsRef.current.cancelled = true;
       if (delayTimerRef.current) clearTimeout(delayTimerRef.current);
     };
   }, []);
@@ -256,6 +320,136 @@ export default function TryOn() {
     setCollageItems((prev) => prev.filter((item) => item.id !== itemId));
   };
 
+  // Helper to get selected garments category type
+  const getGarmentCategoryType = () => {
+    if (!selectedGarments || selectedGarments.length === 0) return null;
+    if (selectedGarments.length > 1) return "full"; // multi-garment outfit
+
+    const g = selectedGarments[0];
+    const cat = (g.category?.name || "").toLowerCase();
+    const name = (g.name || "").toLowerCase();
+    const desc = (g.description || "").toLowerCase();
+
+    // Full Body keywords
+    const fullBodyKeywords = ["dress", "gown", "jumpsuit", "romper", "two-piece", "set", "outfit", "suit", "co-ord", "tracksuit", "combo", "uniform", "robe"];
+    // Lower Body keywords
+    const lowerBodyKeywords = ["pant", "jean", "trouser", "short", "skirt", "legging", "bottom"];
+    // Upper Body keywords
+    const upperBodyKeywords = ["shirt", "t-shirt", "tee", "blouse", "sweater", "hoodie", "jacket", "coat", "top", "blazer", "cardigan", "pullover", "outerwear"];
+
+    if (fullBodyKeywords.some(k => cat.includes(k) || name.includes(k) || desc.includes(k))) {
+      return "full";
+    }
+    if (lowerBodyKeywords.some(k => cat.includes(k) || name.includes(k) || desc.includes(k))) {
+      return "lower";
+    }
+    if (upperBodyKeywords.some(k => cat.includes(k) || name.includes(k) || desc.includes(k))) {
+      return "upper";
+    }
+
+    if (cat.includes("bottom")) return "lower";
+    if (cat.includes("top") || cat.includes("outer")) return "upper";
+
+    return "upper";
+  };
+
+  const renderUserGuidance = () => {
+    const activeCat = getGarmentCategoryType();
+    
+    return (
+      <div className="border border-rule bg-[#fafafa] p-4 rounded-sm space-y-3 mb-4 text-right" dir="rtl">
+        <p className="text-[10px] font-bold uppercase tracking-widest text-secondary mb-1">
+          إرشادات وقوانين القياس بالذكاء الاصطناعي (AI Try-On Guidelines)
+        </p>
+        <div className="space-y-2">
+          {/* Upper Body Guideline */}
+          <div className={`p-2.5 border transition-all flex items-start gap-2.5 ${
+            activeCat === "upper"
+              ? "border-black bg-white shadow-sm"
+              : "border-transparent opacity-65"
+          }`}>
+            <span className={`w-1.5 h-1.5 rounded-full mt-1.5 ${
+              activeCat === "upper" ? "bg-black" : "bg-neutral-300"
+            }`} />
+            <div>
+              <p className={`text-[11px] font-semibold ${activeCat === "upper" ? "text-primary" : "text-secondary"}`}>
+                القمصان والبلوزات (Tops & Jackets)
+              </p>
+              <p className="text-[10.5px] font-light text-secondary mt-0.5 leading-relaxed">
+                عند اختيار بلوزة أو جاكيت، سيتم الحفاظ على البنطال أو التنورة الحالية في صورتك وتغيير الجزء العلوي فقط.
+              </p>
+            </div>
+            {activeCat === "upper" && (
+              <span className="mr-auto bg-black text-white text-[7.5px] font-bold uppercase px-1.5 py-0.5 tracking-wider">
+                الخيار النشط
+              </span>
+            )}
+          </div>
+
+          {/* Lower Body Guideline */}
+          <div className={`p-2.5 border transition-all flex items-start gap-2.5 ${
+            activeCat === "lower"
+              ? "border-black bg-white shadow-sm"
+              : "border-transparent opacity-65"
+          }`}>
+            <span className={`w-1.5 h-1.5 rounded-full mt-1.5 ${
+              activeCat === "lower" ? "bg-black" : "bg-neutral-300"
+            }`} />
+            <div>
+              <p className={`text-[11px] font-semibold ${activeCat === "lower" ? "text-primary" : "text-secondary"}`}>
+                البنطلونات والتنانير (Pants & Skirts)
+              </p>
+              <p className="text-[10.5px] font-light text-secondary mt-0.5 leading-relaxed">
+                عند اختيار بنطال أو تنورة، سيتم الحفاظ على القميص الحالي في صورتك وتغيير الجزء السفلي فقط.
+              </p>
+            </div>
+            {activeCat === "lower" && (
+              <span className="mr-auto bg-black text-white text-[7.5px] font-bold uppercase px-1.5 py-0.5 tracking-wider">
+                الخيار النشط
+              </span>
+            )}
+          </div>
+
+          {/* Full Body Guideline */}
+          <div className={`p-2.5 border transition-all flex items-start gap-2.5 ${
+            activeCat === "full"
+              ? "border-black bg-white shadow-sm"
+              : "border-transparent opacity-65"
+          }`}>
+            <span className={`w-1.5 h-1.5 rounded-full mt-1.5 ${
+              activeCat === "full" ? "bg-black" : "bg-neutral-300"
+            }`} />
+            <div>
+              <p className={`text-[11px] font-semibold ${activeCat === "full" ? "text-primary" : "text-secondary"}`}>
+                الفساتين والملابس الكاملة (Full Outfits)
+              </p>
+              <p className="text-[10.5px] font-light text-secondary mt-0.5 leading-relaxed">
+                عند اختيار فستان أو ملابس كاملة، سيتم تبديل ملابس الجسم بالكامل في صورتك.
+              </p>
+            </div>
+            {activeCat === "full" && (
+              <span className="mr-auto bg-black text-white text-[7.5px] font-bold uppercase px-1.5 py-0.5 tracking-wider">
+                الخيار النشط
+              </span>
+            )}
+          </div>
+
+          {/* Lower Body warning */}
+          {activeCat === "lower" && (
+            <div className="mt-2 p-3 bg-amber-50 border border-amber-200 rounded-sm flex gap-2 items-start text-right">
+              <span className="text-amber-500 text-base leading-none mt-0.5">⚠️</span>
+              <div>
+                <p className="text-[10.5px] font-bold text-amber-700 uppercase tracking-wider">تنبيه بخصوص البنطلونات</p>
+                <p className="text-[10px] text-amber-600 mt-0.5 leading-relaxed">
+                  ميزة القياس تعطي أفضل النتائج مع الفساتين والبلوزات. للحصول على أفضل دقة، يُفضل تجربة فستان أو قميص.
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
 
   const handleGenerate = async () => {
     if (!userFile || selectedGarments.length === 0) return;
@@ -267,15 +461,25 @@ export default function TryOn() {
     setPct(5);
     setLabel("Preparing your silhouette…");
     setIsDelayed(false);
+    pollingOptionsRef.current = { cancelled: false };
 
-    // 10-second delay warning
+    // 35-second delay warning
     delayTimerRef.current = setTimeout(() => {
       setIsDelayed(true);
-    }, 10000);
+    }, 35000);
 
     try {
       // Dispatch async try-on job — returns 202 immediately
-      const dispatch = await submitTryOn(userFile, selectedGarments[0]?.id, modelVariant);
+      const extraPayload = {
+        product_ids: selectedGarments.map((g) => g.id),
+        avatar,
+        height,
+        weight,
+        body_bust: bodyBust,
+        body_waist: bodyWaist,
+        body_hips: bodyHips,
+      };
+      const dispatch = await submitTryOn(userFile, selectedGarments[0]?.id, modelVariant, extraPayload);
       const jobId = dispatch.job_id || dispatch.session_id;
       setSessionId(jobId);
       setJobStatus(dispatch.status);
@@ -303,7 +507,10 @@ export default function TryOn() {
             else if (progressPct <= 65) setLabel("Extracting garment texture…");
             else if (progressPct <= 85) setLabel("Neural drape rendering…");
             else setLabel("Almost ready…");
-          }
+          },
+          1000,
+          120000,
+          pollingOptionsRef.current
         );
         clearTimeout(delayTimerRef.current);
         setResult(resultUrl);
@@ -353,11 +560,11 @@ export default function TryOn() {
             onClick={() => navigate(-1)}
             className="flex items-center gap-2 text-xs text-secondary hover:text-primary transition-colors mb-6 uppercase tracking-widest font-semibold"
           >
-            <ArrowLeft size={14} /> Back
+            <ArrowLeft size={14} /> العودة / Back
           </button>
-          <h1 className="heading-serif text-5xl text-primary mb-3">Atelier Fitting Room</h1>
-          <p className="text-secondary text-base max-w-xl font-light">
-            Evolve your style. Upload your portrait, build an outfit, configure your avatar drapes, and preview results with AI.
+          <h1 className="heading-serif text-4xl md:text-5xl text-primary mb-3">غرفة القياس الافتراضية الذكية</h1>
+          <p className="text-secondary text-base max-w-xl font-light leading-relaxed">
+            جرّب ملابسك المفضلة الآن بالذكاء الاصطناعي! اختر عارضاً افتراضياً أو ارفع صورتك الشخصية، نسّق قطع ملابسك، وشاهد النتيجة النهائية بدقة مباشرةً.
           </p>
         </div>
 
@@ -379,37 +586,104 @@ export default function TryOn() {
           {/* Left Column: Input Panel */}
           <div className="space-y-10">
             {/* Step 1: Portrait upload */}
-            <div className="space-y-4 bg-white p-6 border border-rule rounded-sm">
-              <h2 className="text-xs font-bold tracking-widest uppercase text-primary border-b border-rule pb-3">
-                1. Upload Portrait
-              </h2>
-              <UploadBox
-                onUpload={(file) => {
-                  setUserFile(file);
-                  setUserImagePreview(URL.createObjectURL(file));
-                  setResult(null); // Reset result on new upload
-                }}
-                preview={userImagePreview}
-              />
+            <div className="space-y-4 bg-white dark:bg-neutral-900 p-6 border border-rule rounded-sm text-primary">
+              <div className="flex items-center justify-between border-b border-rule pb-3">
+                <h2 className="text-xs font-bold tracking-widest uppercase text-primary">
+                  1. Upload Portrait / عارض القياس
+                </h2>
+                {userImagePreview && !loading && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setUserFile(null);
+                      setUserImagePreview(null);
+                      setSelectedPresetId(null);
+                      setResult(null);
+                    }}
+                    className="text-[9px] font-bold text-red-500 hover:text-red-700 uppercase tracking-widest flex items-center gap-1 transition-colors"
+                  >
+                    <Trash2 size={11} /> إزالة الصورة (Remove)
+                  </button>
+                )}
+              </div>
+              {!userImagePreview && renderUserGuidance()}
+              <div className="w-full max-w-sm aspect-[3/4] mx-auto overflow-hidden relative rounded-lg border border-rule bg-white dark:bg-neutral-950">
+                <UploadBox
+                  onUpload={(file) => {
+                    setUserFile(file);
+                    setUserImagePreview(URL.createObjectURL(file));
+                    setSelectedPresetId(null);
+                    setResult(null); // Reset result on new upload
+                  }}
+                  preview={userImagePreview}
+                />
+              </div>
+
+              {/* Preset Models selection */}
+              {!loading && !userImagePreview && (
+                <div className="space-y-2 pt-2">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-secondary block">
+                    أو اختر عارضاً افتراضياً (Or Choose a Preset Model):
+                  </span>
+                  <div className="flex gap-2.5 overflow-x-auto pb-1.5 scrollbar-thin">
+                    {PRESET_MODELS.map((model) => (
+                      <button
+                        key={model.id}
+                        type="button"
+                        disabled={loading || loadingPresetId}
+                        onClick={() => handleSelectPreset(model)}
+                        className={`flex flex-col items-center shrink-0 p-1.5 rounded-lg border transition-all ${
+                          selectedPresetId === model.id
+                            ? "border-black bg-black/5 dark:bg-white/5"
+                            : "border-neutral-200 hover:border-neutral-400 bg-white dark:bg-neutral-950"
+                        }`}
+                        style={{ width: "80px" }}
+                      >
+                        <div className="w-12 h-16 rounded overflow-hidden border border-neutral-100 dark:border-neutral-800 bg-neutral-50 relative shrink-0">
+                          {loadingPresetId === model.id && (
+                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                              <Loader2 size={12} className="text-white animate-spin" />
+                            </div>
+                          )}
+                          <img src={model.url} alt={model.name} className="w-full h-full object-cover" />
+                        </div>
+                        <span className="text-[8px] font-bold mt-1 text-center truncate w-full text-primary leading-tight">
+                          {model.gender === "female" ? "عارضة" : "عارض"}
+                        </span>
+                        <span className="text-[7px] text-secondary mt-0.5 font-light">
+                          {model.size}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Step 2: Body Profile / Avatar */}
             <div className="space-y-4 bg-white dark:bg-neutral-900 p-6 border border-rule rounded-sm text-primary">
               <h2 className="text-xs font-bold tracking-widest uppercase text-primary border-b border-rule pb-3">
-                2. Body Profile & Draping Measurements
+                2. مواصفات الجسم والمقاسات (Body Profile)
               </h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {["Athletic M", "Slim M", "Hourglass F", "Petite F", "Curve F", "Plus Size"].map((av) => (
+                {[
+                  { id: "Athletic M", name: "رياضي (Athletic M)" },
+                  { id: "Slim M", name: "نحيف (Slim M)" },
+                  { id: "Hourglass F", name: "ساعة رملية (Hourglass F)" },
+                  { id: "Petite F", name: "قوام ناعم (Petite F)" },
+                  { id: "Curve F", name: "قوام ممتلئ (Curve F)" },
+                  { id: "Plus Size", name: "وزن زائد (Plus Size)" }
+                ].map((av) => (
                   <button
-                    key={av}
-                    onClick={() => setAvatar(av)}
+                    key={av.id}
+                    onClick={() => setAvatar(av.id)}
                     className={`py-3 px-4 text-xs font-semibold tracking-wider uppercase border transition-all ${
-                      avatar === av
+                      avatar === av.id
                         ? "border-black bg-black text-white dark:border-white dark:bg-white dark:text-black"
                         : "border-rule hover:border-black/50 text-secondary"
                     }`}
                   >
-                    {av}
+                    {av.name}
                   </button>
                 ))}
               </div>
@@ -417,8 +691,8 @@ export default function TryOn() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <div className="flex justify-between text-[10px] text-secondary font-bold uppercase tracking-wider mb-1">
-                      <span>Height</span>
-                      <span>{height} cm</span>
+                      <span>الطول (Height)</span>
+                      <span>{height} سم</span>
                     </div>
                     <input
                       type="range"
@@ -431,8 +705,8 @@ export default function TryOn() {
                   </div>
                   <div>
                     <div className="flex justify-between text-[10px] text-secondary font-bold uppercase tracking-wider mb-1">
-                      <span>Weight</span>
-                      <span>{weight} kg</span>
+                      <span>الوزن (Weight)</span>
+                      <span>{weight} كغم</span>
                     </div>
                     <input
                       type="range"
@@ -448,8 +722,8 @@ export default function TryOn() {
                 <div className="grid grid-cols-3 gap-3 pt-2">
                   <div>
                     <div className="flex justify-between text-[9px] text-secondary font-bold uppercase tracking-wider mb-1">
-                      <span>Bust/Chest</span>
-                      <span>{bodyBust} cm</span>
+                      <span>الصدر (Bust)</span>
+                      <span>{bodyBust} سم</span>
                     </div>
                     <input
                       type="range"
@@ -462,8 +736,8 @@ export default function TryOn() {
                   </div>
                   <div>
                     <div className="flex justify-between text-[9px] text-secondary font-bold uppercase tracking-wider mb-1">
-                      <span>Waist</span>
-                      <span>{bodyWaist} cm</span>
+                      <span>الخصر (Waist)</span>
+                      <span>{bodyWaist} سم</span>
                     </div>
                     <input
                       type="range"
@@ -476,8 +750,8 @@ export default function TryOn() {
                   </div>
                   <div>
                     <div className="flex justify-between text-[9px] text-secondary font-bold uppercase tracking-wider mb-1">
-                      <span>Hips</span>
-                      <span>{bodyHips} cm</span>
+                      <span>الأرداف (Hips)</span>
+                      <span>{bodyHips} سم</span>
                     </div>
                     <input
                       type="range"
@@ -496,14 +770,14 @@ export default function TryOn() {
             <div className="space-y-4 bg-white p-6 border border-rule rounded-sm text-primary">
               <div className="flex justify-between items-center border-b border-rule pb-3">
                 <h2 className="text-xs font-bold tracking-widest uppercase text-primary">
-                  3. Build Style Collage Canvas
+                  3. لوحة تنسيق الإطلالة (Style Collage)
                 </h2>
                 {collageItems.length > 0 && (
                   <button
                     onClick={() => setCollageItems([])}
                     className="text-[10px] text-red-500 uppercase hover:underline"
                   >
-                    Clear Board
+                    مسح اللوحة (Clear)
                   </button>
                 )}
               </div>
@@ -541,10 +815,10 @@ export default function TryOn() {
                   <div className="absolute inset-0 flex flex-col items-center justify-center text-center opacity-40 p-6 pointer-events-none">
                     <Sparkles size={24} className="mb-2 text-secondary" />
                     <p className="text-[10px] uppercase tracking-widest font-bold text-secondary">
-                      Outfit Moodboard Canvas
+                      لوحة تصميم المظهر (Moodboard)
                     </p>
                     <p className="text-[11px] font-light mt-1 max-w-[280px] leading-relaxed">
-                      Select pieces from the catalog below, drag them to compose, and scale using the controls.
+                      اختر القطع من المعرض أدناه، واسحبها هنا للتنسيق وتعديل المقاس.
                     </p>
                   </div>
                 ) : (
@@ -623,7 +897,7 @@ export default function TryOn() {
 
               {/* Scrollable grid to select garments */}
               <div className="space-y-2">
-                <p className="text-[10px] font-semibold text-secondary uppercase tracking-widest">Available Catalog</p>
+                <p className="text-[10px] font-semibold text-secondary uppercase tracking-widest">الملابس المتاحة (Catalog)</p>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-56 overflow-y-auto pr-1">
                   {brandProducts?.map((prod) => {
                     const isSelected = selectedGarments.some((g) => g.id === prod.id);
@@ -657,15 +931,15 @@ export default function TryOn() {
             {!result && (
               <div className="space-y-4">
                 {/* AI Engine Profile Selector */}
-                <div className="space-y-3 bg-[#fcfcfa] p-4 border border-rule">
+                <div className="space-y-3 bg-[#fcfcfa] dark:bg-neutral-900 p-4 border border-rule text-primary">
                   <h3 className="text-[10px] font-bold tracking-widest uppercase text-secondary">
-                    AI Engine Profile
+                    دقة محرك الذكاء الاصطناعي (AI Engine)
                   </h3>
                   <div className="grid grid-cols-3 gap-3">
                     {[
-                      { id: "fast", label: "Fast", desc: "Lower res (~0.5s)" },
-                      { id: "balanced", label: "Balanced", desc: "Standard (~1.5s)" },
-                      { id: "quality", label: "Quality", desc: "High details (~3s)" },
+                      { id: "fast", label: "سريع (Fast)", desc: "دقة منخفضة (~0.5ث)" },
+                      { id: "balanced", label: "متوازن (Balanced)", desc: "دقة قياسية (~1.5ث)" },
+                      { id: "quality", label: "جودة (Quality)", desc: "تفاصيل كاملة (~3ث)" },
                     ].map((opt) => (
                       <button
                         key={opt.id}
@@ -675,7 +949,7 @@ export default function TryOn() {
                         className={`flex flex-col items-center justify-center p-2.5 border text-center transition-all ${
                           modelVariant === opt.id
                             ? "border-black bg-black text-white"
-                            : "border-neutral-200 hover:border-neutral-400 text-neutral-600 bg-white"
+                            : "border-neutral-200 hover:border-neutral-400 text-neutral-600 bg-white dark:bg-neutral-950"
                         }`}
                       >
                         <span className="text-[10px] font-bold uppercase tracking-wider">{opt.label}</span>
@@ -702,18 +976,25 @@ export default function TryOn() {
                   {loading ? (
                     <div className="flex items-center justify-center gap-2">
                       <Loader2 size={14} className="animate-spin" />
-                      <span>{label}</span>
+                      <span>{label === "Preparing your silhouette…" ? "جاري تحضير المقاسات..." :
+                            label === "Uploading portrait…" ? "جاري رفع الصورة..." :
+                            label === "Analyzing body contours…" ? "جاري تحليل الجسم..." :
+                            label === "Extracting garment texture…" ? "جاري قراءة تفاصيل القماش..." :
+                            label === "Compositing garment layers…" ? "جاري تركيب الملابس..." :
+                            label === "Neural drape rendering…" ? "جاري المعالجة الذكية..." :
+                            label === "Finalising silhouette…" ? "جاري اللمسات الأخيرة..." :
+                            label === "Almost ready…" ? "على وشك الانتهاء..." : label}</span>
                     </div>
                   ) : (
                     <div className="flex items-center justify-center gap-2">
                       <Sparkles size={14} />
-                      <span>Execute Virtual Try-On</span>
+                      <span>بدء القياس بالذكاء الاصطناعي (Try-On)</span>
                     </div>
                   )}
                 </button>
                 {!token && result && (
                   <p className="text-center text-[10px] text-secondary font-light mt-3">
-                    <Link to="/login" className="underline hover:text-black">Sign in</Link> to save your fitting history across devices.
+                    <Link to="/login" className="underline hover:text-black">سجّل الدخول</Link> لحفظ سجل القياسات الخاص بك على أجهزتك.
                   </p>
                 )}
               </div>
@@ -721,10 +1002,10 @@ export default function TryOn() {
           </div>
 
           {/* Right Column: Visualizer panel & before/after comparison slider */}
-          <div className="space-y-8 lg:sticky top-28 bg-white border border-rule p-6 rounded-sm min-h-[600px] flex flex-col">
+          <div className="space-y-8 lg:sticky top-28 bg-white dark:bg-neutral-900 border border-rule p-6 rounded-sm min-h-[600px] flex flex-col">
             <div className="border-b border-rule pb-3 flex justify-between items-center">
               <h2 className="text-xs font-bold tracking-widest uppercase text-primary">
-                Atelier Try-On Result
+                نتيجة القياس الافتراضي (Try-On Result)
               </h2>
               <div className="flex items-center gap-3">
                 {result && (
@@ -745,7 +1026,7 @@ export default function TryOn() {
                     }}
                     className="flex items-center gap-1.5 text-[10px] font-semibold uppercase text-secondary hover:text-black transition-colors"
                   >
-                    <Download size={11} /> Save
+                    <Download size={11} /> حفظ الصورة (Save)
                   </button>
                 )}
                 {result && (
@@ -753,7 +1034,7 @@ export default function TryOn() {
                     onClick={() => setResult(null)}
                     className="text-[10px] font-semibold uppercase text-secondary hover:text-black"
                   >
-                    Reset Canvas
+                    البدء من جديد (Reset)
                   </button>
                 )}
               </div>
@@ -762,55 +1043,14 @@ export default function TryOn() {
             {/* Result area with Slider or waiting code */}
             <div className="flex-1 relative bg-surface-bright flex items-center justify-center overflow-hidden border border-rule min-h-[450px]">
               {result ? (
-                /* Before/After Split slider */
-                <div
-                  ref={containerRef}
-                  onMouseMove={handleMouseMove}
-                  onTouchMove={handleTouchMove}
-                  className="absolute inset-0 select-none cursor-ew-resize overflow-hidden w-full h-full"
-                >
-                  {/* Before: User Portrait */}
-                  <div className="absolute inset-0 bg-cover bg-center">
-                    <img
-                      src={userImagePreview}
-                      alt="Before Portrait"
-                      className="w-full h-full object-cover pointer-events-none"
-                    />
-                  </div>
-
-                  {/* After: Tryon Result (positioned relative to slider percentage) */}
-                  <div
-                    className="absolute inset-y-0 left-0 right-0 overflow-hidden"
-                    style={{ width: `${sliderPos}%` }}
-                  >
-                    <img
-                      src={result}
-                      alt="Tryon Result"
-                      className="absolute inset-0 w-full h-full object-cover max-w-none pointer-events-none"
-                      style={{ width: containerRef.current?.getBoundingClientRect().width }}
-                    />
-                  </div>
-
-                  {/* Slider Divider Bar */}
-                  <div
-                    className="absolute inset-y-0 w-1 bg-white shadow-lg pointer-events-none"
-                    style={{ left: `${sliderPos}%` }}
-                  >
-                    {/* Circle Handle */}
-                    <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-white border border-black/20 flex items-center justify-center shadow-lg pointer-events-none">
-                      <div className="flex gap-0.5 text-black">
-                        <span className="w-1 h-3 bg-black/40 rounded-full" />
-                        <span className="w-1 h-3 bg-black/40 rounded-full" />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Badges */}
+                <div className="absolute inset-0 w-full h-full">
+                  <img
+                    src={result}
+                    alt="Tryon Result"
+                    className="w-full h-full object-cover pointer-events-none"
+                  />
                   <div className="absolute bottom-4 left-4 bg-black/75 backdrop-blur-sm text-white text-[8px] font-bold tracking-widest px-2.5 py-1 uppercase rounded-sm z-20">
-                    Result
-                  </div>
-                  <div className="absolute bottom-4 right-4 bg-black/75 backdrop-blur-sm text-white text-[8px] font-bold tracking-widest px-2.5 py-1 uppercase rounded-sm z-20">
-                    Original
+                    نتيجة القياس (AI Result)
                   </div>
                 </div>
               ) : (
@@ -828,17 +1068,24 @@ export default function TryOn() {
 
                       {/* Stage message */}
                       <div className="space-y-2">
-                        <p className="text-[9px] font-bold tracking-[0.25em] uppercase text-secondary">Vrital AI Atelier</p>
+                        <p className="text-[9px] font-bold tracking-[0.25em] uppercase text-secondary">الذكاء الاصطناعي (Vrital AI)</p>
                         <p
                           key={label}
                           className="text-sm font-light text-primary leading-relaxed transition-all duration-500"
                           style={{ animation: 'fadeIn 0.5s ease' }}
                         >
-                          {label}
+                          {label === "Preparing your silhouette…" ? "جاري تحضير المقاسات وتحديد أبعاد الموديل..." :
+                           label === "Uploading portrait…" ? "جاري رفع وتحميل صورة العارض..." :
+                           label === "Analyzing body contours…" ? "جاري تحليل زوايا الجسم وتفاصيل الطول والوزن..." :
+                           label === "Extracting garment texture…" ? "جاري استخراج تفاصيل وقماش القطعة المحددة..." :
+                           label === "Compositing garment layers…" ? "جاري تركيب وتنسيق طبقات الملابس على الجسم..." :
+                           label === "Neural drape rendering…" ? "جاري معالجة وتفصيل طيات القماش بالذكاء الاصطناعي..." :
+                           label === "Finalising silhouette…" ? "جاري وضع اللمسات النهائية للصورة..." :
+                           label === "Almost ready…" ? "النتيجة توشك على الاكتمال..." : label}
                         </p>
                         {isDelayed && (
                           <p className="text-[10px] text-red-500 font-semibold tracking-wider animate-pulse">
-                            High demand, this may take a bit longer...
+                            طلب مرتفع حالياً، قد يستغرق الأمر بعض الوقت الإضافي...
                           </p>
                         )}
                       </div>
@@ -847,7 +1094,7 @@ export default function TryOn() {
                       {jobStatus && (
                         <div className="inline-flex items-center justify-center gap-2 border border-rule px-3 py-1.5 text-[9px] uppercase tracking-widest font-semibold text-secondary mx-auto">
                           <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-                          {jobStatus === 'queued' ? 'In Queue' : 'Processing'} ({pct}%)
+                          {jobStatus === 'queued' ? 'في قائمة الانتظار (Queued)' : 'جاري المعالجة (Processing)'} ({pct}%)
                         </div>
                       )}
 
@@ -864,20 +1111,20 @@ export default function TryOn() {
                       {/* Cancel button */}
                       <button
                         onClick={() => {
-                          if (pollingRef.current) clearInterval(pollingRef.current);
+                          pollingOptionsRef.current.cancelled = true;
                           clearTimeout(delayTimerRef.current);
                           setLoading(false);
                           setJobStatus(null);
                         }}
                         className="text-[10px] text-secondary hover:text-red-500 font-bold uppercase tracking-widest transition-colors mt-2"
                       >
-                        Cancel Request
+                        إلغاء الطلب (Cancel Request)
                       </button>
                     </div>
                   ) : (
                     <div className="opacity-35 flex flex-col items-center">
                       <Sparkles size={28} className="mb-3" strokeWidth={1.2} />
-                      <p className="text-[10px] uppercase tracking-[0.2em] font-semibold text-secondary">Awaiting Fit Canvas</p>
+                      <p className="text-[10px] uppercase tracking-[0.2em] font-semibold text-secondary">بانتظار بدء القياس (Awaiting Fit)</p>
                     </div>
                   )}
                 </div>
@@ -887,16 +1134,16 @@ export default function TryOn() {
             {/* Try-on History Drawer */}
             <div className="pt-4 border-t border-rule space-y-3">
               <div className="flex justify-between items-center text-[10px] font-bold tracking-widest uppercase text-secondary">
-                <span className="flex items-center gap-1.5"><History size={12} /> Fitting Session History</span>
+                <span className="flex items-center gap-1.5"><History size={12} /> سجل جلسات القياس الافتراضي (History)</span>
                 {history.length > 0 && (
                   <button onClick={handleClearHistory} className="text-red-500 hover:underline">
-                    Clear History
+                    مسح السجل (Clear)
                   </button>
                 )}
               </div>
               <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin">
                 {history.length === 0 ? (
-                  <p className="text-secondary text-[11px] font-light">No sessions recorded.</p>
+                  <p className="text-secondary text-[11px] font-light">لا يوجد جلسات قياس مسجلة.</p>
                 ) : (
                   history.map((h) => {
                     const resolvedResultUrl = h.result_image_url || h.resultUrl;
@@ -908,9 +1155,9 @@ export default function TryOn() {
                       <div
                         key={h.id}
                         onClick={() => setResult(resolvedResultUrl)}
-                        className="w-56 shrink-0 cursor-pointer border border-rule hover:border-black transition-all rounded-sm bg-white p-3 flex gap-3 relative group text-primary"
+                        className="w-56 shrink-0 cursor-pointer border border-rule hover:border-black transition-all rounded-sm bg-white dark:bg-neutral-950 p-3 flex gap-3 relative group text-primary"
                       >
-                        <div className="w-14 h-20 bg-[#fcfcfa] overflow-hidden rounded-sm relative shrink-0 border border-rule">
+                        <div className="w-14 h-20 bg-[#fcfcfa] dark:bg-neutral-900 overflow-hidden rounded-sm relative shrink-0 border border-rule">
                           <img src={resolvedResultUrl} alt="Tryon history snapshot" className="w-full h-full object-cover" />
                           <div className="absolute bottom-1 right-1 bg-black/75 text-[6px] text-white px-1 py-0.5 uppercase tracking-widest rounded-sm">
                             {resolvedAvatar.split(" ")[0]}
@@ -922,17 +1169,17 @@ export default function TryOn() {
                             <p className="text-[10px] font-medium text-primary truncate">
                               {resolvedGarments && resolvedGarments.length > 0
                                 ? resolvedGarments.map((g) => g.name).join(", ")
-                                : "Custom Outfit"}
+                                : "ملابس مخصصة (Custom Outfit)"}
                             </p>
                           </div>
                           {h.height && (
-                            <div className="text-[8.5px] text-secondary font-light space-y-0.5">
-                              <p>Measurements:</p>
+                            <div className="text-[8.5px] text-secondary font-light space-y-0.5" dir="rtl">
+                              <p>المقاسات (Measurements):</p>
                               <p className="font-semibold text-primary">
-                                H:{h.height}cm · W:{h.weight}kg
+                                الطول:{h.height}سم · الوزن:{h.weight}كغم
                               </p>
                               <p>
-                                B:{h.body_bust || h.bodyBust || 90} · W:{h.body_waist || h.bodyWaist || 75} · H:{h.body_hips || h.bodyHips || 95}
+                                ص:{h.body_bust || h.bodyBust || 90} · خ:{h.body_waist || h.bodyWaist || 75} · ك:{h.body_hips || h.bodyHips || 95}
                               </p>
                             </div>
                           )}

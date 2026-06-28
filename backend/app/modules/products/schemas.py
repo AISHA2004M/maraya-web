@@ -100,6 +100,16 @@ class ProductOut(BaseModel):
     occasion: Optional[str] = None
     cinematic_video_url: Optional[str] = None
     angles_images_url: Optional[str] = None
+    # Iraq market — essential buyer details
+    garment_length: Optional[str] = None
+    care_instructions: Optional[str] = None
+    color: Optional[str] = None
+    material_details: Optional[str] = None
+    origin_country: Optional[str] = None
+    garment_weight: Optional[str] = None
+    sleeve_length: Optional[str] = None
+    lining: Optional[str] = None
+    closure_type: Optional[str] = None
     brand: Optional[BrandOut] = None
     category: Optional[CategoryOut] = None
     images: List[ProductImageOut] = []
@@ -113,7 +123,7 @@ class ProductCreate(BaseModel):
     name: str
     description: Optional[str] = None
     price: Decimal
-    currency: str = "USD"
+    currency: str = "IQD"
     brand_id: Optional[int] = None
     category_id: Optional[int] = None
     gender: Optional[str] = None
@@ -128,6 +138,16 @@ class ProductCreate(BaseModel):
     occasion: Optional[str] = None
     cinematic_video_url: Optional[str] = None
     angles_images_url: Optional[str] = None
+    # Iraq market — essential buyer details
+    garment_length: Optional[str] = None
+    care_instructions: Optional[str] = None
+    color: Optional[str] = None
+    material_details: Optional[str] = None
+    origin_country: Optional[str] = None
+    garment_weight: Optional[str] = None
+    sleeve_length: Optional[str] = None
+    lining: Optional[str] = None
+    closure_type: Optional[str] = None
     sizes: Optional[List[ProductSizeIn]] = None
 
 
@@ -150,4 +170,14 @@ class ProductUpdate(BaseModel):
     occasion: Optional[str] = None
     cinematic_video_url: Optional[str] = None
     angles_images_url: Optional[str] = None
+    # Iraq market — essential buyer details
+    garment_length: Optional[str] = None
+    care_instructions: Optional[str] = None
+    color: Optional[str] = None
+    material_details: Optional[str] = None
+    origin_country: Optional[str] = None
+    garment_weight: Optional[str] = None
+    sleeve_length: Optional[str] = None
+    lining: Optional[str] = None
+    closure_type: Optional[str] = None
     sizes: Optional[List[ProductSizeIn]] = None

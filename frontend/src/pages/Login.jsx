@@ -32,9 +32,9 @@ export default function Login() {
       setAuth({ email, full_name: name }, data.access_token, data.role, bSlug);
       
       if (data.role === "admin") {
-        window.location.href = "http://localhost:5175/admin";
+        window.location.href = "http://localhost:5174/admin";
       } else if (data.role === "partner") {
-        window.location.href = `http://localhost:5175/partner/${bSlug || "zara"}`;
+        window.location.href = `http://localhost:5174/partner/${bSlug || "zara"}`;
       } else {
         navigate("/");
       }

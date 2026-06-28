@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str
     JWT_SECRET: str
     JWT_ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 43200
     REDIS_URL: str = "redis://localhost:6379/0"
 
     # S3 / Cloud Storage
@@ -22,8 +22,15 @@ class Settings(BaseSettings):
     # AI Service
     AI_SERVICE_URL: str = "http://localhost:8001"
 
+    # Nano Banana 2 / Gemini API
+    GEMINI_API_KEY: str = ""
+    NANO_BANANA_API_KEY: str = ""
+    NANO_BANANA_MODEL: str = "gemini-3.1-flash-image-preview"
+    OPENROUTER_API_KEY: str = ""
+
     class Config:
         env_file = ".env"
+        extra = "ignore"
 
 
 settings = Settings()

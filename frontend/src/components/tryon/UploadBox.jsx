@@ -18,8 +18,7 @@ export default function UploadBox({ onUpload, preview }) {
 
   return (
     <div
-      className="relative border border-rule cursor-pointer group overflow-hidden bg-[#f5f5f3]"
-      style={{ minHeight: 320 }}
+      className="relative border border-rule cursor-pointer group overflow-hidden bg-[#f5f5f3] w-full h-full flex flex-col justify-center items-center"
       onClick={() => inputRef.current?.click()}
       onDragOver={(e) => e.preventDefault()}
       onDrop={handleDrop}
@@ -28,8 +27,7 @@ export default function UploadBox({ onUpload, preview }) {
         <img
           src={preview}
           alt="Your photo"
-          className="w-full h-full object-cover"
-          style={{ minHeight: 320 }}
+          className="w-full h-full object-cover absolute inset-0"
         />
       ) : (
         <div className="flex flex-col items-center justify-center gap-4 p-10 min-h-[320px]">

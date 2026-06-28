@@ -26,6 +26,52 @@ import {
   Camera, XCircle, Clock
 } from "lucide-react";
 import { submitTryOn, waitForTryOnResult, pollTryOnStatus, getTryOnResult } from "../../api/tryon";
+import { useUserStore } from "../../store/useUserStore";
+import { formatPrice } from "../../utils/formatPrice";
+
+const PRESET_MODELS = [
+  {
+    id: "female_slim",
+    name: "عارضة ممشوقة (Slim)",
+    gender: "female",
+    size: "S / M",
+    url: "https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=500&auto=format&fit=crop",
+  },
+  {
+    id: "female_medium",
+    name: "عارضة قوام معتدل (Medium)",
+    gender: "female",
+    size: "M / L",
+    url: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=500&auto=format&fit=crop",
+  },
+  {
+    id: "female_plus",
+    name: "عارضة قوام ممتلئ (Plus Size)",
+    gender: "female",
+    size: "XL / XXL",
+    url: "https://images.unsplash.com/photo-1608748010899-18f300247112?q=80&w=500&auto=format&fit=crop",
+  },
+  {
+    id: "male_slim",
+    name: "عارض ممشوق (Slim)",
+    gender: "male",
+    size: "M",
+    url: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=500&auto=format&fit=crop",
+  },
+  {
+    id: "male_medium",
+    name: "عارض قوام معتدل (Medium)",
+    gender: "male",
+    size: "L / XL",
+    url: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?q=80&w=500&auto=format&fit=crop",
+  }
+];
+
+const urlToFile = async (url, filename) => {
+  const res = await fetch(url);
+  const blob = await res.blob();
+  return new File([blob], filename, { type: "image/jpeg" });
+};
 
 // ─── Stage definitions ────────────────────────────────────────────────────────
 
@@ -325,6 +371,8 @@ function ComparisonSlider({ beforeSrc, afterSrc }) {
 export default function TryOnModal({ isOpen, onClose, product }) {
   const [portrait, setPortrait] = useState(null);
   const [portraitPreview, setPortraitPreview] = useState(null);
+  const [selectedPresetId, setSelectedPresetId] = useState(null);
+  const [loadingPresetId, setLoadingPresetId] = useState(null);
   const [stage, setStage] = useState(STAGES.idle);
   const [pct, setPct] = useState(0);
   const [label, setLabel] = useState(PROGRESS_TIMELINE[0].label);
@@ -332,9 +380,28 @@ export default function TryOnModal({ isOpen, onClose, product }) {
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
   const [modelVariant, setModelVariant] = useState("balanced"); // fast | balanced | quality
+  const { token, user } = useUserStore();
+
+  const handleSelectPreset = async (model) => {
+    if (stage === STAGES.preparing || stage === STAGES.generating) return;
+    setLoadingPresetId(model.id);
+    setError(null);
+    try {
+      const file = await urlToFile(model.url, `${model.id}.jpg`);
+      setPortrait(file);
+      setPortraitPreview(model.url);
+      setSelectedPresetId(model.id);
+    } catch (err) {
+      console.error("Failed to load preset model image", err);
+      setError("فشل تحميل صورة العارض الجاهزة. يرجى محاولة رفع صورتك بدلاً من ذلك.");
+    } finally {
+      setLoadingPresetId(null);
+    }
+  };
 
   // Refs for cleanup
   const cancelRef = useRef(false);      // Set true on cancel to abort polling
+  const pollingOptionsRef = useRef({ cancelled: false });
   const progressRef = useRef(null);     // setInterval for progress simulation
   const delayTimerRef = useRef(null);   // setTimeout for 10s delay message
   const startTimeRef = useRef(0);
@@ -343,11 +410,14 @@ export default function TryOnModal({ isOpen, onClose, product }) {
   useEffect(() => {
     if (!isOpen) {
       cancelRef.current = true;
+      pollingOptionsRef.current.cancelled = true;
       clearInterval(progressRef.current);
       clearTimeout(delayTimerRef.current);
       setTimeout(() => {
         setPortrait(null);
         setPortraitPreview(null);
+        setSelectedPresetId(null);
+        setLoadingPresetId(null);
         setStage(STAGES.idle);
         setPct(0);
         setLabel(PROGRESS_TIMELINE[0].label);
@@ -358,6 +428,25 @@ export default function TryOnModal({ isOpen, onClose, product }) {
       }, 350); // wait for exit animation
     }
   }, [isOpen]);
+
+  // Reset everything when product ID changes
+  useEffect(() => {
+    cancelRef.current = true;
+    pollingOptionsRef.current.cancelled = true;
+    clearInterval(progressRef.current);
+    clearTimeout(delayTimerRef.current);
+    setPortrait(null);
+    setPortraitPreview(null);
+    setSelectedPresetId(null);
+    setLoadingPresetId(null);
+    setStage(STAGES.idle);
+    setPct(0);
+    setLabel(PROGRESS_TIMELINE[0].label);
+    setIsDelayed(false);
+    setResult(null);
+    setError(null);
+    cancelRef.current = false;
+  }, [product?.id]);
 
   // Simulate progress advances on a timeline
   const startProgressSimulation = () => {
@@ -379,10 +468,10 @@ export default function TryOnModal({ isOpen, onClose, product }) {
 
     progressRef.current = setInterval(tick, 500);
 
-    // 10-second delay message
+    // 35-second delay message
     delayTimerRef.current = setTimeout(() => {
       if (!cancelRef.current) setIsDelayed(true);
-    }, 10_000);
+    }, 35_000);
   };
 
   const stopProgress = (finalPct = 100) => {
@@ -408,6 +497,7 @@ export default function TryOnModal({ isOpen, onClose, product }) {
     if (!portrait || !product?.id || stage === STAGES.preparing || stage === STAGES.generating) return;
 
     cancelRef.current = false;
+    pollingOptionsRef.current = { cancelled: false };
 
     // ── STEP 1: Instant < 300ms visual response ────────────────────────
     setStage(STAGES.preparing);
@@ -431,7 +521,16 @@ export default function TryOnModal({ isOpen, onClose, product }) {
     startProgressSimulation();
 
     try {
-      const dispatch = await submitTryOn(portrait, product.id, modelVariant);
+      const extraPayload = {};
+      if (user) {
+        if (user.height) extraPayload.height = user.height;
+        if (user.weight) extraPayload.weight = user.weight;
+        if (user.body_bust) extraPayload.body_bust = user.body_bust;
+        if (user.body_waist) extraPayload.body_waist = user.body_waist;
+        if (user.body_hips) extraPayload.body_hips = user.body_hips;
+        extraPayload.avatar = "Athletic M";
+      }
+      const dispatch = await submitTryOn(portrait, product.id, modelVariant, extraPayload);
       if (cancelRef.current) return;
 
       // Stop the client-side simulation timer and rely on backend progress updates
@@ -459,7 +558,10 @@ export default function TryOnModal({ isOpen, onClose, product }) {
             else if (progressPct <= 65) setLabel("Extracting garment texture…");
             else if (progressPct <= 85) setLabel("Neural drape rendering…");
             else setLabel("Almost ready…");
-          }
+          },
+          1000,
+          120000,
+          pollingOptionsRef.current
         );
         if (cancelRef.current) return;
         stopProgress(100);
@@ -476,6 +578,7 @@ export default function TryOnModal({ isOpen, onClose, product }) {
 
   const handleCancel = () => {
     cancelRef.current = true;
+    pollingOptionsRef.current.cancelled = true;
     stopProgress(0);
     setStage(STAGES.idle);
     setError(null);
@@ -562,14 +665,57 @@ export default function TryOnModal({ isOpen, onClose, product }) {
                   <div className="space-y-3">
                     <div className="flex items-center gap-2">
                       <span className="w-5 h-5 rounded-full bg-black text-white text-[9px] font-bold flex items-center justify-center shrink-0">1</span>
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-primary">Your Portrait</span>
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-primary">Your Portrait / عارض القياس</span>
                     </div>
                     <PortraitUploader
                       preview={portraitPreview}
-                      onUpload={handlePortraitUpload}
-                      onClear={() => { setPortrait(null); setPortraitPreview(null); }}
+                      onUpload={(file) => {
+                        handlePortraitUpload(file);
+                        setSelectedPresetId(null);
+                      }}
+                      onClear={() => { setPortrait(null); setPortraitPreview(null); setSelectedPresetId(null); }}
                       disabled={isGenerating}
                     />
+
+                    {/* Preset Models selection */}
+                    {!isGenerating && !portraitPreview && (
+                      <div className="space-y-2 pt-1">
+                        <span className="text-[9px] font-bold uppercase tracking-widest text-secondary block">
+                          أو اختر عارضاً افتراضياً (Or Choose a Preset Model):
+                        </span>
+                        <div className="flex gap-2.5 overflow-x-auto pb-1.5 scrollbar-thin">
+                          {PRESET_MODELS.map((model) => (
+                            <button
+                              key={model.id}
+                              type="button"
+                              disabled={isGenerating || loadingPresetId}
+                              onClick={() => handleSelectPreset(model)}
+                              className={`flex flex-col items-center shrink-0 p-1.5 rounded-lg border transition-all ${
+                                selectedPresetId === model.id
+                                  ? "border-black bg-black/5 dark:bg-white/5"
+                                  : "border-neutral-200 hover:border-neutral-400 bg-white dark:bg-neutral-900"
+                              }`}
+                              style={{ width: "80px" }}
+                            >
+                              <div className="w-12 h-16 rounded overflow-hidden border border-neutral-100 dark:border-neutral-800 bg-neutral-50 relative shrink-0">
+                                {loadingPresetId === model.id && (
+                                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                                    <Loader2 size={12} className="text-white animate-spin" />
+                                  </div>
+                                )}
+                                <img src={model.url} alt={model.name} className="w-full h-full object-cover" />
+                              </div>
+                              <span className="text-[8px] font-bold mt-1 text-center truncate w-full text-primary leading-tight">
+                                {model.gender === "female" ? "عارضة" : "عارض"}
+                              </span>
+                              <span className="text-[7px] text-secondary mt-0.5 font-light">
+                                {model.size}
+                              </span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   {/* Step 2: Product */}
@@ -592,7 +738,7 @@ export default function TryOnModal({ isOpen, onClose, product }) {
                         )}
                         <p className="text-sm font-medium text-primary truncate">{product?.name}</p>
                         {product?.price && (
-                          <p className="text-xs text-secondary font-light mt-0.5">${Number(product.price).toFixed(2)}</p>
+                          <p className="text-xs text-secondary font-light mt-0.5">{formatPrice(product.price)}</p>
                         )}
                       </div>
                       <CheckCircle2 size={16} className="text-green-500 shrink-0" />
@@ -703,7 +849,7 @@ export default function TryOnModal({ isOpen, onClose, product }) {
                         className="text-[10px] font-bold uppercase tracking-widest text-secondary"
                       >
                         {stage === STAGES.result
-                          ? "Rendered Silhouette — Drag to Compare"
+                          ? "Rendered Silhouette"
                           : stage === STAGES.preparing || stage === STAGES.generating
                           ? "Generating Outfit…"
                           : "Awaiting Silhouette"}
@@ -722,7 +868,11 @@ export default function TryOnModal({ isOpen, onClose, product }) {
                           exit={{ opacity: 0 }}
                           className="absolute inset-0"
                         >
-                          <ComparisonSlider beforeSrc={portraitPreview} afterSrc={result} />
+                          <img
+                            src={result}
+                            alt="Rendered silhouette"
+                            className="w-full h-full object-cover"
+                          />
                         </motion.div>
 
                       ) : stage === STAGES.preparing ? (

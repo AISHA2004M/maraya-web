@@ -49,10 +49,11 @@ def list_products(
     category_id: Optional[int] = None,
     gender: Optional[str] = None,
     brand_id: Optional[int] = None,
+    partner_view: Optional[bool] = None,
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user),
 ):
-    if current_user and current_user.role == "partner":
+    if partner_view and current_user and current_user.role == "partner":
         brand_id = current_user.brand_id
     return service.get_products(
         db,

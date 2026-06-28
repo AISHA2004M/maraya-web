@@ -5,6 +5,7 @@ from app.core.database import get_db
 from app.api.deps import get_current_user, get_current_partner
 from app.modules.users.models import User
 from app.modules.orders import service
+from app.modules.orders.models import OrderItem
 from app.modules.orders.schemas import OrderCreate, OrderOut, OrderStatusUpdate
 
 router = APIRouter()

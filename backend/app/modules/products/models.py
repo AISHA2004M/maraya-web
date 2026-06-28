@@ -69,6 +69,18 @@ class Product(Base):
     occasion = Column(String(100), nullable=True)
     cinematic_video_url = Column(Text, nullable=True)
     angles_images_url = Column(Text, nullable=True)  # comma-separated list of image URLs
+
+    # Iraq market — essential buyer details
+    garment_length = Column(String(50), nullable=True)    # e.g. "120 سم"
+    care_instructions = Column(Text, nullable=True)       # e.g. "غسيل يدوي فقط"
+    color = Column(String(100), nullable=True)            # e.g. "أسود"
+    material_details = Column(Text, nullable=True)        # e.g. "قطن 100% مستورد"
+    origin_country = Column(String(100), nullable=True)   # e.g. "تركيا"
+    garment_weight = Column(String(50), nullable=True)    # e.g. "خفيف" / "متوسط" / "ثقيل"
+    sleeve_length = Column(String(100), nullable=True)    # e.g. "أكمام طويلة"
+    lining = Column(String(100), nullable=True)           # e.g. "مبطن بالكامل"
+    closure_type = Column(String(100), nullable=True)     # e.g. "سحاب خلفي"
+
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 

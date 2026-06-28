@@ -60,12 +60,17 @@ async def _run_sync_fallback(db: Session, session: TryOnSession) -> TryOnSession
 
     cloth_image = user_image_url
     category_name = ""
+    description = "apparel garment product description"
     if session.product_id:
         product = get_product_by_id(db, str(session.product_id))
         if product and product.main_image_url:
             cloth_image = product.main_image_url
             if product.category:
                 category_name = product.category.name
+            if product.description:
+                description = product.description
+            elif product.name:
+                description = product.name
 
     # Multi-garment composite
     garments_ids = []
@@ -74,6 +79,19 @@ async def _run_sync_fallback(db: Session, session: TryOnSession) -> TryOnSession
             garments_ids = json.loads(session.garments_list)
         except (json.JSONDecodeError, TypeError):
             garments_ids = []
+
+    garment_details = []
+    if garments_ids:
+        for p_id in garments_ids:
+            p = get_product_by_id(db, str(p_id))
+            if p:
+                cat_name = p.category.name if p.category else ""
+                desc = p.description or p.name or "apparel garment product description"
+                garment_details.append({
+                    "image_url": p.main_image_url,
+                    "category": cat_name,
+                    "description": desc
+                })
 
     session.progress = 60
     db.commit()
@@ -86,26 +104,21 @@ async def _run_sync_fallback(db: Session, session: TryOnSession) -> TryOnSession
         cloth_image, 
         category=category_name,
         model_variant=model_variant,
-        session_id=session.id
+        session_id=session.id,
+        description=description,
+        garment_details=garment_details,
+        avatar=session.avatar,
+        height=session.height,
+        weight=session.weight,
+        body_bust=session.body_bust,
+        body_waist=session.body_waist,
+        body_hips=session.body_hips
     )
     result_url = ai_result.get("result_url", "")
     logger.info(f"[TryOn API] AI generation completed (sync fallback) for session {session.id}. Result: {result_url}")
 
     session.progress = 85
     db.commit()
-
-    if len(garments_ids) > 1:
-        logger.info(f"[TryOn API] Applying multi-garment composite overrides (sync fallback) for session {session.id}...")
-        result_url = (
-            "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=600"
-        )
-        for p_id in garments_ids:
-            p = get_product_by_id(db, str(p_id))
-            if p and p.category_id == 5:
-                result_url = (
-                    "https://images.unsplash.com/photo-1551028719-00167b16eac5?q=80&w=600"
-                )
-                break
 
     session.result_image_url = result_url
     session.status = "completed"

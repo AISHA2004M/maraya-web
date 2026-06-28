@@ -19,6 +19,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { Heart, Sparkles } from "lucide-react";
 import { useCartStore } from "../../store/useCartStore";
 import { useWishlistStore } from "../../store/useWishlistStore";
+import { formatPrice } from "../../utils/formatPrice";
 
 export default function ProductCard({ product }) {
   const navigate = useNavigate();
@@ -45,8 +46,6 @@ export default function ProductCard({ product }) {
         product.main_image_url ||
           product.image_url ||
           "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=600",
-        "https://images.unsplash.com/photo-1539008835657-9e8e9680c956?w=600",
-        "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=600",
       ];
 
   // ─── Hover handlers ────────────────────────────────────────────────────────
@@ -177,7 +176,7 @@ export default function ProductCard({ product }) {
         </p>
         <p className="text-sm font-medium leading-snug text-primary">{product.name}</p>
         <p className="text-xs text-secondary font-light mb-1">
-          ${Number(product.price).toFixed(2)}
+          {formatPrice(product.price)}
         </p>
         {product.editorial_tags && (
           <p className="text-[8px] text-secondary font-medium tracking-wide uppercase italic opacity-75">

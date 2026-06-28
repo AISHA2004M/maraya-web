@@ -144,14 +144,14 @@ export default function ProductForm() {
 
           {/* Price */}
           <div>
-            <label className="text-xs text-secondary mb-1.5 block font-medium">Price (USD) *</label>
+            <label className="text-xs text-secondary mb-1.5 block font-medium">السعر (IQD) · Price *</label>
             <input
               id="product-price"
               type="number"
-              step="0.01"
+              step="500"
               {...register("price", { required: true, min: 0 })}
               className="input-admin"
-              placeholder="89.99"
+              placeholder="132000"
             />
           </div>
 
@@ -260,6 +260,106 @@ export default function ProductForm() {
             {errors.main_image_url && (
               <p className="text-xs text-red-500 mt-1">At least the front image is required</p>
             )}
+          </div>
+
+          {/* Iraq Product Details Section */}
+          <div className="md:col-span-2 border-t border-rule pt-6 mt-4">
+            <h3 className="text-xs font-bold tracking-[0.2em] uppercase text-secondary">تفاصيل المنتج · Product Details</h3>
+            <p className="text-[10px] text-secondary font-light mt-1">معلومات أساسية يحتاجها المشتري. Essential info buyers need.</p>
+          </div>
+
+          {/* Garment Length */}
+          <div>
+            <label className="text-xs text-secondary mb-1.5 block font-medium">طول القطعة · Length</label>
+            <input
+              {...register("garment_length")}
+              className="input-admin"
+              placeholder="مثلاً: 120 سم"
+            />
+          </div>
+
+          {/* Color */}
+          <div>
+            <label className="text-xs text-secondary mb-1.5 block font-medium">اللون · Color</label>
+            <input
+              {...register("color")}
+              className="input-admin"
+              placeholder="مثلاً: أسود"
+            />
+          </div>
+
+          {/* Material Details */}
+          <div>
+            <label className="text-xs text-secondary mb-1.5 block font-medium">نوع القماش · Material</label>
+            <input
+              {...register("material_details")}
+              className="input-admin"
+              placeholder="مثلاً: قطن 100%"
+            />
+          </div>
+
+          {/* Origin Country */}
+          <div>
+            <label className="text-xs text-secondary mb-1.5 block font-medium">بلد المنشأ · Origin</label>
+            <input
+              {...register("origin_country")}
+              className="input-admin"
+              placeholder="مثلاً: تركيا"
+            />
+          </div>
+
+          {/* Garment Weight */}
+          <div>
+            <label className="text-xs text-secondary mb-1.5 block font-medium">الوزن · Weight</label>
+            <select {...register("garment_weight")} className="input-admin">
+              <option value="">اختر...</option>
+              <option value="خفيف">خفيف</option>
+              <option value="متوسط">متوسط</option>
+              <option value="ثقيل">ثقيل</option>
+            </select>
+          </div>
+
+          {/* Sleeve Length */}
+          <div>
+            <label className="text-xs text-secondary mb-1.5 block font-medium">الأكمام · Sleeves</label>
+            <select {...register("sleeve_length")} className="input-admin">
+              <option value="">اختر...</option>
+              <option value="بدون أكمام">بدون أكمام</option>
+              <option value="أكمام قصيرة">أكمام قصيرة</option>
+              <option value="أكمام طويلة">أكمام طويلة</option>
+              <option value="أكمام 3/4">أكمام 3/4</option>
+            </select>
+          </div>
+
+          {/* Lining */}
+          <div>
+            <label className="text-xs text-secondary mb-1.5 block font-medium">البطانة · Lining</label>
+            <input
+              {...register("lining")}
+              className="input-admin"
+              placeholder="مثلاً: مبطن بالكامل"
+            />
+          </div>
+
+          {/* Closure Type */}
+          <div>
+            <label className="text-xs text-secondary mb-1.5 block font-medium">نوع الإغلاق · Closure</label>
+            <input
+              {...register("closure_type")}
+              className="input-admin"
+              placeholder="مثلاً: سحاب خلفي"
+            />
+          </div>
+
+          {/* Care Instructions */}
+          <div className="md:col-span-2">
+            <label className="text-xs text-secondary mb-1.5 block font-medium">تعليمات العناية · Care Instructions</label>
+            <textarea
+              {...register("care_instructions")}
+              className="input-admin"
+              rows={2}
+              placeholder="مثلاً: غسيل يدوي فقط. كي على حرارة متوسطة"
+            />
           </div>
 
           {/* Editorial Storytelling Section Header */}

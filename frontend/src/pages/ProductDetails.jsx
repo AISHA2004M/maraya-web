@@ -15,6 +15,7 @@ import {
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useUserStore } from "../store/useUserStore";
+import { formatPrice } from "../utils/formatPrice";
 
 function FabricCanvas({ imageUrl, windSpeed, isActive, fabricType }) {
   const canvasRef = useRef(null);
@@ -415,6 +416,25 @@ export default function ProductDetails() {
     }
   }, [id]);
 
+  // Reset all state when product ID changes to avoid leaking previous state/try-on images to a new product details page
+  useEffect(() => {
+    setTryonResult(null);
+    setTryonError(null);
+    setTryonLoading(false);
+    setTryonProgress(0);
+    setTryonDelayed(false);
+    setRotationIndex(0);
+    setSelectedSize(null);
+    setAdded(false);
+    setUserFile(null);
+    setUserImagePreview(null);
+    setShowTryOnModal(false);
+    setSizeRecommendation("");
+    setSelectedBrand("");
+    setSelectedBrandSize("");
+    setFabricSimulationActive(false);
+  }, [id]);
+
   
   // 360 viewer states
   const [rotationIndex, setRotationIndex] = useState(0);
@@ -437,6 +457,13 @@ export default function ProductDetails() {
   const [tryonProgress, setTryonProgress] = useState(0);
   const [tryonDelayed, setTryonDelayed] = useState(false);
   const activeTryonInstanceRef = useRef(null);
+  const pollingOptionsRef = useRef({ cancelled: false });
+
+  useEffect(() => {
+    return () => {
+      pollingOptionsRef.current.cancelled = true;
+    };
+  }, []);
 
   const [fabricSimulationActive, setFabricSimulationActive] = useState(false);
   const [windSpeed, setWindSpeed] = useState(5);
@@ -477,15 +504,10 @@ export default function ProductDetails() {
     );
   }
 
-  // Create list of 4 images for 360 rotation simulator using database values if present
-  const rotationImages = product.angles_images_url
-    ? product.angles_images_url.split(",")
-    : [
-        product.main_image_url || product.image_url,
-        "https://images.unsplash.com/photo-1539008835657-9e8e9680c956?w=800",
-        "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=800",
-        "https://images.unsplash.com/photo-1485968579580-b6d095142e6e?w=800",
-      ];
+  // Create list of images for 360 rotation simulator using database values if present
+  const rotationImages = (product.angles_images_url && product.angles_images_url.trim())
+    ? product.angles_images_url.split(",").map(url => url.trim()).filter(Boolean)
+    : [product.main_image_url || product.image_url];
 
   const handleAccordionToggle = (accordion) => {
     setActiveAccordion(activeAccordion === accordion ? null : accordion);
@@ -510,19 +532,20 @@ export default function ProductDetails() {
 
   // 360 rotators click-and-drag helpers
   const handleStart360Drag = (e) => {
+    if (rotationImages.length <= 1) return;
     setIsDragging360(true);
     dragStartX.current = e.clientX || e.touches?.[0]?.clientX || 0;
   };
 
   const handleMove360Drag = (e) => {
-    if (!isDragging360) return;
+    if (!isDragging360 || rotationImages.length <= 1) return;
     const currentX = e.clientX || e.touches?.[0]?.clientX || 0;
     const difference = currentX - dragStartX.current;
     
     // Rotate every 15px dragged
     if (Math.abs(difference) > 15) {
       const direction = difference > 0 ? -1 : 1;
-      setRotationIndex((prev) => (prev + direction + 4) % 4);
+      setRotationIndex((prev) => (prev + direction + rotationImages.length) % rotationImages.length);
       dragStartX.current = currentX;
     }
   };
@@ -548,6 +571,8 @@ export default function ProductDetails() {
   const handleTryOnGenerate = async () => {
     if (!userFile) return;
     console.log("[Try-On PDP] Request initiated for product ID:", product.id);
+    pollingOptionsRef.current.cancelled = true;
+    pollingOptionsRef.current = { cancelled: false };
 
     setTryonLoading(true);
     setTryonError(null);
@@ -561,10 +586,10 @@ export default function ProductDetails() {
 
     let delayTimer = setTimeout(() => {
       if (activeTryonInstanceRef.current === currentInstanceId) {
-        console.warn("[Try-On PDP] Generation has taken longer than 15 seconds.");
+        console.warn("[Try-On PDP] Generation has taken longer than 35 seconds.");
         setTryonDelayed(true);
       }
-    }, 15000);
+    }, 35000);
 
     let activeJobId = null;
 
@@ -611,7 +636,8 @@ export default function ProductDetails() {
             }
           },
           1000,
-          30000 // 30 seconds timeout
+          60000, // 60 seconds timeout
+          pollingOptionsRef.current
         );
 
         if (activeTryonInstanceRef.current === currentInstanceId) {
@@ -660,10 +686,12 @@ export default function ProductDetails() {
             
             {/* 360 Product Rotator Frame */}
             <div className="space-y-4">
-              <div className="flex justify-between items-center text-[10px] font-bold tracking-widest text-secondary uppercase">
-                <span className="flex items-center gap-2"><RotateCcw size={12} /> Drag horizontally to rotate 360°</span>
-                <span>Interactive View</span>
-              </div>
+              {rotationImages.length > 1 && (
+                <div className="flex justify-between items-center text-[10px] font-bold tracking-widest text-secondary uppercase">
+                  <span className="flex items-center gap-2"><RotateCcw size={12} /> Drag horizontally to rotate 360°</span>
+                  <span>Interactive View</span>
+                </div>
+              )}
               <div
                 onMouseDown={handleStart360Drag}
                 onMouseMove={handleMove360Drag}
@@ -672,7 +700,7 @@ export default function ProductDetails() {
                 onTouchStart={handleStart360Drag}
                 onTouchMove={handleMove360Drag}
                 onTouchEnd={handleStop360Drag}
-                className="w-full aspect-[3/4] bg-white border border-rule overflow-hidden rounded-lg cursor-grab flex items-center justify-center select-none relative group"
+                className={`w-full aspect-[3/4] bg-white border border-rule overflow-hidden rounded-lg flex items-center justify-center select-none relative group ${rotationImages.length > 1 ? "cursor-grab" : ""}`}
               >
                 {/* Simulated Canvas draping + Waving */}
                 <FabricCanvas
@@ -733,9 +761,11 @@ export default function ProductDetails() {
                   </span>
                 </div>
 
-                <div className="absolute bottom-4 right-4 bg-black/60 backdrop-blur-sm text-[8px] font-bold tracking-widest text-white px-2 py-1 uppercase rounded-sm">
-                  Angle {rotationIndex + 1} / {rotationImages.length}
-                </div>
+                {rotationImages.length > 1 && (
+                  <div className="absolute bottom-4 right-4 bg-black/60 backdrop-blur-sm text-[8px] font-bold tracking-widest text-white px-2 py-1 uppercase rounded-sm">
+                    Angle {rotationIndex + 1} / {rotationImages.length}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -776,7 +806,7 @@ export default function ProductDetails() {
                 <div className="space-y-1">
                   {product.brand && (
                     <Link
-                      to={`/brand/${product.brand.id}`}
+                      to={`/brands/${product.brand.slug}`}
                       className="text-xs font-bold tracking-[0.2em] uppercase text-secondary hover:text-black transition-colors hover:underline"
                     >
                       {product.brand.name}
@@ -802,7 +832,7 @@ export default function ProductDetails() {
                   {product.name}
                 </h1>
                 <p className="text-2xl font-light text-primary tracking-wide">
-                  ${Number(product.price).toFixed(2)}
+                  {formatPrice(product.price)}
                 </p>
               </div>
 
@@ -912,6 +942,22 @@ export default function ProductDetails() {
                 </button>
               </div>
 
+              {/* WhatsApp Order CTA */}
+              <a
+                href={`https://wa.me/9647800000000?text=${encodeURIComponent(
+                  `مرحباً، أود الاستفسار عن/طلب قطعة: ${product.name}\nالمقاس: ${selectedSize || "غير محدد"}\nالسعر: ${formatPrice(product.price)}\nالرابط: ${window.location.href}`
+                )}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full border border-green-600 text-green-600 hover:bg-green-50 dark:hover:bg-green-950/20 py-3.5 text-xs font-bold tracking-widest uppercase flex items-center justify-center gap-2 rounded-lg transition-all"
+              >
+                <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.458L0 24zm6.59-4.846c1.6.95 3.51 1.451 5.467 1.453 5.518 0 10.007-4.49 10.01-10.01.002-2.673-1.03-5.187-2.906-7.067C17.348 1.65 14.846.618 12.188.618c-5.524 0-10.014 4.49-10.017 10.01-.001 1.879.487 3.717 1.417 5.32L2.553 21.6l5.772-1.513c1.558.85 3.298 1.298 5.048 1.298z"/>
+                  <path d="M17.472 14.382c-.302-.151-1.787-.88-2.057-.98-.27-.1-.466-.151-.66.15-.195.3-.755.95-.925 1.14-.17.19-.34.21-.64.06-1.396-.7-2.42-1.24-3.23-2.64-.216-.37.215-.34.618-1.14.075-.15.038-.28-.019-.38-.057-.1-.466-1.12-.64-1.54-.17-.41-.357-.35-.488-.36l-.417-.01c-.143 0-.377.05-.574.27-.197.22-.755.74-.755 1.8 0 1.06.772 2.09.88 2.24.11.15 1.516 2.316 3.67 3.248 1.34.58 1.83.69 2.478.6.35-.05 1.787-.73 2.04-1.4.254-.67.254-1.24.18-1.35-.07-.12-.27-.19-.57-.34z"/>
+                </svg>
+                <span>الطلب عبر واتساب / WhatsApp</span>
+              </a>
+
               {/* AI Sizing Trigger link */}
               <div className="pt-2 text-center">
                 <button
@@ -924,34 +970,120 @@ export default function ProductDetails() {
               </div>
             </div>
 
+            {/* Product Details Grid — Essential buyer info */}
+            {(product.garment_length || product.color || product.material_details || product.origin_country) && (
+              <div className="pt-6 border-t border-rule">
+                <h3 className="text-[10px] font-bold tracking-widest uppercase text-primary mb-4 flex items-center gap-2">
+                  <span>تفاصيل القطعة</span>
+                  <span className="text-secondary">Product Details</span>
+                </h3>
+                <div className="grid grid-cols-2 gap-x-6 gap-y-3">
+                  {product.garment_length && (
+                    <div className="flex items-start gap-2">
+                      <span className="text-[11px] text-secondary shrink-0">📏</span>
+                      <div>
+                        <p className="text-[9px] font-bold tracking-wider uppercase text-secondary">الطول</p>
+                        <p className="text-xs font-medium text-primary">{product.garment_length}</p>
+                      </div>
+                    </div>
+                  )}
+                  {product.material_details && (
+                    <div className="flex items-start gap-2">
+                      <span className="text-[11px] text-secondary shrink-0">🧵</span>
+                      <div>
+                        <p className="text-[9px] font-bold tracking-wider uppercase text-secondary">القماش</p>
+                        <p className="text-xs font-medium text-primary">{product.material_details}</p>
+                      </div>
+                    </div>
+                  )}
+                  {product.color && (
+                    <div className="flex items-start gap-2">
+                      <span className="text-[11px] text-secondary shrink-0">🎨</span>
+                      <div>
+                        <p className="text-[9px] font-bold tracking-wider uppercase text-secondary">اللون</p>
+                        <p className="text-xs font-medium text-primary">{product.color}</p>
+                      </div>
+                    </div>
+                  )}
+                  {product.origin_country && (
+                    <div className="flex items-start gap-2">
+                      <span className="text-[11px] text-secondary shrink-0">🌍</span>
+                      <div>
+                        <p className="text-[9px] font-bold tracking-wider uppercase text-secondary">بلد المنشأ</p>
+                        <p className="text-xs font-medium text-primary">{product.origin_country}</p>
+                      </div>
+                    </div>
+                  )}
+                  {product.garment_weight && (
+                    <div className="flex items-start gap-2">
+                      <span className="text-[11px] text-secondary shrink-0">⚖️</span>
+                      <div>
+                        <p className="text-[9px] font-bold tracking-wider uppercase text-secondary">الوزن</p>
+                        <p className="text-xs font-medium text-primary">{product.garment_weight}</p>
+                      </div>
+                    </div>
+                  )}
+                  {product.sleeve_length && (
+                    <div className="flex items-start gap-2">
+                      <span className="text-[11px] text-secondary shrink-0">👗</span>
+                      <div>
+                        <p className="text-[9px] font-bold tracking-wider uppercase text-secondary">الأكمام</p>
+                        <p className="text-xs font-medium text-primary">{product.sleeve_length}</p>
+                      </div>
+                    </div>
+                  )}
+                  {product.closure_type && (
+                    <div className="flex items-start gap-2">
+                      <span className="text-[11px] text-secondary shrink-0">📎</span>
+                      <div>
+                        <p className="text-[9px] font-bold tracking-wider uppercase text-secondary">نوع الإغلاق</p>
+                        <p className="text-xs font-medium text-primary">{product.closure_type}</p>
+                      </div>
+                    </div>
+                  )}
+                  {product.lining && (
+                    <div className="flex items-start gap-2">
+                      <span className="text-[11px] text-secondary shrink-0">🏷️</span>
+                      <div>
+                        <p className="text-[9px] font-bold tracking-wider uppercase text-secondary">البطانة</p>
+                        <p className="text-xs font-medium text-primary">{product.lining}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Luxury Details Accordions */}
             <div className="pt-6 border-t border-rule space-y-1">
               <AccordionItem
-                title="Composition & Care"
+                title="التركيب والعناية · Composition & Care"
                 isOpen={activeAccordion === "composition"}
                 onToggle={() => handleAccordionToggle("composition")}
               >
-                <p><strong>Composition:</strong> {product.fabric_type || "100% Organic Luxury Fabric Blend"}</p>
-                <p>Dry clean only. Handle with extreme care. Keep away from rough textures to preserve drape silhouette.</p>
+                <p><strong>القماش:</strong> {product.material_details || product.fabric_type || "أقمشة فاخرة مستوردة"}</p>
+                <p><strong>العناية:</strong> {product.care_instructions || "اتبع تعليمات الملصق الداخلي"}</p>
               </AccordionItem>
 
               <AccordionItem
-                title="Sizing & Fit"
+                title="المقاسات · Sizing & Fit"
                 isOpen={activeAccordion === "sizing"}
                 onToggle={() => handleAccordionToggle("sizing")}
               >
-                <p><strong>Size Scale:</strong> {product.size_type || "Standard EU Sizing"}</p>
-                <p>Designed for a clean, contoured editorial drape. Recommended to order your standard size or consult our virtual sizing recommendation modal.</p>
+                <p><strong>نظام المقاسات:</strong> {product.size_type || "مقاسات أوروبية قياسية"}</p>
+                {product.garment_length && <p><strong>طول القطعة:</strong> {product.garment_length}</p>}
+                <p>ننصح باختيار مقاسك المعتاد أو استخدام مستشار المقاسات الذكي.</p>
               </AccordionItem>
 
               <AccordionItem
-                title="Shipping & Returns"
+                title="الشحن والإرجاع · Shipping & Returns"
                 isOpen={activeAccordion === "shipping"}
                 onToggle={() => handleAccordionToggle("shipping")}
               >
-                <p>Signature white tissue packaging on all orders.</p>
-                <p>Express tracked delivery within 2-4 business days.</p>
-                <p>Complimentary returns within 14 days of delivery.</p>
+                <p>📦 شحن سريع لجميع محافظات العراق خلال 2-5 أيام عمل.</p>
+                <p>🚚 شحن مجاني للطلبات فوق 150,000 د.ع.</p>
+                <p>↩️ إرجاع مجاني خلال 14 يوم من تاريخ الاستلام.</p>
+                <p>📞 للاستفسار تواصل عبر واتساب.</p>
               </AccordionItem>
             </div>
           </div>
@@ -964,6 +1096,12 @@ export default function ProductDetails() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 bg-black/75 backdrop-blur-md flex items-center justify-center z-50 p-6"
+              onClick={(e) => {
+                if (e.target === e.currentTarget) {
+                  setShowSizeAdvisor(false);
+                  setSizeRecommendation("");
+                }
+              }}
             >
               <motion.div
                 initial={{ scale: 0.95, y: 20 }}
@@ -1107,15 +1245,15 @@ export default function ProductDetails() {
               <div className="flex items-center gap-2.5">
                 <Sparkles size={16} className="text-secondary animate-pulse" />
                 <span className="text-[9px] font-bold tracking-[0.25em] text-secondary uppercase">
-                  ATELIER FITTING ROOM
+                  غرفة القياس الذكية / Fitting Room
                 </span>
               </div>
               <h2 className="heading-serif text-3xl md:text-5xl font-light">
-                Digital Fitting
+                القياس الافتراضي
               </h2>
             </div>
             <p className="text-secondary text-xs md:text-sm font-light max-w-sm leading-relaxed">
-              Experience the drape of the {product.name} on your shape. Upload your portrait and execute try-on instantly.
+              شاهد كيف ستبدو قطعة {product.name} عليك. اختر عارضاً افتراضياً أو ارفع صورتك الشخصية لتجربتها بالذكاء الاصطناعي في ثوانٍ.
             </p>
           </div>
 
@@ -1134,13 +1272,15 @@ export default function ProductDetails() {
                     </span>
                   )}
                 </div>
-                <UploadBox
-                  onUpload={(file) => {
-                    setUserFile(file);
-                    setUserImagePreview(URL.createObjectURL(file));
-                  }}
-                  preview={userImagePreview}
-                />
+                <div className="w-full max-w-sm aspect-[3/4] mx-auto overflow-hidden relative rounded-lg border border-rule bg-white">
+                  <UploadBox
+                    onUpload={(file) => {
+                      setUserFile(file);
+                      setUserImagePreview(URL.createObjectURL(file));
+                    }}
+                    preview={userImagePreview}
+                  />
+                </div>
               </div>
 
               {userFile && !tryonResult && (
@@ -1188,7 +1328,11 @@ export default function ProductDetails() {
                 <div className="flex-grow flex items-center justify-center relative rounded-lg overflow-hidden mt-4">
                   {tryonResult ? (
                     <div className="w-full h-full max-w-sm aspect-[3/4] mx-auto overflow-hidden relative group shadow-lg border border-rule bg-white rounded-lg">
-                      <ComparisonSlider beforeSrc={userImagePreview} afterSrc={tryonResult} />
+                      <img
+                        src={tryonResult}
+                        alt="Tryon Result"
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                   ) : tryonLoading ? (
                     <div className="text-center space-y-6">
@@ -1303,7 +1447,7 @@ export default function ProductDetails() {
                   <div className="space-y-1">
                     <div className="flex justify-between items-baseline">
                       <p className="text-[10px] font-bold uppercase text-secondary truncate">{rec.brand?.name}</p>
-                      <p className="text-[10px] font-light text-primary">${Number(rec.price).toFixed(2)}</p>
+                      <p className="text-[10px] font-light text-primary">{formatPrice(rec.price)}</p>
                     </div>
                     <p className="text-xs font-semibold text-primary group-hover:underline truncate">{rec.name}</p>
                   </div>

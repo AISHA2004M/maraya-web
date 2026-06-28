@@ -68,6 +68,15 @@ vrital_web/
 
 ## AI Try-On
 
-The AI try-on service calls `AI_SERVICE_URL/infer` with `{ user_image, cloth_image }`.
-In development, when the AI service is not running, a mock result is returned automatically.
-Set `AI_SERVICE_URL` in `backend/.env` to connect your real inference endpoint.
+The AI try-on system operates under a priority-based routing gateway:
+
+1. **Priority 1: Nano Banana 2 (Google Gemini 3.1 Flash Image API)**
+   - Triggered by configuring `GEMINI_API_KEY` or `NANO_BANANA_API_KEY` in `backend/.env`.
+   - Uses advanced multimodal inpainting to render the garment onto the person.
+2. **Priority 2: IDM-VTON**
+   - **Cloud Replicate:** Enabled by setting `REPLICATE_API_TOKEN` in `backend/.env`.
+   - **Local Bridge Server:** Enabled by running `idm_vton_server.py` at `http://localhost:8001` (configured via `AI_SERVICE_URL`).
+3. **Priority 3: Local Fallback (Segment-and-Drape)**
+   - Used automatically when no API keys or local bridge servers are available (dev fallback).
+
+Set the respective environment variables in `backend/.env` to configure your preferred generation pipeline.

@@ -7,7 +7,7 @@ import { getDashboard } from "../api/analytics";
 import { TrendingUp, ShoppingBag, Sparkles, Users, Award, Percent, Eye } from "lucide-react";
 
 const STATS = [
-  { label: "Gross Revenue", key: "revenue", icon: TrendingUp, prefix: "$" },
+  { label: "Gross Revenue", key: "revenue", icon: TrendingUp, suffix: " د.ع" },
   { label: "Total Orders", key: "orders", icon: ShoppingBag },
   { label: "AI Try-On Inferences", key: "tryon", icon: Sparkles },
   { label: "Unique Views", key: "views", icon: Users },
@@ -32,7 +32,7 @@ const CustomTooltip = ({ active, payload, label }) => {
       <p className="text-gray-500 mb-2 font-semibold tracking-widest uppercase">{label}</p>
       {payload.map((p) => (
         <p key={p.name} className="font-bold text-sm text-black">
-          {p.name}: {p.value}
+          {p.name}: {p.name === "Revenue" ? `${p.value.toLocaleString()} د.ع` : p.value.toLocaleString()}
         </p>
       ))}
     </div>
@@ -69,7 +69,7 @@ export default function Dashboard() {
 
       {/* Main Stat Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-        {STATS.map(({ label, key, icon: Icon, prefix = "" }) => (
+        {STATS.map(({ label, key, icon: Icon, suffix = "" }) => (
           <div key={key} className="bg-white border border-gray-200 p-6 rounded-sm shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center gap-3 mb-4 text-gray-400">
               <Icon size={16} />
@@ -79,9 +79,8 @@ export default function Dashboard() {
               <div className="h-8 bg-gray-100 rounded animate-pulse" />
             ) : (
               <p className="text-3xl font-light text-black">
-                {prefix}{key === "revenue"
-                  ? totals[key].toLocaleString()
-                  : totals[key].toLocaleString()}
+                {totals[key].toLocaleString()}
+                {suffix}
               </p>
             )}
           </div>
@@ -120,7 +119,7 @@ export default function Dashboard() {
               </defs>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
               <XAxis dataKey="date" tick={{ fill: "#9CA3AF", fontSize: 10 }} tickLine={false} axisLine={false} />
-              <YAxis tick={{ fill: "#9CA3AF", fontSize: 10 }} tickLine={false} axisLine={false} tickFormatter={(val) => `$${val}`} />
+              <YAxis tick={{ fill: "#9CA3AF", fontSize: 10 }} tickLine={false} axisLine={false} tickFormatter={(val) => val >= 1000 ? `${(val / 1000).toFixed(0)}K د.ع` : `${val} د.ع`} />
               <Tooltip content={<CustomTooltip />} />
               <Area type="monotone" dataKey="revenue" name="Revenue" stroke="#000000" fill="url(#revGrad)" strokeWidth={2} dot={false} />
             </AreaChart>
