@@ -44,8 +44,10 @@ out/
 .cache/
 .parcel-cache/
 
-# IDM-VTON model (large ML model directory - do not push to GitHub)
-IDM-VTON/
+# IDM-VTON — exclude only heavy files (virtual env + model weights), keep code
+IDM-VTON/vton_env/
+IDM-VTON/ckpt/
+IDM-VTON/vitonhd_train_tagged.json
 
 # Local media uploads/outputs (user files - keep private)
 backend/uploads/
