@@ -44,11 +44,9 @@ out/
 .cache/
 .parcel-cache/
 
-# Local media & temp models
-backend/uploads/
-backend/outputs/
+# IDM-VTON model (large ML model directory - do not push to GitHub)
 IDM-VTON/
 
-# Scratch & test scripts
-backend/scratch_*
-backend/clear_cache.py
+# Local media uploads/outputs (user files - keep private)
+backend/uploads/
+backend/outputs/
