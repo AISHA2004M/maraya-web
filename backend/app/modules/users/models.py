@@ -1,13 +1,17 @@
 import uuid
-from sqlalchemy import Column, String, Integer, Text, DateTime, ForeignKey, func
+import os
+from sqlalchemy import Column, String, Integer, Text, DateTime, ForeignKey, func, UUID
 from sqlalchemy.orm import relationship
 from app.core.database import Base
+
+_is_postgres = os.getenv("DATABASE_URL", "").startswith("postgres")
+ID_TYPE = UUID(as_uuid=False) if _is_postgres else String(36)
 
 
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    id = Column(ID_TYPE, primary_key=True, default=lambda: str(uuid.uuid4()))
     email = Column(String(255), unique=True, nullable=False, index=True)
     password_hash = Column(String, nullable=False)
     full_name = Column(String(255), nullable=True)

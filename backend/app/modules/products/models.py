@@ -1,7 +1,33 @@
 import uuid
+import os
 from sqlalchemy import Column, String, Integer, Text, Numeric, Boolean, DateTime, ForeignKey, func
+from sqlalchemy.types import TypeDecorator, CHAR
+from sqlalchemy.dialects.postgresql import UUID as pgUUID
 from sqlalchemy.orm import relationship
 from app.core.database import Base
+
+class GUID(TypeDecorator):
+    impl = CHAR
+    cache_ok = True
+
+    def load_dialect_impl(self, dialect):
+        if dialect.name == 'postgresql':
+            return dialect.type_descriptor(pgUUID())
+        else:
+            return dialect.type_descriptor(CHAR(36))
+
+    def process_bind_param(self, value, dialect):
+        if value is None:
+            return value
+        return str(value)
+
+    def process_result_value(self, value, dialect):
+        if value is None:
+            return value
+        return str(value)
+
+ID_TYPE = GUID
+
 
 
 class Brand(Base):
@@ -49,7 +75,7 @@ class Category(Base):
 class Product(Base):
     __tablename__ = "products"
 
-    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    id = Column(ID_TYPE, primary_key=True, default=lambda: str(uuid.uuid4()))
     name = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
     price = Column(Numeric(10, 2), nullable=False)
@@ -94,7 +120,7 @@ class ProductImage(Base):
     __tablename__ = "product_images"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    product_id = Column(String(36), ForeignKey("products.id", ondelete="CASCADE"))
+    product_id = Column(ID_TYPE, ForeignKey("products.id", ondelete="CASCADE"))
     image_url = Column(Text, nullable=False)
     angle = Column(String(50), nullable=True)
     created_at = Column(DateTime, server_default=func.now())
@@ -107,8 +133,9 @@ class ProductSize(Base):
     __tablename__ = "product_sizes"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    product_id = Column(String(36), ForeignKey("products.id", ondelete="CASCADE"), nullable=False)
+    product_id = Column(ID_TYPE, ForeignKey("products.id", ondelete="CASCADE"), nullable=False)
     size = Column(String(10), nullable=False)  # e.g. "XS", "S", "M", "L", "XL"
     stock = Column(Integer, default=0, nullable=False)
 
     product = relationship("Product", back_populates="sizes")
+

@@ -273,24 +273,56 @@ def seed():
             return
 
         print("Seeding brands...")
-        brands = []
+        brands_dict = {}
         for b in BRANDS:
             brand = Brand(**b)
             db.add(brand)
-            brands.append(brand)
+            brands_dict[b["slug"]] = brand
         db.flush()
 
+        # Map of hardcoded brand index in PRODUCTS to seeded Brand ID
+        brand_slug_by_index = {
+            1: "zara",
+            2: "nike",
+            3: "hm",
+            4: "gucci",
+        }
+        brand_id_map = {index: brands_dict[slug].id for index, slug in brand_slug_by_index.items()}
+
         print("Seeding categories...")
-        cats = []
-        for c in CATEGORIES:
-            cat = Category(**c)
-            db.add(cat)
-            cats.append(cat)
+        # 1. Insert parent category first
+        parent_cat = Category(name="Clothing", parent_id=None)
+        db.add(parent_cat)
         db.flush()
+
+        # 2. Insert child categories referencing the parent's actual ID
+        child_cats = {
+            2: Category(name="Dresses", parent_id=parent_cat.id),
+            3: Category(name="Tops", parent_id=parent_cat.id),
+            4: Category(name="Bottoms", parent_id=parent_cat.id),
+            5: Category(name="Outerwear", parent_id=parent_cat.id),
+        }
+        for cat in child_cats.values():
+            db.add(cat)
+        db.flush()
+
+        # Map of hardcoded category index in PRODUCTS to seeded Category ID
+        category_id_map = {
+            1: parent_cat.id,
+            2: child_cats[2].id,
+            3: child_cats[3].id,
+            4: child_cats[4].id,
+            5: child_cats[5].id,
+        }
 
         print("Seeding products...")
         for p in PRODUCTS:
-            product = Product(**p)
+            prod_data = p.copy()
+            # Resolve Brand and Category IDs dynamically
+            prod_data["brand_id"] = brand_id_map.get(p["brand_id"])
+            prod_data["category_id"] = category_id_map.get(p["category_id"])
+            
+            product = Product(**prod_data)
             db.add(product)
         db.flush()
 
@@ -304,16 +336,13 @@ def seed():
         )
         db.add(admin)
 
-        # Fetch brand IDs by slug
-        brand_map = {b.slug: b.id for b in db.query(Brand).all()}
-
         # Partner User (Generic / Zara)
         partner = User(
             email="partner@vrital.com",
             password_hash=hash_password("partner123"),
             full_name="Demo Store Owner",
             role="partner",
-            brand_id=brand_map.get("zara")
+            brand_id=brands_dict["zara"].id
         )
         db.add(partner)
 
@@ -323,7 +352,7 @@ def seed():
             password_hash=hash_password("partner123"),
             full_name="Gucci Manager",
             role="partner",
-            brand_id=brand_map.get("gucci")
+            brand_id=brands_dict["gucci"].id
         )
         db.add(gucci_partner)
 
@@ -332,7 +361,7 @@ def seed():
             password_hash=hash_password("partner123"),
             full_name="Nike Manager",
             role="partner",
-            brand_id=brand_map.get("nike")
+            brand_id=brands_dict["nike"].id
         )
         db.add(nike_partner)
 
@@ -341,7 +370,7 @@ def seed():
             password_hash=hash_password("partner123"),
             full_name="Zara Manager",
             role="partner",
-            brand_id=brand_map.get("zara")
+            brand_id=brands_dict["zara"].id
         )
         db.add(zara_partner)
 
@@ -350,7 +379,7 @@ def seed():
             password_hash=hash_password("partner123"),
             full_name="H&M Manager",
             role="partner",
-            brand_id=brand_map.get("hm")
+            brand_id=brands_dict["hm"].id
         )
         db.add(hm_partner)
 
@@ -383,3 +412,4 @@ def seed():
 
 if __name__ == "__main__":
     seed()
+
