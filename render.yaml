@@ -14,7 +14,6 @@ services:
     dockerContext: backend
     dockerfilePath: backend/Dockerfile
     plan: free
-    port: 8000
     envVars:
       - key: DATABASE_URL
         sync: false # User will paste their Postgres connection string here
