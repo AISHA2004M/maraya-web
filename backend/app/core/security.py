@@ -6,9 +6,9 @@ import hmac
 import os
 from app.core.config import settings
 
-# Use SHA-256 HMAC for password hashing (compatible with all Python/bcrypt versions)
-# For production, swap back to bcrypt with a compatible version
-_HASH_SECRET = settings.JWT_SECRET.encode()
+# Use a fixed salt for HMAC-SHA256 password hashing so that token rotation (JWT_SECRET changes)
+# does not invalidate existing user passwords in the database.
+_HASH_SECRET = b"vrital_platform_hash_salt_2026"
 
 
 def hash_password(password: str) -> str:
