@@ -22,7 +22,6 @@ from app.core.config import settings
 logger = logging.getLogger(__name__)
 
 UPLOAD_DIR = "uploads"
-_BASE_URL = "http://127.0.0.1:8000"
 
 
 async def save_file(file: UploadFile, folder: str = "") -> str:
@@ -78,9 +77,10 @@ def _save_locally(contents: bytes, filename: str) -> str:
     local_path = os.path.join(UPLOAD_DIR, filename)
     with open(local_path, "wb") as f:
         f.write(contents)
-    url = f"{_BASE_URL}/uploads/{filename}"
+    url = f"{settings.API_BASE_URL.rstrip('/')}/uploads/{filename}"
     logger.debug(f"[Upload] Saved locally: {url}")
     return url
+
 
 
 async def save_file_from_bytes(

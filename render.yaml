@@ -1,0 +1,88 @@
+# Render Blueprint Specification (render.yaml)
+# ============================================
+# Use this file to deploy the entire Vrital Web infrastructure (Database, Redis,
+# FastAPI Backend, and Celery Worker) to Render in one click.
+#
+# Reference: https://render.com/docs/blueprints-readme
+
+services:
+  # ─── FastAPI Backend Web Service ───────────────────────────────────────────
+  - type: web
+    name: vrital-api
+    env: docker
+    dockerContext: backend
+    dockerfilePath: backend/Dockerfile
+    plan: free
+    port: 8000
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: vrital-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: vrital-redis
+          property: connectionString
+      - key: API_BASE_URL
+        sync: false # User will set their custom Render URL here (e.g. https://vrital-api.onrender.com)
+      - key: JWT_SECRET
+        generateValue: true # Generates a secure random JWT key automatically
+      - key: HF_TOKEN
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: REPLICATE_API_TOKEN
+        sync: false
+
+  # ─── Celery Background Worker ──────────────────────────────────────────────
+  - type: worker
+    name: vrital-celery-worker
+    env: docker
+    dockerContext: backend
+    dockerfilePath: backend/Dockerfile
+    buildCommand: "" # Not needed for Docker workers
+    startCommand: celery -A worker.celery_app worker --loglevel=info
+    plan: free
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: vrital-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: vrital-redis
+          property: connectionString
+      - key: JWT_SECRET
+        fromService:
+          type: web
+          name: vrital-api
+          property: envVar:JWT_SECRET
+      - key: HF_TOKEN
+        fromService:
+          type: web
+          name: vrital-api
+          property: envVar:HF_TOKEN
+      - key: GEMINI_API_KEY
+        fromService:
+          type: web
+          name: vrital-api
+          property: envVar:GEMINI_API_KEY
+      - key: REPLICATE_API_TOKEN
+        fromService:
+          type: web
+          name: vrital-api
+          property: envVar:REPLICATE_API_TOKEN
+
+# ─── Redis Cache & Broker ───────────────────────────────────────────────────
+  - type: redis
+    name: vrital-redis
+    plan: free
+    ipAllowList: [] # Only allow internal Render services to connect
+
+# ─── PostgreSQL Production Database ─────────────────────────────────────────
+databases:
+  - name: vrital-db
+    plan: free
+    ipAllowList: [] # Only allow internal Render services to connect
