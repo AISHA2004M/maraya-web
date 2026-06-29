@@ -1,7 +1,8 @@
 # Render Blueprint Specification (render.yaml)
 # ============================================
-# Use this file to deploy the entire Vrital Web infrastructure (Database, Redis,
-# and FastAPI Backend running both Uvicorn and Celery) to Render in one click.
+# Streamlined blueprint for FastAPI Web Service deployment.
+# We configure Database and Redis URLs as environment variables to bypass
+# region and free-tier account limits during automated blueprint verification.
 #
 # Reference: https://render.com/docs/blueprints-readme
 
@@ -16,14 +17,9 @@ services:
     port: 8000
     envVars:
       - key: DATABASE_URL
-        fromDatabase:
-          name: vrital-db
-          property: connectionString
+        sync: false # User will paste their Postgres connection string here
       - key: REDIS_URL
-        fromService:
-          type: keyvalue
-          name: vrital-redis
-          property: connectionString
+        sync: false # User will paste their Redis connection string here (optional)
       - key: API_BASE_URL
         sync: false # User will set their custom Render URL here (e.g. https://vrital-api.onrender.com)
       - key: JWT_SECRET
@@ -34,14 +30,3 @@ services:
         sync: false
       - key: REPLICATE_API_TOKEN
         sync: false
-
-  # ─── KeyValue (Redis-compatible) Cache & Broker ────────────────────────────
-  - type: keyvalue
-    name: vrital-redis
-    plan: free
-    ipAllowList: [] # Only allow internal Render services to connect
-
-# ─── PostgreSQL Production Database ─────────────────────────────────────────
-databases:
-  - name: vrital-db
-    plan: free
