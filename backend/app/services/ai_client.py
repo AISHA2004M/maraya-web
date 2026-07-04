@@ -12,6 +12,7 @@ Image Validation:
   validate_image_bytes() — checks MIME type, file size, and magic bytes.
 """
 
+import base64
 import io
 import logging
 import mimetypes
@@ -19,6 +20,7 @@ import os
 import time
 import uuid
 import math
+
 
 import httpx
 from PIL import Image, ImageOps, ImageFilter, ImageDraw, ImageChops, ImageEnhance
@@ -108,8 +110,13 @@ def validate_image_bytes(contents: bytes, filename: str = "upload") -> None:
 # ---------------------------------------------------------------------------
 
 def _load_image(path_or_url: str, fallback_type: str = "portrait") -> Image.Image:
-    """Load an image from a local path or URL, with fallback."""
+    """Load an image from a local path, URL, or base64 data URI, with fallback."""
     try:
+        # Resolve base64 data URI
+        if path_or_url.startswith("data:image/"):
+            header, encoded = path_or_url.split(",", 1)
+            return Image.open(io.BytesIO(base64.b64decode(encoded)))
+
         # Resolve local files directly
         if os.path.exists(path_or_url):
             logger.info(f"[AI Pipeline] Resolving local path: {path_or_url}")
