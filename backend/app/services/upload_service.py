@@ -101,14 +101,21 @@ def _upload_to_s3(contents: bytes, key: str, ext: str) -> str:
 
 
 def _save_locally(contents: bytes, filename: str) -> str:
-    """Save bytes to local uploads/ folder and return serving URL."""
-    os.makedirs(UPLOAD_DIR, exist_ok=True)
-    local_path = os.path.join(UPLOAD_DIR, filename)
-    with open(local_path, "wb") as f:
-        f.write(contents)
-    url = f"{settings.API_BASE_URL.rstrip('/')}/uploads/{filename}"
-    logger.debug(f"[Upload] Saved locally: {url}")
-    return url
+    """
+    When no cloud storage is configured, encode the image as a base64 data URL.
+    This avoids dependency on Render's ephemeral filesystem and invalid localhost URLs.
+    The data URL is stored directly in the database and rendered by the browser without
+    any server-side file serving.
+    """
+    import base64
+    ext = os.path.splitext(filename)[1].lower().lstrip(".") or "jpg"
+    mime_map = {"jpg": "image/jpeg", "jpeg": "image/jpeg", "png": "image/png", "webp": "image/webp"}
+    mime = mime_map.get(ext, "image/jpeg")
+    b64 = base64.b64encode(contents).decode("utf-8")
+    data_url = f"data:{mime};base64,{b64}"
+    logger.debug(f"[Upload] Encoded as base64 data URL (len={len(data_url)})")
+    return data_url
+
 
 
 async def save_file_from_bytes(
