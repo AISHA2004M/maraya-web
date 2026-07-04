@@ -57,6 +57,15 @@ app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 # ─── Exception Handlers ───────────────────────────────────────────────────────
 app.add_exception_handler(AppException, app_exception_handler)
 
+import traceback
+from fastapi.responses import PlainTextResponse
+
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(request, exc):
+    tb = traceback.format_exc()
+    return PlainTextResponse(tb, status_code=500)
+
+
 # ─── API Routes ───────────────────────────────────────────────────────────────
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
