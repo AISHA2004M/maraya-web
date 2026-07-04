@@ -318,7 +318,7 @@ async def create_ai_try_on(
         
         new_session = TryOnSession(
             id=str(_uuid.uuid4()),
-            user_id=user_id if (user_id and not user_id.startswith("guest-")) else None,
+            user_id=user_id if (user_id and user_id != "guest" and not user_id.startswith("guest-")) else None,
             product_id=product_id,
             user_image_id=user_image_obj.id if user_image_obj else (cached_session.user_image_id if cached_session.user_image_id else None),
             result_image_url=cached_session.result_image_url,
@@ -397,7 +397,7 @@ async def create_ai_try_on(
     import uuid as _uuid
     session = TryOnSession(
         id=str(_uuid.uuid4()),
-        user_id=user_id if (user_id and not user_id.startswith("guest-")) else None,
+        user_id=user_id if (user_id and user_id != "guest" and not user_id.startswith("guest-")) else None,
         product_id=product_id,
         user_image_id=user_image_obj.id if user_image_obj else None,
         result_image_url=None,
