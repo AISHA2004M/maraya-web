@@ -1,11 +1,15 @@
 """
 Upload Service — Smart Storage Router
 =======================================
-Routes uploads to S3 (production) or local disk (development)
-based on the USE_S3 config flag. Zero code changes needed to switch.
+Routes uploads to:
+  1. Cloudinary (production) — if CLOUDINARY_CLOUD_NAME is configured
+  2. S3 (production)         — if USE_S3=true
+  3. Local disk (development) — fallback
 
-Production: Set USE_S3=true, S3_BUCKET, S3_ACCESS_KEY, S3_SECRET_KEY in .env
-Development: Leave USE_S3=false (default) — files saved to ./uploads/
+Zero code changes needed to switch.
+
+Production: Set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET in Render env vars
+Development: Leave unset — files saved to ./uploads/
 """
 
 import io
@@ -26,26 +30,52 @@ UPLOAD_DIR = "uploads"
 
 async def save_file(file: UploadFile, folder: str = "") -> str:
     """
-    Save an uploaded file to S3 or local disk.
-
-    Args:
-        file: The uploaded file from FastAPI.
-        folder: Optional sub-folder/prefix within the bucket or uploads dir.
-
-    Returns:
-        Public URL string of the saved file.
+    Save an uploaded file to Cloudinary, S3, or local disk.
+    Returns: Public URL string of the saved file.
     """
-    # Build unique filename
     ext = os.path.splitext(file.filename or "upload")[1].lower() or ".bin"
     filename = f"{uuid.uuid4()}{ext}"
     key = f"{folder}/{filename}" if folder else filename
-
-    # Read file content once (avoid double-seek issues)
     contents = await file.read()
 
+    if settings.CLOUDINARY_CLOUD_NAME and settings.CLOUDINARY_API_KEY:
+        return _upload_to_cloudinary(contents, key, ext, folder)
     if settings.USE_S3:
         return _upload_to_s3(contents, key, ext)
-    else:
+    return _save_locally(contents, filename)
+
+
+def _upload_to_cloudinary(contents: bytes, key: str, ext: str, folder: str = "") -> str:
+    """Upload bytes to Cloudinary and return the secure public URL."""
+    try:
+        import cloudinary
+        import cloudinary.uploader
+
+        cloudinary.config(
+            cloud_name=settings.CLOUDINARY_CLOUD_NAME,
+            api_key=settings.CLOUDINARY_API_KEY,
+            api_secret=settings.CLOUDINARY_API_SECRET,
+            secure=True,
+        )
+
+        # Use the folder as a Cloudinary folder prefix
+        public_id = f"vrital/{folder}/{uuid.uuid4()}" if folder else f"vrital/{uuid.uuid4()}"
+
+        # Determine resource type
+        resource_type = "image" if ext in (".jpg", ".jpeg", ".png", ".webp", ".gif") else "raw"
+
+        result = cloudinary.uploader.upload(
+            io.BytesIO(contents),
+            public_id=public_id,
+            resource_type=resource_type,
+            overwrite=True,
+        )
+        url = result.get("secure_url", "")
+        logger.info(f"[Upload] Cloudinary upload succeeded: {url}")
+        return url
+    except Exception as e:
+        logger.error(f"[Upload] Cloudinary upload failed ({e}), falling back to local.")
+        filename = key.split("/")[-1]
         return _save_locally(contents, filename)
 
 
@@ -66,7 +96,6 @@ def _upload_to_s3(contents: bytes, key: str, ext: str) -> str:
         return url
     except Exception as e:
         logger.error(f"[Upload] S3 upload failed ({e}), falling back to local.")
-        # Graceful fallback even in production
         filename = key.split("/")[-1]
         return _save_locally(contents, filename)
 
@@ -82,7 +111,6 @@ def _save_locally(contents: bytes, filename: str) -> str:
     return url
 
 
-
 async def save_file_from_bytes(
     contents: bytes,
     original_filename: str = "upload.bin",
@@ -95,6 +123,8 @@ async def save_file_from_bytes(
     filename = f"{uuid.uuid4()}{ext}"
     key = f"{folder}/{filename}" if folder else filename
 
+    if settings.CLOUDINARY_CLOUD_NAME and settings.CLOUDINARY_API_KEY:
+        return _upload_to_cloudinary(contents, key, ext, folder)
     if settings.USE_S3:
         return _upload_to_s3(contents, key, ext)
     return _save_locally(contents, filename)

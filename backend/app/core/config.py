@@ -29,6 +29,11 @@ class Settings(BaseSettings):
     NANO_BANANA_MODEL: str = "gemini-3.1-flash-image-preview"
     OPENROUTER_API_KEY: str = ""
 
+    # Cloudinary (free cloud storage for production images)
+    CLOUDINARY_CLOUD_NAME: str = ""
+    CLOUDINARY_API_KEY: str = ""
+    CLOUDINARY_API_SECRET: str = ""
+
     class Config:
         env_file = ".env"
         extra = "ignore"
