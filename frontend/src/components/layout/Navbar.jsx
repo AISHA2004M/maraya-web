@@ -49,9 +49,7 @@ export default function Navbar() {
     { to: `/brands/${brand_slug}`, label: t("atelier") },
     { to: `/brands/${brand_slug}/shop`, label: t("shop_all") },
     { to: `/brands/${brand_slug}/tryon`, label: t("ai_tryon") },
-  ] : [
-    { to: "/discover", label: t("discover_houses") }
-  ];
+  ] : [];
 
 
   // Fetch search candidates
