@@ -1239,22 +1239,24 @@ export default function ProductDetails() {
         {/* Fitting Room section */}
         <section
           id="fitting-room"
-          className="mt-28 border border-rule rounded-xl bg-white overflow-hidden shadow-sm flex flex-col"
+          className="mt-28 border border-rule rounded-xl bg-white overflow-hidden shadow-sm flex flex-col text-start"
         >
           <div className="bg-[#fcfcfa] text-primary p-8 md:p-12 flex flex-col md:flex-row justify-between items-baseline gap-6 border-b border-rule">
             <div className="space-y-3">
               <div className="flex items-center gap-2.5">
                 <Sparkles size={16} className="text-secondary animate-pulse" />
                 <span className="text-[9px] font-bold tracking-[0.25em] text-secondary uppercase">
-                  غرفة القياس الذكية / Fitting Room
+                  {language === "en" ? "Fitting Room" : "غرفة القياس الذكية"}
                 </span>
               </div>
               <h2 className="heading-serif text-3xl md:text-5xl font-light">
-                القياس الافتراضي
+                {language === "en" ? "AI Try-On" : "القياس الافتراضي"}
               </h2>
             </div>
             <p className="text-secondary text-xs md:text-sm font-light max-w-sm leading-relaxed">
-              شاهد كيف ستبدو قطعة {product.name} عليك. اختر عارضاً افتراضياً أو ارفع صورتك الشخصية لتجربتها بالذكاء الاصطناعي في ثوانٍ.
+              {language === "en" 
+                ? `See how the ${product.name} looks on you. Choose a preset model or upload your own photo to try it on in seconds.`
+                : `شاهد كيف ستبدو قطعة ${product.name} عليك. اختر عارضاً افتراضياً أو ارفع صورتك الشخصية لتجربتها بالذكاء الاصطناعي في ثوانٍ.`}
             </p>
           </div>
 
@@ -1265,11 +1267,11 @@ export default function ProductDetails() {
               <div className="space-y-4">
                 <div className="flex justify-between items-baseline">
                   <h3 className="text-xs font-bold tracking-widest uppercase">
-                    1. Upload Portrait
+                    {t("upload_portrait")}
                   </h3>
                   {userFile && (
                     <span className="text-[10px] text-green-600 font-bold uppercase tracking-wider flex items-center gap-1">
-                      <Check size={12} /> Image Ready
+                      <Check size={12} /> {language === "en" ? "Image Ready" : "الصورة جاهزة"}
                     </span>
                   )}
                 </div>
@@ -1301,17 +1303,17 @@ export default function ProductDetails() {
                     {tryonLoading ? (
                       <>
                         <Loader2 size={14} className="animate-spin" />
-                        <span>Tailoring...</span>
+                        <span>{language === "en" ? "Synthesizing..." : "جاري تفصيل الملابس..."}</span>
                       </>
                     ) : tryonError ? (
                       <>
                         <RotateCcw size={14} />
-                        <span>Retry Synthesis</span>
+                        <span>{language === "en" ? "Retry Synthesis" : "إعادة المحاولة"}</span>
                       </>
                     ) : (
                       <>
                         <Sparkles size={14} />
-                        <span>Synthesize Silhouette</span>
+                        <span>{language === "en" ? "Synthesize Silhouette" : "توليد القياس الافتراضي"}</span>
                       </>
                     )}
                   </button>
@@ -1320,10 +1322,10 @@ export default function ProductDetails() {
             </div>
 
             {/* Output Zone */}
-            <div className="p-8 md:p-12 bg-surface-bright flex flex-col justify-between min-h-[400px]">
+            <div className="p-8 md:p-12 bg-surface-bright flex flex-col justify-between min-h-[400px] text-start">
               <div className="space-y-4 flex-grow flex flex-col">
                 <h3 className="text-xs font-bold tracking-widest uppercase border-b border-rule pb-3.5">
-                  2. Rendered Silhouette
+                  {t("tryon_result")}
                 </h3>
 
                 <div className="flex-grow flex items-center justify-center relative rounded-lg overflow-hidden mt-4">
@@ -1350,19 +1352,19 @@ export default function ProductDetails() {
                             style={{ width: `${tryonProgress}%` }}
                           />
                         </div>
-                        <p className="text-[10px] text-secondary font-semibold">{tryonProgress}% completed</p>
+                        <p className="text-[10px] text-secondary font-semibold">{tryonProgress}% {language === "en" ? "completed" : "مكتمل"}</p>
                       </div>
                       {tryonDelayed && (
                         <div className="space-y-3 pt-2">
                           <p className="text-[11px] text-amber-600 font-medium animate-pulse">
-                            Generation is taking longer than expected.
+                            {language === "en" ? "Generation is taking longer than expected." : "العملية تستغرق وقتاً أطول من المتوقع."}
                           </p>
                           <button
                             onClick={handleTryOnGenerate}
                             className="btn-black py-2.5 px-6 text-[10px] font-bold tracking-widest uppercase flex items-center justify-center gap-1.5 mx-auto hover:bg-neutral-800 transition-colors"
                           >
                             <RotateCcw size={12} />
-                            <span>Retry Synthesis</span>
+                            <span>{language === "en" ? "Retry Synthesis" : "إعادة المحاولة"}</span>
                           </button>
                         </div>
                       )}
@@ -1371,7 +1373,7 @@ export default function ProductDetails() {
                     <div className="text-center space-y-4 max-w-xs p-6 bg-red-50/50 border border-red-100 rounded-lg">
                       <AlertCircle size={28} className="mx-auto text-red-500" />
                       <div className="space-y-1">
-                        <p className="text-xs font-bold tracking-widest uppercase text-red-600">Generation Failed</p>
+                        <p className="text-xs font-bold tracking-widest uppercase text-red-600">{language === "en" ? "Generation Failed" : "فشل توليد الصورة"}</p>
                         <p className="text-[11px] text-red-500 font-light leading-relaxed">{tryonError}</p>
                       </div>
                       <button
@@ -1379,14 +1381,14 @@ export default function ProductDetails() {
                         className="btn-black py-2.5 px-6 text-[10px] font-bold tracking-widest uppercase flex items-center justify-center gap-1.5 mx-auto hover:bg-neutral-800 transition-colors"
                       >
                         <RotateCcw size={12} />
-                        <span>Retry Synthesis</span>
+                        <span>{language === "en" ? "Retry Synthesis" : "إعادة المحاولة"}</span>
                       </button>
                     </div>
                   ) : (
                     <div className="text-center opacity-40 space-y-3">
                       <Sparkles size={28} className="mx-auto text-secondary" strokeWidth={1.2} />
                       <p className="text-[10px] uppercase tracking-widest font-bold text-secondary">
-                        Awaiting Silhouette
+                        {language === "en" ? "Awaiting Silhouette" : "في انتظار توليد القياس الافتراضي"}
                       </p>
                     </div>
                   )}
@@ -1400,14 +1402,14 @@ export default function ProductDetails() {
                     className="flex-1 btn-outline py-3 text-xs font-bold tracking-widest uppercase flex items-center justify-center gap-2"
                   >
                     <Download size={14} />
-                    <span>Download</span>
+                    <span>{t("save_image")}</span>
                   </button>
                   <button
                     onClick={handleAddToCart}
                     className="flex-grow btn-black py-3 text-xs font-bold tracking-widest uppercase flex items-center justify-center gap-2"
                   >
                     <ShoppingBag size={14} />
-                    <span>Buy Piece</span>
+                    <span>{language === "en" ? "Buy Piece" : "شراء القطعة"}</span>
                   </button>
                 </div>
               )}
