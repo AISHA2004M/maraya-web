@@ -957,7 +957,7 @@ export default function ProductDetails() {
                   <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.458L0 24zm6.59-4.846c1.6.95 3.51 1.451 5.467 1.453 5.518 0 10.007-4.49 10.01-10.01.002-2.673-1.03-5.187-2.906-7.067C17.348 1.65 14.846.618 12.188.618c-5.524 0-10.014 4.49-10.017 10.01-.001 1.879.487 3.717 1.417 5.32L2.553 21.6l5.772-1.513c1.558.85 3.298 1.298 5.048 1.298z"/>
                   <path d="M17.472 14.382c-.302-.151-1.787-.88-2.057-.98-.27-.1-.466-.151-.66.15-.195.3-.755.95-.925 1.14-.17.19-.34.21-.64.06-1.396-.7-2.42-1.24-3.23-2.64-.216-.37.215-.34.618-1.14.075-.15.038-.28-.019-.38-.057-.1-.466-1.12-.64-1.54-.17-.41-.357-.35-.488-.36l-.417-.01c-.143 0-.377.05-.574.27-.197.22-.755.74-.755 1.8 0 1.06.772 2.09.88 2.24.11.15 1.516 2.316 3.67 3.248 1.34.58 1.83.69 2.478.6.35-.05 1.787-.73 2.04-1.4.254-.67.254-1.24.18-1.35-.07-.12-.27-.19-.57-.34z"/>
                 </svg>
-                <span>الطلب عبر واتساب / WhatsApp</span>
+                <span>{language === "en" ? "Order via WhatsApp" : "الطلب عبر واتساب"}</span>
               </a>
 
               {/* AI Sizing Trigger link */}
@@ -967,24 +967,23 @@ export default function ProductDetails() {
                   className="inline-flex items-center gap-1.5 text-[10px] text-secondary hover:text-black font-bold uppercase tracking-widest hover:underline"
                 >
                   <HelpIcon size={12} />
-                  <span>Find Your Size with AI Advisor</span>
+                  <span>{language === "en" ? "Find Your Size with AI Advisor" : "اعثر على مقاسك بمستشار الذكاء الاصطناعي"}</span>
                 </button>
               </div>
             </div>
 
             {/* Product Details Grid — Essential buyer info */}
             {(product.garment_length || product.color || product.material_details || product.origin_country) && (
-              <div className="pt-6 border-t border-rule">
+              <div className="pt-6 border-t border-rule text-start">
                 <h3 className="text-[10px] font-bold tracking-widest uppercase text-primary mb-4 flex items-center gap-2">
-                  <span>تفاصيل القطعة</span>
-                  <span className="text-secondary">Product Details</span>
+                  <span>{language === "en" ? "Product Details" : "تفاصيل القطعة"}</span>
                 </h3>
                 <div className="grid grid-cols-2 gap-x-6 gap-y-3">
                   {product.garment_length && (
                     <div className="flex items-start gap-2">
                       <span className="text-[11px] text-secondary shrink-0">📏</span>
                       <div>
-                        <p className="text-[9px] font-bold tracking-wider uppercase text-secondary">الطول</p>
+                        <p className="text-[9px] font-bold tracking-wider uppercase text-secondary">{language === "en" ? "Length" : "الطول"}</p>
                         <p className="text-xs font-medium text-primary">{product.garment_length}</p>
                       </div>
                     </div>
@@ -993,7 +992,7 @@ export default function ProductDetails() {
                     <div className="flex items-start gap-2">
                       <span className="text-[11px] text-secondary shrink-0">🧵</span>
                       <div>
-                        <p className="text-[9px] font-bold tracking-wider uppercase text-secondary">القماش</p>
+                        <p className="text-[9px] font-bold tracking-wider uppercase text-secondary">{language === "en" ? "Fabric" : "القماش"}</p>
                         <p className="text-xs font-medium text-primary">{product.material_details}</p>
                       </div>
                     </div>
@@ -1002,7 +1001,7 @@ export default function ProductDetails() {
                     <div className="flex items-start gap-2">
                       <span className="text-[11px] text-secondary shrink-0">🎨</span>
                       <div>
-                        <p className="text-[9px] font-bold tracking-wider uppercase text-secondary">اللون</p>
+                        <p className="text-[9px] font-bold tracking-wider uppercase text-secondary">{language === "en" ? "Color" : "اللون"}</p>
                         <p className="text-xs font-medium text-primary">{product.color}</p>
                       </div>
                     </div>
@@ -1011,7 +1010,7 @@ export default function ProductDetails() {
                     <div className="flex items-start gap-2">
                       <span className="text-[11px] text-secondary shrink-0">🌍</span>
                       <div>
-                        <p className="text-[9px] font-bold tracking-wider uppercase text-secondary">بلد المنشأ</p>
+                        <p className="text-[9px] font-bold tracking-wider uppercase text-secondary">{language === "en" ? "Origin" : "بلد المنشأ"}</p>
                         <p className="text-xs font-medium text-primary">{product.origin_country}</p>
                       </div>
                     </div>
@@ -1020,7 +1019,7 @@ export default function ProductDetails() {
                     <div className="flex items-start gap-2">
                       <span className="text-[11px] text-secondary shrink-0">⚖️</span>
                       <div>
-                        <p className="text-[9px] font-bold tracking-wider uppercase text-secondary">الوزن</p>
+                        <p className="text-[9px] font-bold tracking-wider uppercase text-secondary">{language === "en" ? "Weight" : "الوزن"}</p>
                         <p className="text-xs font-medium text-primary">{product.garment_weight}</p>
                       </div>
                     </div>
@@ -1029,7 +1028,7 @@ export default function ProductDetails() {
                     <div className="flex items-start gap-2">
                       <span className="text-[11px] text-secondary shrink-0">👗</span>
                       <div>
-                        <p className="text-[9px] font-bold tracking-wider uppercase text-secondary">الأكمام</p>
+                        <p className="text-[9px] font-bold tracking-wider uppercase text-secondary">{language === "en" ? "Sleeves" : "الأكمام"}</p>
                         <p className="text-xs font-medium text-primary">{product.sleeve_length}</p>
                       </div>
                     </div>
@@ -1038,7 +1037,7 @@ export default function ProductDetails() {
                     <div className="flex items-start gap-2">
                       <span className="text-[11px] text-secondary shrink-0">📎</span>
                       <div>
-                        <p className="text-[9px] font-bold tracking-wider uppercase text-secondary">نوع الإغلاق</p>
+                        <p className="text-[9px] font-bold tracking-wider uppercase text-secondary">{language === "en" ? "Closure" : "نوع الإغلاق"}</p>
                         <p className="text-xs font-medium text-primary">{product.closure_type}</p>
                       </div>
                     </div>
@@ -1047,7 +1046,7 @@ export default function ProductDetails() {
                     <div className="flex items-start gap-2">
                       <span className="text-[11px] text-secondary shrink-0">🏷️</span>
                       <div>
-                        <p className="text-[9px] font-bold tracking-wider uppercase text-secondary">البطانة</p>
+                        <p className="text-[9px] font-bold tracking-wider uppercase text-secondary">{language === "en" ? "Lining" : "البطانة"}</p>
                         <p className="text-xs font-medium text-primary">{product.lining}</p>
                       </div>
                     </div>
@@ -1057,35 +1056,35 @@ export default function ProductDetails() {
             )}
 
             {/* Luxury Details Accordions */}
-            <div className="pt-6 border-t border-rule space-y-1">
+            <div className="pt-6 border-t border-rule space-y-1 text-start">
               <AccordionItem
-                title="التركيب والعناية · Composition & Care"
+                title={language === "en" ? "Composition & Care" : "التركيب والعناية"}
                 isOpen={activeAccordion === "composition"}
                 onToggle={() => handleAccordionToggle("composition")}
               >
-                <p><strong>القماش:</strong> {product.material_details || product.fabric_type || "أقمشة فاخرة مستوردة"}</p>
-                <p><strong>العناية:</strong> {product.care_instructions || "اتبع تعليمات الملصق الداخلي"}</p>
+                <p><strong>{language === "en" ? "Fabric: " : "القماش: "}</strong> {product.material_details || product.fabric_type || (language === "en" ? "Premium imported fabrics" : "أقمشة فاخرة مستوردة")}</p>
+                <p><strong>{language === "en" ? "Care: " : "العناية: "}</strong> {product.care_instructions || (language === "en" ? "Follow label instructions" : "اتبع تعليمات الملصق الداخلي")}</p>
               </AccordionItem>
 
               <AccordionItem
-                title="المقاسات · Sizing & Fit"
+                title={language === "en" ? "Sizing & Fit" : "المقاسات والتنسيق"}
                 isOpen={activeAccordion === "sizing"}
                 onToggle={() => handleAccordionToggle("sizing")}
               >
-                <p><strong>نظام المقاسات:</strong> {product.size_type || "مقاسات أوروبية قياسية"}</p>
-                {product.garment_length && <p><strong>طول القطعة:</strong> {product.garment_length}</p>}
-                <p>ننصح باختيار مقاسك المعتاد أو استخدام مستشار المقاسات الذكي.</p>
+                <p><strong>{language === "en" ? "Sizing System: " : "نظام المقاسات: "}</strong> {product.size_type || (language === "en" ? "Standard European sizing" : "مقاسات أوروبية قياسية")}</p>
+                {product.garment_length && <p><strong>{language === "en" ? "Length: " : "طول القطعة: "}</strong> {product.garment_length}</p>}
+                <p>{language === "en" ? "We recommend choosing your standard size or using the AI Advisor." : "ننصح باختيار مقاسك المعتاد أو استخدام مستشار المقاسات الذكي."}</p>
               </AccordionItem>
 
               <AccordionItem
-                title="الشحن والإرجاع · Shipping & Returns"
+                title={language === "en" ? "Shipping & Returns" : "الشحن والإرجاع"}
                 isOpen={activeAccordion === "shipping"}
                 onToggle={() => handleAccordionToggle("shipping")}
               >
-                <p>📦 شحن سريع لجميع محافظات العراق خلال 2-5 أيام عمل.</p>
-                <p>🚚 شحن مجاني للطلبات فوق 150,000 د.ع.</p>
-                <p>↩️ إرجاع مجاني خلال 14 يوم من تاريخ الاستلام.</p>
-                <p>📞 للاستفسار تواصل عبر واتساب.</p>
+                <p>{language === "en" ? "📦 Fast delivery to all Iraq provinces in 2-5 business days." : "📦 شحن سريع لجميع محافظات العراق خلال 2-5 أيام عمل."}</p>
+                <p>{language === "en" ? "🚚 Free shipping on orders over 150,000 IQD." : "🚚 شحن مجاني للطلبات فوق 150,000 د.ع."}</p>
+                <p>{language === "en" ? "↩️ Free returns within 14 days of receipt." : "↩️ إرجاع مجاني خلال 14 يوم من تاريخ الاستلام."}</p>
+                <p>{language === "en" ? "📞 For inquiries, contact us via WhatsApp." : "📞 للاستفسار تواصل عبر واتساب."}</p>
               </AccordionItem>
             </div>
           </div>
@@ -1418,13 +1417,13 @@ export default function ProductDetails() {
 
         {/* AI Stylist Recommendations rail */}
         {recommendations.length > 0 && (
-          <section className="mt-28 space-y-8">
+          <section className="mt-28 space-y-8 text-start">
             <div className="border-b border-rule pb-4">
               <span className="text-[9px] font-bold tracking-[0.3em] text-secondary uppercase block mb-1">
-                ATELIER CURATION
+                {language === "en" ? "ATELIER CURATION" : "تنسيقات الأتيلييه"}
               </span>
               <h2 className="heading-serif text-3xl font-light text-primary">
-                Complete The Look
+                {language === "en" ? "Complete The Look" : "أكمل المظهر"}
               </h2>
             </div>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
