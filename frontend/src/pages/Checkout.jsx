@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link, useParams } from "react-router-dom";
 import { useCartStore } from "../store/useCartStore";
+import { useLanguageStore } from "../store/useLanguageStore";
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import api from "../api/client";
@@ -10,6 +11,7 @@ import { formatPrice, getShippingCost, formatShipping } from "../utils/formatPri
 export default function Checkout() {
   const { brand_slug } = useParams();
   const { items, clearCart } = useCartStore();
+  const { t, language } = useLanguageStore();
   const navigate = useNavigate();
 
   const [fullName, setFullName] = useState("");
@@ -136,24 +138,24 @@ export default function Checkout() {
             <form onSubmit={handleCheckout} className="space-y-16">
               
               {/* Shipping Information */}
-              <div className="space-y-8">
+              <div className="space-y-8 text-start">
                 <h2 className="text-[10px] font-bold tracking-widest uppercase border-b border-rule pb-4 text-secondary">
-                  1. معلومات الشحن · Shipping Information
+                  {t("shipping_info")}
                 </h2>
                 <div className="space-y-6">
                   <div>
-                    <label className="block text-[9px] font-bold uppercase tracking-[0.2em] text-secondary mb-2">الاسم الكامل · Full Name *</label>
+                    <label className="block text-[9px] font-bold uppercase tracking-[0.2em] text-secondary mb-2">{t("full_name")} *</label>
                     <input
                       type="text"
                       className="input-white py-3 text-xs tracking-wider"
-                      placeholder="محمد علي"
+                      placeholder={language === "en" ? "John Doe" : "محمد علي"}
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-[9px] font-bold uppercase tracking-[0.2em] text-secondary mb-2">البريد الإلكتروني · Email *</label>
+                    <label className="block text-[9px] font-bold uppercase tracking-[0.2em] text-secondary mb-2">{t("email")} *</label>
                     <input
                       type="email"
                       className="input-white py-3 text-xs tracking-wider"
@@ -164,11 +166,11 @@ export default function Checkout() {
                     />
                   </div>
                   <div>
-                    <label className="block text-[9px] font-bold uppercase tracking-[0.2em] text-secondary mb-2">العنوان · Street Address *</label>
+                    <label className="block text-[9px] font-bold uppercase tracking-[0.2em] text-secondary mb-2">{t("street_address")} *</label>
                     <input
                       type="text"
                       className="input-white py-3 text-xs tracking-wider"
-                      placeholder="اسم المنطقة والشارع وأقرب نقطة دالة"
+                      placeholder={language === "en" ? "District, Street, Near landmark" : "اسم المنطقة والشارع وأقرب نقطة دالة"}
                       value={address}
                       onChange={(e) => setAddress(e.target.value)}
                       required
@@ -176,14 +178,14 @@ export default function Checkout() {
                   </div>
                   <div className="grid grid-cols-2 gap-8">
                     <div>
-                      <label className="block text-[9px] font-bold uppercase tracking-[0.2em] text-secondary mb-2">المحافظة · Province *</label>
+                      <label className="block text-[9px] font-bold uppercase tracking-[0.2em] text-secondary mb-2">{t("province")} *</label>
                       <select
                         className="input-white py-3 text-xs tracking-wider bg-white cursor-pointer"
                         value={city}
                         onChange={(e) => setCity(e.target.value)}
                         required
                       >
-                        <option value="">اختر المحافظة</option>
+                        <option value="">{language === "en" ? "Select Province" : "اختر المحافظة"}</option>
                         <option value="بغداد">بغداد</option>
                         <option value="البصرة">البصرة</option>
                         <option value="أربيل">أربيل</option>
@@ -205,7 +207,7 @@ export default function Checkout() {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-[9px] font-bold uppercase tracking-[0.2em] text-secondary mb-2">رقم الهاتف · Phone *</label>
+                      <label className="block text-[9px] font-bold uppercase tracking-[0.2em] text-secondary mb-2">{t("phone")} *</label>
                       <input
                         type="tel"
                         className="input-white py-3 text-xs tracking-wider"
@@ -220,14 +222,19 @@ export default function Checkout() {
               </div>
 
               {/* Payment Details */}
-              <div className="space-y-8">
+              <div className="space-y-8 text-start">
                 <h2 className="text-[10px] font-bold tracking-widest uppercase border-b border-rule pb-4 text-secondary">
-                  2. طريقة الدفع · Payment Method
+                  {t("payment_method")}
                 </h2>
 
                 <div className="flex gap-4 border border-rule p-1.5 bg-[#fcfcfa] mb-8">
                   {["دفع عند الاستلام", "Credit Card", "زين كاش"].map((method) => {
                     const active = paymentMethod === method;
+                    let displayLabel = method;
+                    if (method === "دفع عند الاستلام") displayLabel = language === "en" ? "Cash on Delivery" : "دفع عند الاستلام";
+                    else if (method === "Credit Card") displayLabel = language === "en" ? "Credit Card" : "بطاقة ائتمان";
+                    else if (method === "زين كاش") displayLabel = language === "en" ? "Zain Cash" : "زين كاش";
+
                     return (
                       <button
                         key={method}
@@ -239,7 +246,7 @@ export default function Checkout() {
                             : "bg-transparent text-secondary hover:text-primary"
                         }`}
                       >
-                        {method}
+                        {displayLabel}
                       </button>
                     );
                   })}
@@ -314,12 +321,12 @@ export default function Checkout() {
                 {loading ? (
                   <>
                     <Loader2 size={13} className="animate-spin" />
-                    <span>Processing Secure Payment...</span>
+                    <span>{language === "en" ? "Processing..." : "جاري تأكيد الطلب..."}</span>
                   </>
                 ) : (
                   <>
-                    <span>تأكيد الطلب · {formatPrice(total)}</span>
-                    <ArrowRight size={12} />
+                    <span>{t("confirm_order")} · {formatPrice(total + getShippingCost(total))}</span>
+                    <ArrowRight size={12} className="rtl:rotate-180" />
                   </>
                 )}
               </button>
@@ -327,8 +334,8 @@ export default function Checkout() {
 
             {/* Sidebar Summary */}
             <div className="bg-[#fcfcfa] border border-rule p-8 md:p-10 space-y-8 lg:sticky lg:top-28">
-              <h2 className="heading-serif text-2xl font-light text-primary border-b border-rule pb-4">
-                Your Order
+              <h2 className="heading-serif text-2xl font-light text-primary border-b border-rule pb-4 text-start">
+                {language === "en" ? "Your Order" : "طلبك"}
               </h2>
 
               <div className="divide-y divide-rule max-h-[350px] overflow-auto pr-2 space-y-4">
@@ -347,7 +354,7 @@ export default function Checkout() {
                     <div className="flex-1 min-w-0 font-light text-[11px] space-y-1">
                       <h4 className="heading-serif text-sm font-light text-primary truncate leading-tight">{item.name}</h4>
                       {item.brand && <p className="text-[9px] text-secondary font-bold uppercase tracking-wider">{item.brand.name}</p>}
-                      <p className="text-secondary uppercase">Qty: {item.quantity}</p>
+                      <p className="text-secondary uppercase">{language === "en" ? "Qty:" : "الكمية:"} {item.quantity}</p>
                       <p className="text-primary font-medium">{formatPrice(item.price)}</p>
                     </div>
                   </div>
@@ -358,18 +365,18 @@ export default function Checkout() {
 
               <div className="space-y-4 text-xs font-light">
                 <div className="flex justify-between text-secondary">
-                  <span className="uppercase tracking-wider">المجموع الفرعي</span>
+                  <span className="uppercase tracking-wider">{t("subtotal")}</span>
                   <span className="text-primary font-medium">{formatPrice(subtotal)}</span>
                 </div>
                 <div className="flex justify-between text-secondary">
-                  <span className="uppercase tracking-wider">الشحن</span>
+                  <span className="uppercase tracking-wider">{t("shipping")}</span>
                   <span className="text-green-700 font-semibold uppercase tracking-wider">
                     {formatShipping(subtotal)}
                   </span>
                 </div>
                 <div className="rule pt-2" />
                 <div className="flex justify-between text-sm font-semibold text-primary pt-2">
-                  <span className="uppercase tracking-widest font-bold">المجموع</span>
+                  <span className="uppercase tracking-widest font-bold">{t("total")}</span>
                   <span className="heading-serif text-lg font-light">{formatPrice(total)}</span>
                 </div>
               </div>

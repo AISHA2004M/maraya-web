@@ -15,6 +15,7 @@ import {
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useUserStore } from "../store/useUserStore";
+import { useLanguageStore } from "../store/useLanguageStore";
 import { formatPrice } from "../utils/formatPrice";
 
 function FabricCanvas({ imageUrl, windSpeed, isActive, fabricType }) {
@@ -359,6 +360,7 @@ export default function ProductDetails() {
   const toggleWishlist = useWishlistStore((s) => s.toggleWishlist);
   const isInWishlist = useWishlistStore((s) => s.isInWishlist(id));
 
+  const { t, language } = useLanguageStore();
   const { data: product, isLoading, isError } = useProduct(id);
 
   // Security & Scoping Redirect: ensure the product belongs to the current brand scope
@@ -845,14 +847,14 @@ export default function ProductDetails() {
 
             {/* ── Size Selection ──────────────────────────────────────────── */}
             {product.sizes && product.sizes.length > 0 && (
-              <div className="space-y-3 pt-4 border-t border-rule">
+              <div className="space-y-3 pt-4 border-t border-rule text-start">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-bold tracking-widest uppercase text-primary">
-                    Select Size
+                    {t("size")}
                   </span>
                   {!selectedSize && (
                     <span className="text-[9px] text-red-400 font-semibold tracking-wider uppercase animate-pulse">
-                      Choose a size to continue
+                      {language === "en" ? "Choose a size to continue" : "يرجى اختيار مقاس للاستمرار"}
                     </span>
                   )}
                 </div>
@@ -915,10 +917,10 @@ export default function ProductDetails() {
                 <ShoppingBag size={14} />
                 <span>
                   {added
-                    ? "Added to Bag"
+                    ? (language === "en" ? "Added to Bag" : "تمت الإضافة للحقيبة")
                     : product.sizes && product.sizes.length > 0 && !selectedSize
-                    ? "Select a Size"
-                    : "Add to Bag"}
+                    ? (language === "en" ? "Select a Size" : "اختر المقاس")
+                    : t("add_to_cart")}
                 </span>
               </button>
 
@@ -930,7 +932,7 @@ export default function ProductDetails() {
                   }`}
                 >
                   <Heart size={13} className={isInWishlist ? "fill-white text-white" : "text-black"} />
-                  <span>{isInWishlist ? "Wishlisted" : "Wishlist"}</span>
+                  <span>{isInWishlist ? (language === "en" ? "Wishlisted" : "في المفضلة") : t("wishlist")}</span>
                 </button>
 
                 <button
@@ -938,7 +940,7 @@ export default function ProductDetails() {
                   className="w-full btn-outline py-3.5 text-xs font-bold tracking-widest uppercase flex items-center justify-center gap-2 bg-[#f2f1ed]"
                 >
                   <Sparkles size={13} className="text-black" />
-                  <span>Fitting Room</span>
+                  <span>{t("ai_tryon")}</span>
                 </button>
               </div>
 

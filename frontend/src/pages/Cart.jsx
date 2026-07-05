@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import { useCartStore } from "../store/useCartStore";
+import { useLanguageStore } from "../store/useLanguageStore";
 import { Trash2, ShoppingBag, ArrowRight, ArrowLeft, Minus, Plus } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { formatPrice, SHIPPING_THRESHOLD, SHIPPING_COST, getShippingCost, formatShipping } from "../utils/formatPrice";
@@ -10,6 +11,7 @@ export default function Cart() {
   const { brand_slug } = useParams();
   const { items, removeFromCart, updateQuantity, clearCart } = useCartStore();
   const navigate = useNavigate();
+  const { t, language } = useLanguageStore();
   const total = items.reduce((sum, i) => sum + Number(i.price) * i.quantity, 0);
 
   // Track items being removed for slide-out animation
@@ -52,18 +54,18 @@ export default function Cart() {
         {/* Back Navigation */}
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-[10px] text-secondary hover:text-primary transition-colors mb-16 uppercase tracking-[0.25em] font-bold"
+          className="flex items-center gap-2 text-[10px] text-secondary hover:text-primary transition-colors mb-16 uppercase tracking-[0.25em] font-bold text-start"
         >
           <ArrowLeft size={12} />
-          <span>Continue Shopping</span>
+          <span>{t("back_to_shop")}</span>
         </button>
 
-        <div className="border-b border-rule pb-6 mb-12">
+        <div className="border-b border-rule pb-6 mb-12 text-start">
           <h1 className="heading-serif text-4xl md:text-5xl text-primary font-light flex items-baseline gap-4">
-            Shopping Bag
+            {t("cart")}
             {items.length > 0 && (
               <span className="text-[10px] font-sans font-bold text-secondary tracking-[0.2em] uppercase">
-                / {items.length} {items.length === 1 ? "Item" : "Items"}
+                / {items.length} {language === "en" ? (items.length === 1 ? "Item" : "Items") : "قطع"}
               </span>
             )}
           </h1>
@@ -74,12 +76,12 @@ export default function Cart() {
             <div className="w-12 h-12 bg-[#fcfcfa] border border-rule flex items-center justify-center mb-6 rounded-full">
               <ShoppingBag size={18} className="text-secondary" strokeWidth={1.5} />
             </div>
-            <h2 className="heading-serif text-2xl font-light text-primary mb-3">Your Bag is Empty</h2>
+            <h2 className="heading-serif text-2xl font-light text-primary mb-3">{t("empty_cart")}</h2>
             <p className="text-secondary text-xs font-light max-w-sm mb-10 leading-relaxed">
               Explore our curated wardrobe edits from the world's most premium fashion houses and begin virtual try-on styling.
             </p>
             <Link to="/" className="btn-black py-4 px-10 text-[10px] font-bold tracking-widest uppercase rounded-none">
-              Explore Collections
+              {t("discover_more")}
             </Link>
           </div>
         ) : (
@@ -195,11 +197,11 @@ export default function Cart() {
 
             {/* Sidebar Summary */}
             <div className="bg-[#fcfcfa] border border-rule p-8 md:p-10 space-y-8 lg:sticky lg:top-28">
-              <h2 className="heading-serif text-2xl font-light text-primary border-b border-rule pb-4">
-                Order Summary
+              <h2 className="heading-serif text-2xl font-light text-primary border-b border-rule pb-4 text-start">
+                {language === "en" ? "Order Summary" : "ملخص الطلب"}
               </h2>
 
-              <div className="space-y-4 text-xs font-light">
+              <div className="space-y-4 text-xs font-light text-start">
                 {/* Item breakdown */}
                 <div className="space-y-2 pb-4 border-b border-rule">
                   {items.map((item) => (
@@ -211,18 +213,18 @@ export default function Cart() {
                 </div>
 
                 <div className="flex justify-between text-secondary">
-                  <span className="uppercase tracking-wider">المجموع الفرعي · Subtotal</span>
+                  <span className="uppercase tracking-wider">{t("subtotal")}</span>
                   <span className="text-primary font-medium">{formatPrice(total)}</span>
                 </div>
                 <div className="flex justify-between text-secondary">
-                  <span className="uppercase tracking-wider">الشحن · Shipping</span>
+                  <span className="uppercase tracking-wider">{t("shipping")}</span>
                   <span className="text-green-700 font-semibold uppercase tracking-wider">
                     {formatShipping(total)}
                   </span>
                 </div>
                 <div className="rule pt-2" />
                 <div className="flex justify-between text-sm font-semibold text-primary pt-2">
-                  <span className="uppercase tracking-widest font-bold">المجموع · Total</span>
+                  <span className="uppercase tracking-widest font-bold">{t("total")}</span>
                   <span className="heading-serif text-lg font-light">{formatPrice(total + getShippingCost(total))}</span>
                 </div>
               </div>
@@ -233,22 +235,22 @@ export default function Cart() {
                   id="checkout-btn"
                   className="btn-black w-full py-4 text-[10px] font-bold tracking-widest uppercase flex items-center justify-center gap-2 rounded-none"
                 >
-                  <span>Proceed to Checkout</span>
-                  <ArrowRight size={12} />
+                  <span>{t("checkout")}</span>
+                  <ArrowRight size={12} className="rtl:rotate-180" />
                 </Link>
 
                 <button
                   onClick={clearCart}
                   className="w-full text-center text-[9px] text-secondary hover:text-primary tracking-widest uppercase font-bold transition-colors py-2"
                 >
-                  Clear Shopping Bag
+                  {language === "en" ? "Clear Shopping Bag" : "تفريغ حقيبة المشتريات"}
                 </button>
               </div>
 
-              <div className="text-[9px] text-secondary leading-relaxed border-t border-rule pt-6 font-light uppercase tracking-wider space-y-1">
-                <p>· شحن مجاني للطلبات فوق 150,000 د.ع</p>
-                <p>· توصيل لجميع محافظات العراق</p>
-                <p>· دفع آمن ومضمون</p>
+              <div className="text-[9px] text-secondary leading-relaxed border-t border-rule pt-6 font-light uppercase tracking-wider space-y-1 text-start">
+                <p>{language === "en" ? "· Free shipping on orders over 150,000 IQD" : "· شحن مجاني للطلبات فوق 150,000 د.ع"}</p>
+                <p>{language === "en" ? "· Delivery to all provinces in Iraq" : "· توصيل لجميع محافظات العراق"}</p>
+                <p>{language === "en" ? "· Secure Cash on Delivery" : "· دفع آمن ومضمون عند الاستلام"}</p>
               </div>
             </div>
           </div>

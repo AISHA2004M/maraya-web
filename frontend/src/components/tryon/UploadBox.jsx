@@ -24,11 +24,21 @@ export default function UploadBox({ onUpload, preview }) {
       onDrop={handleDrop}
     >
       {preview ? (
-        <img
-          src={preview}
-          alt="Your photo"
-          className="w-full h-full object-cover absolute inset-0"
-        />
+        <>
+          <img
+            src={preview}
+            alt="Your photo"
+            className="w-full h-full object-cover absolute inset-0 transition-transform duration-300 group-hover:scale-105"
+          />
+          {/* Hover overlay to change photo */}
+          <div className="absolute inset-0 bg-black/45 flex flex-col items-center justify-center text-white gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 p-4 text-center">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="animate-pulse">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12" />
+            </svg>
+            <span className="text-[10px] font-bold uppercase tracking-wider block">Click to change photo</span>
+            <span className="text-[11px] font-medium block">اضغط لتغيير الصورة</span>
+          </div>
+        </>
       ) : (
         <div className="flex flex-col items-center justify-center gap-4 p-10 min-h-[320px]">
           {/* Upload icon — minimal line art */}

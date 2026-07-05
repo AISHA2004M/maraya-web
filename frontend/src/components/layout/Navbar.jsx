@@ -5,6 +5,8 @@ import { useCartStore } from "../../store/useCartStore";
 import { useUserStore } from "../../store/useUserStore";
 import { AnimatePresence, motion } from "framer-motion";
 import api from "../../api/client";
+import { useLanguageStore } from "../../store/useLanguageStore";
+
 
 const EDITORIAL_TAGS = ["Stealth Wealth", "Minimal Elegance", "Cozy Minimalism", "Avant-Garde", "Evening Elegance", "Summer Atelier"];
 const BOUTIQUE_HOUSES = ["Gucci", "Prada", "Nike", "Zara", "Loro Piana", "Hermès", "SSENSE"];
@@ -23,17 +25,19 @@ export default function Navbar() {
   const items = useCartStore((s) => s.items);
   const count = items.reduce((sum, i) => sum + i.quantity, 0);
   const { token, logout, role, brandSlug } = useUserStore();
+  const { t, language, setLanguage } = useLanguageStore();
 
   const logoLink = brand_slug ? `/brands/${brand_slug}` : "/discover";
   const brandDisplayName = brand_slug ? brand_slug.toUpperCase() : "VRITAL";
 
   const navLinks = brand_slug ? [
-    { to: `/brands/${brand_slug}`, label: "Atelier" },
-    { to: `/brands/${brand_slug}/shop`, label: "Shop All" },
-    { to: `/brands/${brand_slug}/tryon`, label: "AI Try‑On" },
+    { to: `/brands/${brand_slug}`, label: t("atelier") },
+    { to: `/brands/${brand_slug}/shop`, label: t("shop_all") },
+    { to: `/brands/${brand_slug}/tryon`, label: t("ai_tryon") },
   ] : [
-    { to: "/discover", label: "Discover Houses" }
+    { to: "/discover", label: t("discover_houses") }
   ];
+
 
   // Fetch search candidates
   useEffect(() => {
@@ -90,7 +94,7 @@ export default function Navbar() {
           <div className="absolute left-1/2 -translate-x-1/2 md:static md:translate-x-0 flex items-center gap-3">
             {brand_slug && (
               <Link to="/discover" className="hidden md:inline-flex items-center text-[10px] font-bold tracking-wider text-secondary uppercase hover:text-black transition-colors">
-                ← Directory
+                {t("directory")}
               </Link>
             )}
             <Link
@@ -117,6 +121,14 @@ export default function Navbar() {
           {/* Right Icons */}
           <div className="flex items-center gap-5 ml-auto md:ml-0 text-primary">
             
+            {/* Language Switcher */}
+            <button
+              onClick={() => setLanguage(language === "en" ? "ar" : "en")}
+              className="text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 border border-neutral-200 hover:border-black rounded-sm transition-colors text-primary"
+            >
+              {language === "en" ? "العربية" : "English"}
+            </button>
+
             {/* Search Icon */}
             <button
               onClick={() => setSearchOpen(true)}
@@ -126,8 +138,6 @@ export default function Navbar() {
               <Search size={18} strokeWidth={1.5} />
             </button>
 
-
-
             {token ? (
               <div className="flex items-center gap-4">
                 {role === "admin" && (
@@ -135,7 +145,7 @@ export default function Navbar() {
                     href="http://localhost:5174/admin"
                     className="label-upper hover:text-ink transition-colors hidden md:block"
                   >
-                    Dashboard
+                    {t("dashboard")}
                   </a>
                 )}
                 {role === "partner" && (
@@ -143,20 +153,20 @@ export default function Navbar() {
                     href={`http://localhost:5174/partner/${brandSlug || "zara"}`}
                     className="label-upper hover:text-ink transition-colors hidden md:block"
                   >
-                    Dashboard
+                    {t("dashboard")}
                   </a>
                 )}
                 <Link
                   to={brand_slug ? `/brands/${brand_slug}/profile` : "/profile"}
                   className="label-upper hover:text-ink transition-colors hidden md:block"
                 >
-                  Profile
+                  {t("profile")}
                 </Link>
                 <button
                   onClick={logout}
                   className="label-upper hover:text-ink transition-colors hidden md:block"
                 >
-                  Sign Out
+                  {t("sign_out")}
                 </button>
               </div>
             ) : (
@@ -165,7 +175,7 @@ export default function Navbar() {
                 id="login-button"
                 className="label-upper hover:text-ink transition-colors hidden md:block"
               >
-                Sign In
+                {t("sign_in")}
               </Link>
             )}
 
@@ -362,20 +372,20 @@ export default function Navbar() {
               </Link>
             ))}
           </nav>
-          <div className="px-8 py-8 flex flex-col gap-4">
+          <div className="px-8 py-8 flex flex-col gap-4 text-start">
             {token ? (
               <>
                 {role === "admin" && (
-                  <a href="http://localhost:5174/admin" className="label-upper text-left" onClick={() => setMenuOpen(false)}>Dashboard</a>
+                  <a href="http://localhost:5174/admin" className="label-upper text-start" onClick={() => setMenuOpen(false)}>{t("dashboard")}</a>
                 )}
                 {role === "partner" && (
-                  <a href={`http://localhost:5174/partner/${brandSlug || "zara"}`} className="label-upper text-left" onClick={() => setMenuOpen(false)}>Dashboard</a>
+                  <a href={`http://localhost:5174/partner/${brandSlug || "zara"}`} className="label-upper text-start" onClick={() => setMenuOpen(false)}>{t("dashboard")}</a>
                 )}
-                <Link to={brand_slug ? `/brands/${brand_slug}/profile` : "/profile"} className="label-upper text-left" onClick={() => setMenuOpen(false)}>Profile</Link>
-                <button onClick={() => { logout(); setMenuOpen(false); }} className="label-upper text-left">Sign Out</button>
+                <Link to={brand_slug ? `/brands/${brand_slug}/profile` : "/profile"} className="label-upper text-start" onClick={() => setMenuOpen(false)}>{t("profile")}</Link>
+                <button onClick={() => { logout(); setMenuOpen(false); }} className="label-upper text-start">{t("sign_out")}</button>
               </>
             ) : (
-              <Link to="/login" className="label-upper" onClick={() => setMenuOpen(false)}>Sign In</Link>
+              <Link to="/login" className="label-upper text-start" onClick={() => setMenuOpen(false)}>{t("sign_in")}</Link>
             )}
           </div>
 

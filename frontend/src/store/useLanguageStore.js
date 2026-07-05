@@ -1,0 +1,177 @@
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+
+const translations = {
+  en: {
+    directory: "← Directory",
+    atelier: "Atelier",
+    shop_all: "Shop All",
+    ai_tryon: "AI Try-On",
+    profile: "Profile",
+    sign_out: "Sign Out",
+    sign_in: "Sign In",
+    discover_houses: "Discover Fashion Houses",
+    search_placeholder: "Search garments or brands...",
+    cart: "Shopping Bag",
+    add_to_cart: "Add to Bag",
+    remove: "Remove",
+    remove_image: "Remove Photo",
+    change_image: "Click to change photo",
+    upload_portrait: "1. Upload Portrait",
+    choose_preset: "Or Choose a Preset Model:",
+    start_tryon: "Start AI Try-On",
+    model_precision: "AI Engine Precision",
+    fast: "Fast",
+    balanced: "Balanced",
+    quality: "Quality",
+    tryon_guidelines: "AI Try-On Guidelines",
+    tops_jackets: "Tops & Jackets",
+    pants_skirts: "Pants & Skirts",
+    full_outfits: "Full Outfits",
+    tryon_result: "2. Rendered Silhouette",
+    save_image: "Save Image",
+    reset: "Reset",
+    buy_piece: "Buy Piece",
+    download: "Download",
+    checkout: "Proceed to Checkout",
+    shipping_info: "1. Shipping Information",
+    full_name: "Full Name",
+    email: "Email Address",
+    street_address: "Street Address",
+    province: "Province",
+    phone: "Phone Number",
+    payment_method: "2. Payment Method",
+    cod: "Cash on Delivery",
+    confirm_order: "Confirm Order",
+    subtotal: "Subtotal",
+    shipping: "Shipping",
+    total: "Total",
+    login_title: "Sign In",
+    register_title: "Register",
+    need_account: "Need an account? Register",
+    have_account: "Already have an account? Sign In",
+    wishlist: "Wishlist",
+    empty_cart: "Your bag is empty",
+    discover_more: "Discover More",
+    featured_collections: "Featured Collections",
+    trending_now: "Trending Now",
+    atelier_curations: "Atelier Curations",
+    home: "Home",
+    description: "Description",
+    price: "Price",
+    size: "Size",
+    quantity: "Quantity",
+    search_results: "Search Results",
+    all_brands: "All Brands",
+    all_categories: "All Categories",
+    order_success: "Order Placed Successfully",
+    back_to_shop: "Back to Shop",
+    guidelines_tops_desc: "When selecting a top or jacket, the AI will keep your current pants/skirt from your uploaded photo and replace only the upper body garment.",
+    guidelines_bottoms_desc: "When selecting pants or a skirt, the AI will keep your current shirt from your uploaded photo and replace only the lower body garment.",
+    guidelines_dresses_desc: "When selecting a dress or full-body jumpsuit, the AI will replace all garments on your body.",
+    pant_warning: "Pants Warning",
+    pant_warning_desc: "For pants/skirts, please upload a clear, full-body photo showing your lower legs for optimal drape rendering."
+  },
+  ar: {
+    directory: "← دليل الماركات",
+    atelier: "الأتيلييه",
+    shop_all: "تسوق الكل",
+    ai_tryon: "القياس الذكي",
+    profile: "الملف الشخصي",
+    sign_out: "تسجيل الخروج",
+    sign_in: "تسجيل الدخول",
+    discover_houses: "اكتشف دور الأزياء العالمية",
+    search_placeholder: "ابحث عن ملابس، ماركات، أو تفاصيل...",
+    cart: "حقيبة المشتريات",
+    add_to_cart: "إضافة إلى الحقيبة",
+    remove: "إزالة",
+    remove_image: "إزالة الصورة",
+    change_image: "اضغط لتغيير الصورة",
+    upload_portrait: "1. ارفع صورتك الشخصية",
+    choose_preset: "أو اختر عارضاً افتراضياً:",
+    start_tryon: "بدء القياس بالذكاء الاصطناعي",
+    model_precision: "دقة محرك الذكاء الاصطناعي",
+    fast: "سريع (Fast)",
+    balanced: "متوازن (Balanced)",
+    quality: "جودة (Quality)",
+    tryon_guidelines: "إرشادات وقوانين القياس بالذكاء الاصطناعي",
+    tops_jackets: "القمصان والبلوزات (Tops)",
+    pants_skirts: "البنطلونات والتنانير (Bottoms)",
+    full_outfits: "الفساتين والملابس الكاملة (Outfits)",
+    tryon_result: "2. نتيجة القياس الافتراضي",
+    save_image: "حفظ الصورة",
+    reset: "البدء من جديد",
+    buy_piece: "شراء القطعة",
+    download: "تحميل النتيجة",
+    checkout: "تأكيد وإتمام الشراء",
+    shipping_info: "1. معلومات الشحن والتوصيل",
+    full_name: "الاسم الكامل",
+    email: "البريد الإلكتروني",
+    street_address: "العنوان بالكامل (المنطقة والشارع)",
+    province: "المحافظة",
+    phone: "رقم الهاتف",
+    payment_method: "2. طريقة الدفع",
+    cod: "الدفع عند الاستلام",
+    confirm_order: "تأكيد الطلب",
+    subtotal: "المجموع الفرعي",
+    shipping: "الشحن والتوصيل",
+    total: "المجموع الكلي",
+    login_title: "تسجيل الدخول",
+    register_title: "إنشاء حساب جديد",
+    need_account: "ليس لديك حساب؟ سجل الآن",
+    have_account: "لديك حساب بالفعل؟ سجل دخولك",
+    wishlist: "المفضلة",
+    empty_cart: "حقيبتك فارغة حالياً",
+    discover_more: "اكتشف المزيد",
+    featured_collections: "التشكيلات المميزة",
+    trending_now: "الأكثر رواجاً الآن",
+    atelier_curations: "اختيارات الأتيلييه",
+    home: "الرئيسية",
+    description: "تفاصيل المنتج",
+    price: "السعر",
+    size: "المقاس",
+    quantity: "الكمية",
+    search_results: "نتائج البحث",
+    all_brands: "كل الماركات",
+    all_categories: "كل الأقسام",
+    order_success: "تم إرسال طلبك بنجاح",
+    back_to_shop: "العودة للتسوق",
+    guidelines_tops_desc: "عند اختيار بلوزة أو جاكيت، سيحافظ الذكاء الاصطناعي على البنطال أو التنورة في صورتك ويغير الجزء العلوي فقط.",
+    guidelines_bottoms_desc: "عند اختيار بنطال أو تنورة، سيحافظ الذكاء الاصطناعي على القميص في صورتك ويغير الجزء السفلي فقط.",
+    guidelines_dresses_desc: "عند اختيار فستان أو ملابس كاملة، سيقوم الذكاء الاصطناعي باستبدال ملابس الجسم بالكامل.",
+    pant_warning: "تنبيه بخصوص البنطلونات والتنانير",
+    pant_warning_desc: "للحصول على أفضل نتيجة للبنطلونات، يرجى رفع صورة كاملة للجسم تظهر الساقين بوضوح لضمان دقة الرسم والملاءمة."
+  }
+};
+
+export const useLanguageStore = create(
+  persist(
+    (set, get) => ({
+      language: "en",
+      setLanguage: (lang) => {
+        set({ language: lang });
+        // Set document direction based on language
+        if (lang === "ar") {
+          document.documentElement.setAttribute("dir", "rtl");
+          document.documentElement.setAttribute("lang", "ar");
+        } else {
+          document.documentElement.setAttribute("dir", "ltr");
+          document.documentElement.setAttribute("lang", "en");
+        }
+      },
+      t: (key) => {
+        const lang = get().language;
+        return translations[lang]?.[key] || translations["en"]?.[key] || key;
+      }
+    }),
+    {
+      name: "vrital-lang",
+      onRehydrateStorage: () => (state) => {
+        // Apply direction on page load / hydration
+        if (state && state.language) {
+          state.setLanguage(state.language);
+        }
+      }
+    }
+  )
+);

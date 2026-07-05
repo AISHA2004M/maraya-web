@@ -7,6 +7,7 @@ import { useProducts } from "../hooks/useProducts";
 import api from "../api/client";
 import { Sparkles, Loader2, AlertCircle, ArrowLeft, Trash2, History, User, Download } from "lucide-react";
 import { useUserStore } from "../store/useUserStore";
+import { useLanguageStore } from "../store/useLanguageStore";
 import { submitTryOn, waitForTryOnResult, getTryOnResult, pollTryOnStatus } from "../api/tryon";
 
 
@@ -68,6 +69,7 @@ export default function TryOn() {
   const { data: products } = useProducts();
 
   const { token, user } = useUserStore();
+  const { t, language } = useLanguageStore();
 
   // Load brand details
   useEffect(() => {
@@ -588,8 +590,8 @@ export default function TryOn() {
             {/* Step 1: Portrait upload */}
             <div className="space-y-4 bg-white dark:bg-neutral-900 p-6 border border-rule rounded-sm text-primary">
               <div className="flex items-center justify-between border-b border-rule pb-3">
-                <h2 className="text-xs font-bold tracking-widest uppercase text-primary">
-                  1. Upload Portrait / عارض القياس
+                <h2 className="text-xs font-bold tracking-widest uppercase text-primary text-start">
+                  {t("upload_portrait")}
                 </h2>
                 {userImagePreview && !loading && (
                   <button
@@ -602,7 +604,7 @@ export default function TryOn() {
                     }}
                     className="text-[9px] font-bold text-red-500 hover:text-red-700 uppercase tracking-widest flex items-center gap-1 transition-colors"
                   >
-                    <Trash2 size={11} /> إزالة الصورة (Remove)
+                    <Trash2 size={11} /> {t("remove_image")}
                   </button>
                 )}
               </div>
@@ -621,9 +623,9 @@ export default function TryOn() {
 
               {/* Preset Models selection */}
               {!loading && !userImagePreview && (
-                <div className="space-y-2 pt-2">
+                <div className="space-y-2 pt-2 text-start">
                   <span className="text-[10px] font-bold uppercase tracking-widest text-secondary block">
-                    أو اختر عارضاً افتراضياً (Or Choose a Preset Model):
+                    {t("choose_preset")}
                   </span>
                   <div className="flex gap-2.5 overflow-x-auto pb-1.5 scrollbar-thin">
                     {PRESET_MODELS.map((model) => (
@@ -1005,7 +1007,7 @@ export default function TryOn() {
           <div className="space-y-8 lg:sticky top-28 bg-white dark:bg-neutral-900 border border-rule p-6 rounded-sm min-h-[600px] flex flex-col">
             <div className="border-b border-rule pb-3 flex justify-between items-center">
               <h2 className="text-xs font-bold tracking-widest uppercase text-primary">
-                نتيجة القياس الافتراضي (Try-On Result)
+                {t("tryon_result")}
               </h2>
               <div className="flex items-center gap-3">
                 {result && (
@@ -1026,7 +1028,7 @@ export default function TryOn() {
                     }}
                     className="flex items-center gap-1.5 text-[10px] font-semibold uppercase text-secondary hover:text-black transition-colors"
                   >
-                    <Download size={11} /> حفظ الصورة (Save)
+                    <Download size={11} /> {t("save_image")}
                   </button>
                 )}
                 {result && (
@@ -1034,7 +1036,7 @@ export default function TryOn() {
                     onClick={() => setResult(null)}
                     className="text-[10px] font-semibold uppercase text-secondary hover:text-black"
                   >
-                    البدء من جديد (Reset)
+                    {t("reset")}
                   </button>
                 )}
               </div>
