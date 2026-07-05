@@ -55,74 +55,6 @@ export default function Discover() {
           </p>
         </div>
 
-        {/* ── AI Visual Search Feature Banner ── */}
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
-          className="mb-32"
-        >
-          <div className="bg-white border border-[#eae6df] rounded-none overflow-hidden shadow-sm">
-            <div className="grid md:grid-cols-2 items-stretch">
-              {/* Text Side */}
-              <div className="flex flex-col justify-center px-10 py-14 md:py-16 space-y-6">
-                <div className="inline-flex items-center gap-2 w-fit px-3 py-1 border border-[#eae6df] rounded-full">
-                  <Sparkles size={10} className="text-[#a89f91]" />
-                  <span className="text-[8px] font-bold tracking-[0.28em] text-[#8e8577] uppercase">New · جديد</span>
-                </div>
-
-                <div className="space-y-2">
-                  <h2 className="font-display text-3xl md:text-4xl font-light text-black tracking-tight leading-snug">
-                    Search by Image<br />
-                    <span className="font-serif italic text-[#8e8577]">ابحث بالصورة</span>
-                  </h2>
-                  <p className="text-sm text-[#5c564c] font-light leading-relaxed max-w-sm">
-                    Upload any garment photo — our AI scans all brands and surfaces the closest visual matches instantly.
-                  </p>
-                  <p className="text-xs text-[#a89f91] font-light leading-relaxed max-w-sm">
-                    ارفع صورة أي قطعة ملابس وسيقوم الذكاء الاصطناعي بمسح جميع الماركات وإيجاد أقرب المنتجات المشابهة فوراً.
-                  </p>
-                </div>
-
-                <Link
-                  to="/search-by-image"
-                  className="inline-flex items-center gap-3 border border-black bg-transparent text-black text-[9px] font-bold tracking-[0.25em] uppercase px-10 py-4 hover:bg-black hover:text-white transition-all duration-500 rounded-none w-full sm:w-fit justify-center sm:justify-start"
-                >
-                  <Camera size={12} />
-                  Try Visual Search · جرّب الآن
-                </Link>
-              </div>
-
-              {/* Visual Side */}
-              <div className="relative bg-[#f4f2ef] flex items-center justify-center min-h-[260px] md:min-h-0 overflow-hidden">
-                {/* Abstract scan visual */}
-                <div className="relative flex flex-col items-center justify-center gap-5 w-full h-full p-12">
-                  {/* Scan frame */}
-                  <div className="relative w-28 h-28 border border-[#c8c0b4] bg-white flex items-center justify-center shadow-inner">
-                    <Camera size={32} className="text-[#8e8577]" />
-                    {/* Corner accents */}
-                    <span className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-black" />
-                    <span className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-black" />
-                    <span className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-black" />
-                    <span className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-black" />
-                    {/* Animated scan line */}
-                    <div className="absolute left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-black to-transparent opacity-60 animate-[scan_2s_linear_infinite]" />
-                  </div>
-                  {/* Similarity badges */}
-                  <div className="flex gap-3">
-                    {["98%", "91%", "87%"].map((pct, i) => (
-                      <div key={i} className="bg-white border border-[#eae6df] px-3 py-1.5 flex flex-col items-center shadow-sm">
-                        <span className="text-[9px] font-bold tracking-widest text-black">{pct}</span>
-                        <span className="text-[7px] text-[#a89f91] tracking-widest uppercase">Match</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </motion.div>
 
         {/* Chapters Directory */}
         <div className="space-y-48">
@@ -185,6 +117,92 @@ export default function Discover() {
             );
           })}
         </div>
+
+        {/* ── AI Visual Search Feature — Bottom CTA ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.9, ease: [0.25, 0.46, 0.45, 0.94] }}
+          className="mt-32 pt-20 border-t border-[#eae6df]"
+        >
+          <div className="bg-white border border-[#eae6df] overflow-hidden">
+            <div className="grid md:grid-cols-2 items-stretch min-h-[340px]">
+
+              {/* Left: Text */}
+              <div className="flex flex-col justify-center px-10 md:px-14 py-14 space-y-7">
+                <div className="inline-flex items-center gap-2 w-fit px-3.5 py-1.5 border border-[#eae6df] rounded-full">
+                  <Sparkles size={9} className="text-[#a89f91]" />
+                  <span className="text-[7.5px] font-bold tracking-[0.3em] text-[#8e8577] uppercase">AI Feature · جديد</span>
+                </div>
+
+                <div className="space-y-3">
+                  <h2 className="font-display text-4xl md:text-5xl font-light text-black tracking-tight leading-none">
+                    Search by Image
+                  </h2>
+                  <p className="font-serif italic text-xl text-[#8e8577] font-light">ابحث بالصورة</p>
+                  <p className="text-sm text-[#5c564c] font-light leading-relaxed max-w-sm pt-1">
+                    Upload any garment — our AI instantly scans all ateliers and surfaces the closest visual matches with precision scores.
+                  </p>
+                  <p className="text-xs text-[#a89f91] font-light leading-relaxed max-w-sm">
+                    ارفع صورة أي قطعة وسيبحث الذكاء الاصطناعي فوراً في جميع الماركات ويعرض لك أقرب المنتجات مع نسب التطابق الدقيقة.
+                  </p>
+                </div>
+
+                <Link
+                  to="/search-by-image"
+                  className="inline-flex items-center gap-3 bg-black text-white text-[9px] font-bold tracking-[0.25em] uppercase px-10 py-4 hover:bg-[#1a1a1a] transition-all duration-300 rounded-none w-full sm:w-fit justify-center"
+                >
+                  <Camera size={12} />
+                  Try Visual Search · جرّب الآن
+                </Link>
+              </div>
+
+              {/* Right: Precise Match UI */}
+              <div className="bg-[#f7f6f4] flex items-center justify-center p-10 md:p-14">
+                <div className="w-full max-w-[280px] space-y-5">
+
+                  {/* Scan frame */}
+                  <div className="relative w-20 h-20 border border-[#c8c0b4] bg-white flex items-center justify-center mb-6 mx-auto">
+                    <Camera size={26} className="text-[#8e8577]" />
+                    <span className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-black" />
+                    <span className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-black" />
+                    <span className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-black" />
+                    <span className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-black" />
+                    <div className="absolute left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-black to-transparent opacity-50 animate-[scan_2s_linear_infinite]" />
+                  </div>
+
+                  {/* Precision match bars */}
+                  {[
+                    { label: "Floral Maxi Dress", brand: "Zara", score: 96 },
+                    { label: "Linen Blazer", brand: "H&M", score: 89 },
+                    { label: "Silk Midi Skirt", brand: "Mango", score: 81 },
+                  ].map((item, i) => (
+                    <div key={i} className="space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-[9.5px] font-semibold text-black tracking-wide">{item.label}</p>
+                          <p className="text-[8px] text-[#a89f91] tracking-widest uppercase">{item.brand}</p>
+                        </div>
+                        <span className="text-xs font-bold text-black tabular-nums">{item.score}%</span>
+                      </div>
+                      {/* Progress bar */}
+                      <div className="h-[3px] bg-[#eae6df] w-full rounded-none overflow-hidden">
+                        <div
+                          className="h-full bg-black rounded-none"
+                          style={{ width: `${item.score}%` }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+
+                  <p className="text-[8px] text-[#c8c0b4] tracking-widest uppercase text-center pt-1">Visual Similarity Score</p>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </motion.div>
 
       </main>
 
