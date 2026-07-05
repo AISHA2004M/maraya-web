@@ -14,21 +14,36 @@ import { createBrowserRouter } from "react-router-dom";
 import { motion } from "framer-motion";
 import ProtectedRoute from "../components/auth/ProtectedRoute";
 
-// ─── Lazy Page Imports ──────────────────────────────────────────────────────
-// Each import() creates a separate chunk in the production build.
-// Vite automatically splits these based on manualChunks config.
+// Helper to retry loading lazy components when new assets are deployed on Vercel
+const lazyRetry = (componentImport) => {
+  return lazy(async () => {
+    try {
+      return await componentImport();
+    } catch (error) {
+      console.error("Failed to load dynamically imported module, reloading...", error);
+      const lastReload = sessionStorage.getItem("chunk-reload-timestamp");
+      const now = Date.now();
+      if (!lastReload || now - parseInt(lastReload) > 10000) {
+        sessionStorage.setItem("chunk-reload-timestamp", now.toString());
+        window.location.reload();
+      }
+      throw error;
+    }
+  });
+};
 
-const Home          = lazy(() => import("../pages/Home"));
-const Shop          = lazy(() => import("../pages/Shop"));
-const ProductDetails = lazy(() => import("../pages/ProductDetails"));
-const TryOn         = lazy(() => import("../pages/TryOn"));
-const Cart          = lazy(() => import("../pages/Cart"));
-const Checkout      = lazy(() => import("../pages/Checkout"));
-const Login         = lazy(() => import("../pages/Login"));
-const BrandDetails  = lazy(() => import("../pages/BrandDetails"));
-const Profile       = lazy(() => import("../pages/Profile"));
-const Discover      = lazy(() => import("../pages/Discover"));
-const SearchByImage = lazy(() => import("../pages/SearchByImage"));
+// ─── Lazy Page Imports ──────────────────────────────────────────────────────
+const Home          = lazyRetry(() => import("../pages/Home"));
+const Shop          = lazyRetry(() => import("../pages/Shop"));
+const ProductDetails = lazyRetry(() => import("../pages/ProductDetails"));
+const TryOn         = lazyRetry(() => import("../pages/TryOn"));
+const Cart          = lazyRetry(() => import("../pages/Cart"));
+const Checkout      = lazyRetry(() => import("../pages/Checkout"));
+const Login         = lazyRetry(() => import("../pages/Login"));
+const BrandDetails  = lazyRetry(() => import("../pages/BrandDetails"));
+const Profile       = lazyRetry(() => import("../pages/Profile"));
+const Discover      = lazyRetry(() => import("../pages/Discover"));
+const SearchByImage = lazyRetry(() => import("../pages/SearchByImage"));
 
 // ─── Fallback UI ─────────────────────────────────────────────────────────────
 // Lightweight skeleton shown while lazy chunks are downloading.
