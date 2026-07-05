@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import api from "../api/client";
 import Navbar from "../components/layout/Navbar";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Camera } from "lucide-react";
 
 export default function Discover() {
   const [brands, setBrands] = useState([]);
@@ -54,6 +54,75 @@ export default function Discover() {
             A single engineering core powering independent digital boutiques. Browse each atelier as an autonomous house of design with its own campaigns, distinct visual rules, and storytelling product records.
           </p>
         </div>
+
+        {/* ── AI Visual Search Feature Banner ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
+          className="mb-32"
+        >
+          <div className="bg-white border border-[#eae6df] rounded-none overflow-hidden shadow-sm">
+            <div className="grid md:grid-cols-2 items-stretch">
+              {/* Text Side */}
+              <div className="flex flex-col justify-center px-10 py-14 md:py-16 space-y-6">
+                <div className="inline-flex items-center gap-2 w-fit px-3 py-1 border border-[#eae6df] rounded-full">
+                  <Sparkles size={10} className="text-[#a89f91]" />
+                  <span className="text-[8px] font-bold tracking-[0.28em] text-[#8e8577] uppercase">New · جديد</span>
+                </div>
+
+                <div className="space-y-2">
+                  <h2 className="font-display text-3xl md:text-4xl font-light text-black tracking-tight leading-snug">
+                    Search by Image<br />
+                    <span className="font-serif italic text-[#8e8577]">ابحث بالصورة</span>
+                  </h2>
+                  <p className="text-sm text-[#5c564c] font-light leading-relaxed max-w-sm">
+                    Upload any garment photo — our AI scans all brands and surfaces the closest visual matches instantly.
+                  </p>
+                  <p className="text-xs text-[#a89f91] font-light leading-relaxed max-w-sm">
+                    ارفع صورة أي قطعة ملابس وسيقوم الذكاء الاصطناعي بمسح جميع الماركات وإيجاد أقرب المنتجات المشابهة فوراً.
+                  </p>
+                </div>
+
+                <Link
+                  to="/search-by-image"
+                  className="inline-flex items-center gap-3 border border-black bg-transparent text-black text-[9px] font-bold tracking-[0.25em] uppercase px-10 py-4 hover:bg-black hover:text-white transition-all duration-500 rounded-none w-full sm:w-fit justify-center sm:justify-start"
+                >
+                  <Camera size={12} />
+                  Try Visual Search · جرّب الآن
+                </Link>
+              </div>
+
+              {/* Visual Side */}
+              <div className="relative bg-[#f4f2ef] flex items-center justify-center min-h-[260px] md:min-h-0 overflow-hidden">
+                {/* Abstract scan visual */}
+                <div className="relative flex flex-col items-center justify-center gap-5 w-full h-full p-12">
+                  {/* Scan frame */}
+                  <div className="relative w-28 h-28 border border-[#c8c0b4] bg-white flex items-center justify-center shadow-inner">
+                    <Camera size={32} className="text-[#8e8577]" />
+                    {/* Corner accents */}
+                    <span className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-black" />
+                    <span className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-black" />
+                    <span className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-black" />
+                    <span className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-black" />
+                    {/* Animated scan line */}
+                    <div className="absolute left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-black to-transparent opacity-60 animate-[scan_2s_linear_infinite]" />
+                  </div>
+                  {/* Similarity badges */}
+                  <div className="flex gap-3">
+                    {["98%", "91%", "87%"].map((pct, i) => (
+                      <div key={i} className="bg-white border border-[#eae6df] px-3 py-1.5 flex flex-col items-center shadow-sm">
+                        <span className="text-[9px] font-bold tracking-widest text-black">{pct}</span>
+                        <span className="text-[7px] text-[#a89f91] tracking-widest uppercase">Match</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
 
         {/* Chapters Directory */}
         <div className="space-y-48">
@@ -123,6 +192,14 @@ export default function Discover() {
       <footer className="border-t border-[#eae6df] bg-white py-16 text-center text-[10px] font-bold tracking-widest text-secondary uppercase">
         Vrital Ateliers © {new Date().getFullYear()} — Powered by Advanced Fashion Infrastructures
       </footer>
+
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes scan {
+          0% { top: 0%; }
+          50% { top: 100%; }
+          100% { top: 0%; }
+        }
+      `}} />
     </div>
   );
 }
