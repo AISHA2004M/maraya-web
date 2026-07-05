@@ -119,6 +119,10 @@ class ProductOut(BaseModel):
         from_attributes = True
 
 
+class ProductSearchByImageOut(ProductOut):
+    similarity_score: Optional[float] = None
+
+
 class ProductCreate(BaseModel):
     name: str
     description: Optional[str] = None

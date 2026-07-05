@@ -1,10 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, File, UploadFile
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from app.core.database import get_db
 from app.api.deps import get_current_partner, get_current_user
 from app.modules.products import service
-from app.modules.products.schemas import ProductOut, ProductCreate, ProductUpdate, BrandOut, CategoryOut, BrandCMSUpdate
+from app.modules.products.schemas import ProductOut, ProductCreate, ProductUpdate, BrandOut, CategoryOut, BrandCMSUpdate, ProductSearchByImageOut
 
 router = APIRouter()
 
@@ -174,6 +174,84 @@ def get_product_recommendations(
     db: Session = Depends(get_db),
 ):
     return service.get_product_recommendations(db, product_id)
+
+
+@router.post("/search-by-image", response_model=List[ProductSearchByImageOut])
+def search_by_image(
+    file: UploadFile = File(...),
+    brand_id: Optional[int] = None,
+    category_id: Optional[int] = None,
+    color: Optional[str] = None,
+    price_min: Optional[float] = None,
+    price_max: Optional[float] = None,
+    db: Session = Depends(get_db),
+):
+    """
+    Visual search: uploads an image, gets its embedding from Gemini,
+    compares it to cached embeddings of active products, and returns matches.
+    """
+    import json
+    from app.services.vector_search import get_image_embedding, cosine_similarity
+    from app.modules.products.models import Product
+
+    try:
+        # Read uploaded image bytes
+        image_bytes = file.file.read()
+        if not image_bytes:
+            raise HTTPException(status_code=400, detail="Uploaded file is empty")
+
+        # Get Gemini embedding for query image
+        query_vector = get_image_embedding(image_bytes, mime_type=file.content_type or "image/jpeg")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to process query image embedding: {str(e)}")
+
+    # Fetch all active products
+    products = db.query(Product).filter(Product.is_active == True).all()
+
+    results = []
+    for prod in products:
+        # Check if product has embedding, if not try generating it on-the-fly
+        prod_vector = None
+        if prod.image_embedding:
+            try:
+                prod_vector = json.loads(prod.image_embedding)
+            except Exception:
+                pass
+
+        if not prod_vector:
+            # If not cached, let's attempt to precalculate and cache it now
+            try:
+                from app.services.vector_search import get_image_embedding_from_url
+                prod_vector = get_image_embedding_from_url(prod.main_image_url)
+                prod.image_embedding = json.dumps(prod_vector)
+                db.commit()
+            except Exception:
+                continue  # Skip if we couldn't embed
+
+        # Compute cosine similarity
+        score = cosine_similarity(query_vector, prod_vector)
+        
+        # Store score on the transient attribute
+        prod.similarity_score = score
+        results.append(prod)
+
+    # Apply filters
+    if brand_id is not None:
+        results = [p for p in results if p.brand_id == brand_id]
+    if category_id is not None:
+        results = [p for p in results if p.category_id == category_id]
+    if color:
+        color_clean = color.strip().lower()
+        results = [p for p in results if p.color and color_clean in p.color.lower()]
+    if price_min is not None:
+        results = [p for p in results if float(p.price) >= price_min]
+    if price_max is not None:
+        results = [p for p in results if float(p.price) <= price_max]
+
+    # Sort by similarity score descending
+    results.sort(key=lambda x: x.similarity_score, reverse=True)
+
+    return results
 
 
 

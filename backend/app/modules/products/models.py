@@ -106,6 +106,7 @@ class Product(Base):
     sleeve_length = Column(String(100), nullable=True)    # e.g. "أكمام طويلة"
     lining = Column(String(100), nullable=True)           # e.g. "مبطن بالكامل"
     closure_type = Column(String(100), nullable=True)     # e.g. "سحاب خلفي"
+    image_embedding = Column(Text, nullable=True)         # JSON-serialized list of floats (embedding vector)
 
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())

@@ -1,5 +1,5 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { ShoppingBag, Search, Menu, X, Sparkles, Sun, Moon } from "lucide-react";
+import { ShoppingBag, Search, Menu, X, Sparkles, Sun, Moon, Camera } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useCartStore } from "../../store/useCartStore";
 import { useUserStore } from "../../store/useUserStore";
@@ -247,7 +247,7 @@ export default function Navbar() {
                 <input
                   autoFocus
                   type="text"
-                  placeholder="SEARCH GARMENTS, FABRICS OR BRAND HOUSES..."
+                  placeholder={language === "ar" ? "ابحث عن الملابس، الماركات، الخامات..." : "SEARCH GARMENTS, FABRICS OR BRAND HOUSES..."}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={(e) => {
@@ -258,6 +258,17 @@ export default function Navbar() {
                   }}
                   className="w-full text-xl md:text-3xl font-light tracking-wide outline-none bg-transparent placeholder:text-neutral-300"
                 />
+                <button
+                  onClick={() => {
+                    setSearchOpen(false);
+                    navigate("/search-by-image");
+                  }}
+                  className="flex items-center gap-2 px-3.5 py-2 bg-neutral-100 dark:bg-neutral-800 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors duration-300 text-[10px] uppercase tracking-widest font-semibold text-secondary whitespace-nowrap border border-rule"
+                  title="Search by Image / البحث بالصورة"
+                >
+                  <Camera size={15} />
+                  <span>{language === "ar" ? "البحث بالصورة" : "Search by Image"}</span>
+                </button>
               </div>
             </div>
 

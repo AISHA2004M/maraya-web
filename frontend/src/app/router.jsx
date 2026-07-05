@@ -28,6 +28,7 @@ const Login         = lazy(() => import("../pages/Login"));
 const BrandDetails  = lazy(() => import("../pages/BrandDetails"));
 const Profile       = lazy(() => import("../pages/Profile"));
 const Discover      = lazy(() => import("../pages/Discover"));
+const SearchByImage = lazy(() => import("../pages/SearchByImage"));
 
 // ─── Fallback UI ─────────────────────────────────────────────────────────────
 // Lightweight skeleton shown while lazy chunks are downloading.
@@ -110,6 +111,7 @@ export const router = createBrowserRouter([
   { path: "/brands/:brand_slug/cart",          element: <LazyRoute Page={Cart} /> },
   { path: "/brands/:brand_slug/checkout",      element: <ProtectedRoute><LazyRoute Page={Checkout} /></ProtectedRoute> },
   { path: "/brands/:brand_slug/profile",       element: <ProtectedRoute><LazyRoute Page={Profile} /></ProtectedRoute> },
+  { path: "/brands/:brand_slug/search-by-image", element: <LazyRoute Page={SearchByImage} /> },
 
   // Fallback/Legacy routes (for backward compatibility)
   { path: "/shop",       element: <LazyRoute Page={Shop} /> },
@@ -118,4 +120,5 @@ export const router = createBrowserRouter([
   { path: "/cart",       element: <LazyRoute Page={Cart} /> },
   { path: "/checkout",   element: <ProtectedRoute><LazyRoute Page={Checkout} /></ProtectedRoute> },
   { path: "/profile",    element: <ProtectedRoute><LazyRoute Page={Profile} /></ProtectedRoute> },
+  { path: "/search-by-image",                     element: <LazyRoute Page={SearchByImage} /> },
 ]);

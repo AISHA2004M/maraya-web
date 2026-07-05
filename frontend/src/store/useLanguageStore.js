@@ -72,7 +72,19 @@ const translations = {
     pant_warning: "Pants Warning",
     pant_warning_desc: "For pants/skirts, please upload a clear, full-body photo showing your lower legs for optimal drape rendering.",
     tryon_title: "Smart Virtual Fitting Room",
-    tryon_subtitle: "Try on your favorite clothes now with AI! Choose a virtual model or upload your personal photo, coordinate your clothing items, and watch the final result with precision directly."
+    tryon_subtitle: "Try on your favorite clothes now with AI! Choose a virtual model or upload your personal photo, coordinate your clothing items, and watch the final result with precision directly.",
+    visual_search: "Search by Image",
+    visual_search_title: "AI Visual Search",
+    visual_search_desc: "Upload an image of any garment to discover identical or visually similar items across our available brands.",
+    no_visual_results: "No similar products were found in our available brands.",
+    drag_drop_search: "Drop image here, or click to browse",
+    scanning: "Visual scanning in progress...",
+    similarity_match: "Similarity Match",
+    clear_filters: "Clear Filters",
+    filter_brand: "Filter by Brand",
+    filter_category: "Filter by Category",
+    filter_color: "Color",
+    filter_price: "Price Range"
   },
   ar: {
     directory: "← دليل الماركات",
@@ -144,7 +156,19 @@ const translations = {
     pant_warning: "تنبيه بخصوص البنطلونات والتنانير",
     pant_warning_desc: "للحصول على أفضل نتيجة للبنطلونات، يرجى رفع صورة كاملة للجسم تظهر الساقين بوضوح لضمان دقة الرسم والملاءمة.",
     tryon_title: "غرفة القياس الافتراضية الذكية",
-    tryon_subtitle: "جرّب ملابسك المفضلة الآن بالذكاء الاصطناعي! اختر عارضاً افتراضياً أو ارفع صورتك الشخصية، نسّق قطع ملابسك، وشاهد النتيجة النهائية بدقة مباشرةً."
+    tryon_subtitle: "جرّب ملابسك المفضلة الآن بالذكاء الاصطناعي! اختر عارضاً افتراضياً أو ارفع صورتك الشخصية، نسّق قطع ملابسك، وشاهد النتيجة النهائية بدقة مباشرةً.",
+    visual_search: "البحث بالصورة",
+    visual_search_title: "البحث البصري بالذكاء الاصطناعي",
+    visual_search_desc: "ارفع صورة لأي قطعة ملابس لتكتشف قطعاً مطابقة أو مشابهة لها بصرياً في علاماتنا التجارية المتاحة.",
+    no_visual_results: "لم يتم العثور على منتجات مشابهة في علاماتنا التجارية المتاحة.",
+    drag_drop_search: "أفلت الصورة هنا، أو اضغط للتصفح",
+    scanning: "جاري مسح وتحليل تفاصيل الصورة...",
+    similarity_match: "نسبة التطابق",
+    clear_filters: "مسح الفلاتر",
+    filter_brand: "تصفية حسب الماركة",
+    filter_category: "تصفية حسب القسم",
+    filter_color: "اللون",
+    filter_price: "نطاق السعر"
   }
 };
 
