@@ -312,9 +312,27 @@ export default function SearchByImage() {
                   </div>
                 ) : hasSearched ? (
                   filteredResults.length === 0 ? (
-                    <div className="border border-[#eae6df] bg-white p-16 text-center space-y-3 flex flex-col items-center">
-                      <Camera size={28} className="text-[#c8c0b4]" />
-                      <p className="text-xs text-[#8e8577] max-w-sm">{t("no_visual_results")}</p>
+                    <div className="border border-[#eae6df] bg-white p-16 text-center flex flex-col items-center gap-5 min-h-[320px] justify-center">
+                      <div className="w-16 h-16 rounded-full bg-[#f7f6f4] border border-[#eae6df] flex items-center justify-center">
+                        <Camera size={24} className="text-[#c8c0b4]" />
+                      </div>
+                      <div className="space-y-2 max-w-xs">
+                        <p className="text-sm font-semibold text-black">
+                          {language === "ar" ? "لا توجد نتائج مشابهة" : "No similar items found"}
+                        </p>
+                        <p className="text-xs text-[#8e8577] leading-relaxed font-light">
+                          {language === "ar"
+                            ? "لم يجد الذكاء الاصطناعي أي قطعة مشابهة لصورتك في قاعدة بيانات الماركات. يعتمد البحث على تطابق بصري دقيق بنسبة 75% أو أعلى."
+                            : "The AI couldn't find any garments visually similar enough to your image across all available brands. Only items with 75%+ visual match are shown."}
+                        </p>
+                      </div>
+                      <button
+                        onClick={resetSearch}
+                        className="inline-flex items-center gap-2 border border-[#eae6df] hover:border-black text-black text-[9px] font-bold tracking-widest uppercase px-8 py-3 transition-colors"
+                      >
+                        <RefreshCw size={11} />
+                        {language === "ar" ? "جرّب صورة أخرى" : "Try Another Image"}
+                      </button>
                     </div>
                   ) : (
                     <div className="space-y-4">

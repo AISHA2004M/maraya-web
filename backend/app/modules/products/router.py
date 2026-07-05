@@ -248,10 +248,18 @@ def search_by_image(
     if price_max is not None:
         results = [p for p in results if float(p.price) <= price_max]
 
+    # ── Strict similarity filtering ──────────────────────────────────────────
+    # Only keep products with a cosine similarity >= 0.75 (75% match).
+    # Below this threshold the visual match is not meaningful enough to show.
+    SIMILARITY_THRESHOLD = 0.75
+    MAX_RESULTS = 20
+
+    results = [p for p in results if p.similarity_score >= SIMILARITY_THRESHOLD]
+
     # Sort by similarity score descending
     results.sort(key=lambda x: x.similarity_score, reverse=True)
 
-    return results
+    return results[:MAX_RESULTS]
 
 
 
