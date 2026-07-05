@@ -21,6 +21,21 @@ export default function Navbar() {
   const [searchProducts, setSearchProducts] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedBrand, setSelectedBrand] = useState("");
+  const [brand, setBrand] = useState(null);
+
+  useEffect(() => {
+    if (brand_slug) {
+      api.get(`/products/brands/slug/${brand_slug}`)
+        .then((res) => {
+          setBrand(res.data);
+        })
+        .catch((err) => {
+          console.error("Navbar failed to fetch brand details", err);
+        });
+    } else {
+      setBrand(null);
+    }
+  }, [brand_slug]);
 
   const items = useCartStore((s) => s.items);
   const count = items.reduce((sum, i) => sum + i.quantity, 0);
@@ -99,9 +114,18 @@ export default function Navbar() {
             )}
             <Link
               to={logoLink}
-              className="font-display text-2xl tracking-widest2 font-light text-primary"
+              className="font-display text-2xl tracking-widest2 font-light text-primary flex items-center justify-center"
             >
-              {brandDisplayName}
+              {brand?.logo_url ? (
+                <img
+                  src={brand.logo_url}
+                  alt={brand.name}
+                  className="h-5 md:h-6 w-auto object-contain select-none dark:invert"
+                  style={{ maxHeight: "24px" }}
+                />
+              ) : (
+                brandDisplayName
+              )}
             </Link>
           </div>
 
