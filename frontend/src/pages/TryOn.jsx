@@ -469,22 +469,26 @@ export default function TryOn() {
             onClick={() => navigate(-1)}
             className="flex items-center gap-2 text-xs text-secondary hover:text-primary transition-colors mb-6 uppercase tracking-widest font-semibold"
           >
-            <ArrowLeft size={14} /> العودة / Back
+            <ArrowLeft size={14} /> {language === "ar" ? "العودة" : "Back"}
           </button>
-          <h1 className="heading-serif text-4xl md:text-5xl text-primary mb-3">غرفة القياس الافتراضية الذكية</h1>
+          <h1 className="heading-serif text-4xl md:text-5xl text-primary mb-3">{t("tryon_title")}</h1>
           <p className="text-secondary text-base max-w-xl font-light leading-relaxed">
-            جرّب ملابسك المفضلة الآن بالذكاء الاصطناعي! اختر عارضاً افتراضياً أو ارفع صورتك الشخصية، نسّق قطع ملابسك، وشاهد النتيجة النهائية بدقة مباشرةً.
+            {t("tryon_subtitle")}
           </p>
         </div>
 
         {!token && (
           <div className="bg-[#fcfcfa] border border-rule p-6 mb-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs font-light text-secondary uppercase tracking-widest fade-up">
-            <span>Sign in to sync your wardrobe history and access your try-ons across all devices.</span>
+            <span>
+              {language === "ar" 
+                ? "سجّل الدخول لمزامنة سجل خزانة ملابسك والوصول إلى قياساتك عبر جميع الأجهزة." 
+                : "Sign in to sync your wardrobe history and access your try-ons across all devices."}
+            </span>
             <Link
               to="/login"
               className="btn-black py-2.5 px-6 text-[9.5px] font-bold tracking-widest uppercase rounded-none animate-pulse"
             >
-              Sign In
+              {t("sign_in")}
             </Link>
           </div>
         )}

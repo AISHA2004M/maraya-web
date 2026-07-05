@@ -70,7 +70,9 @@ const translations = {
     guidelines_bottoms_desc: "When selecting pants or a skirt, the AI will keep your current shirt from your uploaded photo and replace only the lower body garment.",
     guidelines_dresses_desc: "When selecting a dress or full-body jumpsuit, the AI will replace all garments on your body.",
     pant_warning: "Pants Warning",
-    pant_warning_desc: "For pants/skirts, please upload a clear, full-body photo showing your lower legs for optimal drape rendering."
+    pant_warning_desc: "For pants/skirts, please upload a clear, full-body photo showing your lower legs for optimal drape rendering.",
+    tryon_title: "Smart Virtual Fitting Room",
+    tryon_subtitle: "Try on your favorite clothes now with AI! Choose a virtual model or upload your personal photo, coordinate your clothing items, and watch the final result with precision directly."
   },
   ar: {
     directory: "← دليل الماركات",
@@ -140,7 +142,9 @@ const translations = {
     guidelines_bottoms_desc: "عند اختيار بنطال أو تنورة، سيحافظ الذكاء الاصطناعي على القميص في صورتك ويغير الجزء السفلي فقط.",
     guidelines_dresses_desc: "عند اختيار فستان أو ملابس كاملة، سيقوم الذكاء الاصطناعي باستبدال ملابس الجسم بالكامل.",
     pant_warning: "تنبيه بخصوص البنطلونات والتنانير",
-    pant_warning_desc: "للحصول على أفضل نتيجة للبنطلونات، يرجى رفع صورة كاملة للجسم تظهر الساقين بوضوح لضمان دقة الرسم والملاءمة."
+    pant_warning_desc: "للحصول على أفضل نتيجة للبنطلونات، يرجى رفع صورة كاملة للجسم تظهر الساقين بوضوح لضمان دقة الرسم والملاءمة.",
+    tryon_title: "غرفة القياس الافتراضية الذكية",
+    tryon_subtitle: "جرّب ملابسك المفضلة الآن بالذكاء الاصطناعي! اختر عارضاً افتراضياً أو ارفع صورتك الشخصية، نسّق قطع ملابسك، وشاهد النتيجة النهائية بدقة مباشرةً."
   }
 };
 
