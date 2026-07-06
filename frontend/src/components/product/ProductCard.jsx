@@ -41,10 +41,11 @@ export default function ProductCard({ product }) {
   const addedTimerRef = useRef(null);
 
   // ─── Image angles ──────────────────────────────────────────────────────────
-  const rawAngles = product.angles_images_url
+  const rawAngles = (product.angles_images_url && !product.angles_images_url.startsWith("data:"))
     ? product.angles_images_url.split(",").map((u) => u.trim()).filter(Boolean)
     : [
-        product.main_image_url ||
+        product.angles_images_url ||
+          product.main_image_url ||
           product.image_url ||
           "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=600",
       ];

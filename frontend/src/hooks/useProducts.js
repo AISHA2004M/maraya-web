@@ -23,7 +23,7 @@ export const useProducts = (params = {}) =>
   useQuery({
     queryKey: ["products", params],
     queryFn: () => getProducts(params),
-    staleTime: 1000 * 60 * 10,   // 10 minutes
+    staleTime: 1000 * 5,         // 5 seconds stale check (updates show up quickly)
     gcTime: 1000 * 60 * 30,      // 30 minutes in memory
   });
 
@@ -33,7 +33,7 @@ export const useProduct = (id) =>
     queryKey: ["product", id],
     queryFn: () => getProductById(id),
     enabled: !!id,
-    staleTime: 1000 * 60 * 15,   // 15 minutes (price/stock drift)
+    staleTime: 1000 * 5,         // 5 seconds stale check
     gcTime: 1000 * 60 * 30,
   });
 
