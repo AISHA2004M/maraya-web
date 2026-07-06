@@ -20,6 +20,7 @@ import { Heart, Sparkles } from "lucide-react";
 import { useCartStore } from "../../store/useCartStore";
 import { useWishlistStore } from "../../store/useWishlistStore";
 import { formatPrice } from "../../utils/formatPrice";
+import { resolveImageUrl } from "../../utils/resolveImageUrl";
 
 export default function ProductCard({ product }) {
   const navigate = useNavigate();
@@ -40,13 +41,15 @@ export default function ProductCard({ product }) {
   const addedTimerRef = useRef(null);
 
   // ─── Image angles ──────────────────────────────────────────────────────────
-  const angles = product.angles_images_url
+  const rawAngles = product.angles_images_url
     ? product.angles_images_url.split(",").map((u) => u.trim()).filter(Boolean)
     : [
         product.main_image_url ||
           product.image_url ||
           "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=600",
       ];
+
+  const angles = rawAngles.map(resolveImageUrl);
 
   // ─── Hover handlers ────────────────────────────────────────────────────────
   const handleMouseEnter = useCallback(() => {

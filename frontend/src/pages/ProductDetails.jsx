@@ -17,6 +17,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useUserStore } from "../store/useUserStore";
 import { useLanguageStore } from "../store/useLanguageStore";
 import { formatPrice } from "../utils/formatPrice";
+import { resolveImageUrl } from "../utils/resolveImageUrl";
 
 function FabricCanvas({ imageUrl, windSpeed, isActive, fabricType }) {
   const canvasRef = useRef(null);
@@ -507,9 +508,10 @@ export default function ProductDetails() {
   }
 
   // Create list of images for 360 rotation simulator using database values if present
-  const rotationImages = (product.angles_images_url && product.angles_images_url.trim())
+  const rawRotationImages = (product.angles_images_url && product.angles_images_url.trim())
     ? product.angles_images_url.split(",").map(url => url.trim()).filter(Boolean)
     : [product.main_image_url || product.image_url];
+  const rotationImages = rawRotationImages.map(resolveImageUrl);
 
   const handleAccordionToggle = (accordion) => {
     setActiveAccordion(activeAccordion === accordion ? null : accordion);

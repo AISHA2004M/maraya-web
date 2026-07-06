@@ -1,5 +1,5 @@
 from typing import Optional, List
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 import uuid
 from decimal import Decimal
 
@@ -64,6 +64,16 @@ class ProductImageOut(BaseModel):
     image_url: str
     angle: Optional[str] = None
 
+    @field_validator("image_url", mode="before")
+    @classmethod
+    def resolve_image_url(cls, v):
+        if not v:
+            return v
+        if v.startswith("/uploads/"):
+            from app.core.config import settings
+            return f"{settings.API_BASE_URL.rstrip('/')}/{v.lstrip('/')}"
+        return v
+
     class Config:
         from_attributes = True
 
@@ -114,6 +124,31 @@ class ProductOut(BaseModel):
     category: Optional[CategoryOut] = None
     images: List[ProductImageOut] = []
     sizes: List[ProductSizeOut] = []
+
+    @field_validator("main_image_url", mode="before")
+    @classmethod
+    def resolve_main_image(cls, v):
+        if not v:
+            return v
+        if v.startswith("/uploads/"):
+            from app.core.config import settings
+            return f"{settings.API_BASE_URL.rstrip('/')}/{v.lstrip('/')}"
+        return v
+
+    @field_validator("angles_images_url", mode="before")
+    @classmethod
+    def resolve_angles_images(cls, v):
+        if not v:
+            return v
+        from app.core.config import settings
+        resolved = []
+        for part in v.split(","):
+            part = part.strip()
+            if part.startswith("/uploads/"):
+                resolved.append(f"{settings.API_BASE_URL.rstrip('/')}/{part.lstrip('/')}")
+            else:
+                resolved.append(part)
+        return ",".join(resolved)
 
     class Config:
         from_attributes = True
