@@ -704,64 +704,12 @@ export default function ProductDetails() {
                 onTouchEnd={handleStop360Drag}
                 className={`w-full aspect-[3/4] bg-white border border-rule overflow-hidden rounded-lg flex items-center justify-center select-none relative group ${rotationImages.length > 1 ? "cursor-grab" : ""}`}
               >
-                {/* Simulated Canvas draping + Waving */}
-                <FabricCanvas
-                  imageUrl={rotationImages[rotationIndex]}
-                  windSpeed={windSpeed}
-                  isActive={fabricSimulationActive}
-                  fabricType={product.fabric_type}
+                {/* Clean, high-quality flat product image (no waving or ripples) */}
+                <img
+                  src={rotationImages[rotationIndex]}
+                  alt={product.name}
+                  className="w-full h-full object-cover pointer-events-none select-none"
                 />
-                
-                {/* Floating Glassmorphic Overlay Controls */}
-                <div className="absolute top-4 right-4 z-20 flex flex-col gap-2.5 glass-panel p-2.5 rounded-lg shadow-lg border border-white/20 transition-all duration-300 opacity-90 group-hover:opacity-100">
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setFabricSimulationActive(!fabricSimulationActive);
-                    }}
-                    title={fabricSimulationActive ? "Freeze Motion" : "Simulate Fabric Drapes"}
-                    className={`p-2.5 rounded-md transition-all duration-200 hover:scale-105 flex items-center justify-center ${
-                      fabricSimulationActive 
-                        ? "bg-black text-white dark:bg-white dark:text-black shadow-md" 
-                        : "bg-white/40 text-black dark:bg-black/40 dark:text-white hover:bg-white/60 dark:hover:bg-black/60"
-                    }`}
-                  >
-                    <Wind size={14} />
-                  </button>
-
-                  {fabricSimulationActive && (
-                    <div className="flex flex-col items-center gap-1.5 pt-2 border-t border-black/10 dark:border-white/10 fade-up">
-                      <span className="text-[7.5px] font-bold tracking-widest text-secondary uppercase">
-                        Wind
-                      </span>
-                      <div className="h-24 py-1 flex items-center justify-center">
-                        <input
-                          type="range"
-                          min="1"
-                          max="10"
-                          value={windSpeed}
-                          onChange={(e) => setWindSpeed(Number(e.target.value))}
-                          onMouseDown={(e) => e.stopPropagation()}
-                          onTouchStart={(e) => e.stopPropagation()}
-                          onClick={(e) => e.stopPropagation()}
-                          className="accent-black dark:accent-white cursor-pointer h-full w-1 rounded-full bg-neutral-200 dark:bg-neutral-800"
-                          style={{ writingMode: "vertical-lr", direction: "rtl", WebkitAppearance: "slider-vertical" }}
-                        />
-                      </div>
-                      <span className="text-[8.5px] font-bold text-primary">
-                        {windSpeed}
-                      </span>
-                    </div>
-                  )}
-                </div>
-
-                <div className="absolute bottom-4 left-4 glass-panel px-3 py-1.5 rounded-sm flex items-center gap-2 text-[10px] text-primary">
-                  <span className={`w-2 h-2 rounded-full ${fabricSimulationActive ? "bg-green-500 animate-pulse" : "bg-neutral-400"}`} />
-                  <span className="font-semibold uppercase tracking-wider">
-                    Fabric Simulation: {fabricSimulationActive ? "ON" : "OFF"}
-                  </span>
-                </div>
 
                 {rotationImages.length > 1 && (
                   <div className="absolute bottom-4 right-4 bg-black/60 backdrop-blur-sm text-[8px] font-bold tracking-widest text-white px-2 py-1 uppercase rounded-sm">
