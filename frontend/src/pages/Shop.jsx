@@ -7,6 +7,7 @@ import ProductCard from "../components/product/ProductCard";
 import SkeletonCard from "../components/ui/SkeletonCard";
 import { Search, SlidersHorizontal, X, ArrowUpDown, Sparkles } from "lucide-react";
 import api from "../api/client";
+import { formatPrice } from "../utils/formatPrice";
 
 export default function Shop() {
   const { brand_slug } = useParams();
@@ -26,10 +27,19 @@ export default function Shop() {
   const [selectedBrands, setSelectedBrands] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedMoods, setSelectedMoods] = useState([]);
-  const [maxPrice, setMaxPrice] = useState(1000);
+  const [maxPrice, setMaxPrice] = useState(10000000);
   const [sortBy, setSortBy] = useState("default");
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [isEditorialLayout, setIsEditorialLayout] = useState(true);
+
+  // Initialize maxPrice dynamically when products load
+  useEffect(() => {
+    if (products && products.length > 0) {
+      const prices = products.map((p) => Number(p.price));
+      const highest = Math.ceil(Math.max(...prices));
+      setMaxPrice(highest || 10000000);
+    }
+  }, [products]);
 
   // Load brand details
   useEffect(() => {
@@ -275,7 +285,7 @@ export default function Shop() {
             <div className="space-y-4">
               <div className="flex justify-between items-baseline">
                 <h4 className="text-xs font-bold tracking-wider uppercase text-secondary">Max Price</h4>
-                <span className="text-sm font-semibold">${maxPrice}</span>
+                <span className="text-sm font-semibold">{formatPrice(maxPrice)}</span>
               </div>
               <input
                 type="range"
