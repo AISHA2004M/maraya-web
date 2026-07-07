@@ -92,24 +92,26 @@ export default function Navbar() {
   return (
     <>
       <header className="sticky top-0 z-50 bg-white border-b border-rule transition-colors duration-300">
-        <div className="max-w-screen-xl mx-auto px-6 h-14 flex items-center justify-between gap-6">
+        <div className="max-w-screen-xl mx-auto px-6 h-14 flex items-center justify-between gap-6 relative">
 
-          {/* Mobile menu toggle */}
-          <button
-            className="md:hidden p-1 text-primary"
-            onClick={() => setMenuOpen(!menuOpen)}
-            aria-label="Menu"
-          >
-            {menuOpen ? <X size={20} /> : <Menu size={20} />}
-          </button>
-
-          {/* Logo / Brand Name */}
-          <div className="absolute left-1/2 -translate-x-1/2 md:static md:translate-x-0 flex items-center gap-3">
+          {/* Left area: Directory Link (Desktop) / Menu Toggle (Mobile) */}
+          <div className="flex items-center gap-4 min-w-[100px]">
+            <button
+              className="md:hidden p-1 text-primary"
+              onClick={() => setMenuOpen(!menuOpen)}
+              aria-label="Menu"
+            >
+              {menuOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
             {brand_slug && (
               <Link to="/discover" className="hidden md:inline-flex items-center text-[10px] font-bold tracking-wider text-secondary uppercase hover:text-black transition-colors">
                 {t("directory")}
               </Link>
             )}
+          </div>
+
+          {/* Logo / Brand Name (Always Perfectly Centered) */}
+          <div className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center">
             <Link
               to={logoLink}
               className="font-display text-2xl tracking-widest2 font-light text-primary flex items-center justify-center"

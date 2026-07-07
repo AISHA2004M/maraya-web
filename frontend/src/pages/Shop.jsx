@@ -27,6 +27,7 @@ export default function Shop() {
   const [selectedBrands, setSelectedBrands] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedMoods, setSelectedMoods] = useState([]);
+  const [selectedGender, setSelectedGender] = useState(searchParams.get("gender") || "all");
   const [maxPrice, setMaxPrice] = useState(10000000);
   const [sortBy, setSortBy] = useState("default");
   const [showMobileFilters, setShowMobileFilters] = useState(false);
@@ -116,6 +117,12 @@ export default function Shop() {
     setSelectedBrands([]);
     setSelectedCategories([]);
     setSelectedMoods([]);
+    setSelectedGender("all");
+    setSearchParams((prev) => {
+      prev.delete("gender");
+      prev.delete("search");
+      return prev;
+    });
     setIsEditorialLayout(true);
     if (products && products.length > 0) {
       const prices = products.map((p) => Number(p.price));
@@ -145,7 +152,14 @@ export default function Shop() {
     const productMood = product.mood_aesthetic || "Minimalist Core";
     const matchesMood = selectedMoods.length === 0 || selectedMoods.includes(productMood);
 
-    return matchesSearch && matchesBrand && matchesCategory && matchesPrice && matchesMood;
+    const productGender = (product.gender || "").toLowerCase();
+    const matchesGender =
+      selectedGender === "all" ||
+      productGender === "any" ||
+      productGender === "unisex" ||
+      productGender === selectedGender.toLowerCase();
+
+    return matchesSearch && matchesBrand && matchesCategory && matchesPrice && matchesMood && matchesGender;
   });
 
   const sortedProducts = [...filteredProducts].sort((a, b) => {
@@ -189,7 +203,7 @@ export default function Shop() {
               <h3 className="text-xs font-bold tracking-widest uppercase flex items-center gap-2">
                 <SlidersHorizontal size={14} /> Filters
               </h3>
-              {(selectedBrands.length > 0 || selectedCategories.length > 0 || selectedMoods.length > 0 || searchQuery !== "" || sortBy !== "default") && (
+              {(selectedBrands.length > 0 || selectedCategories.length > 0 || selectedMoods.length > 0 || searchQuery !== "" || sortBy !== "default" || selectedGender !== "all") && (
                 <button
                   onClick={clearAllFilters}
                   className="text-[10px] text-secondary hover:text-black hover:underline uppercase tracking-wider"
@@ -197,6 +211,36 @@ export default function Shop() {
                   Clear All
                 </button>
               )}
+            </div>
+
+            {/* Gender Filter */}
+            <div className="space-y-4">
+              <h4 className="text-xs font-bold tracking-wider uppercase text-secondary">Gender</h4>
+              <div className="flex gap-2">
+                {["all", "women", "men"].map((g) => {
+                  const isSelected = selectedGender === g;
+                  const label = g === "all" ? "All" : g === "women" ? "Women" : "Men";
+                  return (
+                    <button
+                      key={g}
+                      onClick={() => {
+                        setSelectedGender(g);
+                        setSearchParams((prev) => {
+                          if (g === "all") prev.delete("gender");
+                          else prev.set("gender", g);
+                          return prev;
+                        });
+                      }}
+                      className={`flex-1 py-2 text-[9px] font-bold tracking-widest uppercase border transition-all duration-300 rounded-full ${isSelected
+                          ? "bg-black text-white border-black"
+                          : "bg-transparent text-secondary border-[#eae6df] hover:border-black hover:text-primary"
+                        }`}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             {/* Mood Occasion Filters */}
@@ -431,6 +475,36 @@ export default function Shop() {
                 <button onClick={() => setShowMobileFilters(false)} className="text-secondary hover:text-black">
                   <X size={18} />
                 </button>
+              </div>
+
+              {/* Gender Filter (Mobile) */}
+              <div className="space-y-4 mb-6">
+                <h4 className="text-xs font-bold tracking-wider uppercase text-secondary">Gender</h4>
+                <div className="flex gap-2">
+                  {["all", "women", "men"].map((g) => {
+                    const isSelected = selectedGender === g;
+                    const label = g === "all" ? "All" : g === "women" ? "Women" : "Men";
+                    return (
+                      <button
+                        key={g}
+                        onClick={() => {
+                          setSelectedGender(g);
+                          setSearchParams((prev) => {
+                            if (g === "all") prev.delete("gender");
+                            else prev.set("gender", g);
+                            return prev;
+                          });
+                        }}
+                        className={`flex-1 py-2 text-[9px] font-bold tracking-widest uppercase border transition-all duration-300 rounded-full ${isSelected
+                            ? "bg-black text-white border-black"
+                            : "bg-transparent text-secondary border-[#eae6df] hover:border-black hover:text-primary"
+                          }`}
+                      >
+                        {label}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
               {/* Mood list */}
