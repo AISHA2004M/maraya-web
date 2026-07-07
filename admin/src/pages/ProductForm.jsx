@@ -39,7 +39,7 @@ export default function ProductForm() {
     if (isEdit) {
       getProduct(id).then((p) => {
         reset(p);
-        if (p.angles_images_url) {
+        if (p.angles_images_url && !p.angles_images_url.startsWith("data:")) {
           const urls = p.angles_images_url.split(",");
           setAngles({
             front: urls[0] || p.main_image_url || "",

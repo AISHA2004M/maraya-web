@@ -197,7 +197,7 @@ export default function Products() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {filtered.map((p) => {
-            const angleUrls = p.angles_images_url ? p.angles_images_url.split(",") : [p.main_image_url];
+            const angleUrls = (p.angles_images_url && !p.angles_images_url.startsWith("data:")) ? p.angles_images_url.split(",") : [p.main_image_url];
             return (
               <ProductCard
                 key={p.id}
