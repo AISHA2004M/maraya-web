@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && cd ../admin && npm install && npm run build && cd ../frontend && mkdir -p dist/admin && cp -r ../admin/dist/* dist/admin/",
     "preview": "vite preview"
   },
   "dependencies": {
