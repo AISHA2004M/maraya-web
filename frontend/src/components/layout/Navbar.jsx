@@ -92,10 +92,10 @@ export default function Navbar() {
   return (
     <>
       <header className="sticky top-0 z-50 bg-white border-b border-rule transition-colors duration-300">
-        <div className="max-w-screen-xl mx-auto px-6 h-14 flex items-center justify-between gap-6 relative">
+        <div className="max-w-screen-xl mx-auto px-6 h-14 flex items-center justify-between gap-6">
 
-          {/* Left area: Directory Link & Desktop Nav */}
-          <div className="flex items-center gap-6 min-w-[100px] z-10">
+          {/* Left area: Logo, Directory Link & Desktop Nav */}
+          <div className="flex items-center gap-6 md:gap-8">
             <button
               className="md:hidden p-1 text-primary"
               onClick={() => setMenuOpen(!menuOpen)}
@@ -103,31 +103,11 @@ export default function Navbar() {
             >
               {menuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
-            {brand_slug && (
-              <Link to="/discover" className="hidden md:inline-flex items-center text-[10px] font-bold tracking-wider text-secondary uppercase hover:text-black transition-colors mr-2">
-                {t("directory")}
-              </Link>
-            )}
-            
-            {/* Desktop Nav (Positioned Left to Avoid Center Overlap) */}
-            <nav className="hidden md:flex items-center gap-6">
-              {navLinks.map(({ to, label }) => (
-                <Link
-                  key={label}
-                  to={to}
-                  className="label-upper-dark hover:text-secondary transition-colors text-[10px] tracking-wider"
-                >
-                  {label}
-                </Link>
-              ))}
-            </nav>
-          </div>
 
-          {/* Logo / Brand Name (Always Perfectly Centered) */}
-          <div className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center z-0">
+            {/* Logo / Brand Name (Left-aligned for a clean luxury layout) */}
             <Link
               to={logoLink}
-              className="font-display text-2xl tracking-widest2 font-light text-primary flex items-center justify-center"
+              className="font-display text-xl md:text-2xl tracking-widest2 font-light text-primary flex items-center justify-center mr-2 md:mr-4"
             >
               {brand?.logo_url ? (
                 <img
@@ -140,6 +120,25 @@ export default function Navbar() {
                 brandDisplayName
               )}
             </Link>
+
+            {brand_slug && (
+              <Link to="/discover" className="hidden md:inline-flex items-center text-[10px] font-bold tracking-wider text-secondary uppercase hover:text-black transition-colors">
+                {t("directory")}
+              </Link>
+            )}
+            
+            {/* Desktop Nav */}
+            <nav className="hidden md:flex items-center gap-6">
+              {navLinks.map(({ to, label }) => (
+                <Link
+                  key={label}
+                  to={to}
+                  className="label-upper-dark hover:text-secondary transition-colors text-[10px] tracking-wider"
+                >
+                  {label}
+                </Link>
+              ))}
+            </nav>
           </div>
 
           {/* Right Icons */}
