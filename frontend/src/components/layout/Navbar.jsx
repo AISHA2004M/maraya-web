@@ -94,8 +94,8 @@ export default function Navbar() {
       <header className="sticky top-0 z-50 bg-white border-b border-rule transition-colors duration-300">
         <div className="max-w-screen-xl mx-auto px-6 h-14 flex items-center justify-between gap-6 relative">
 
-          {/* Left area: Directory Link (Desktop) / Menu Toggle (Mobile) */}
-          <div className="flex items-center gap-4 min-w-[100px]">
+          {/* Left area: Directory Link & Desktop Nav */}
+          <div className="flex items-center gap-6 min-w-[100px] z-10">
             <button
               className="md:hidden p-1 text-primary"
               onClick={() => setMenuOpen(!menuOpen)}
@@ -104,14 +104,27 @@ export default function Navbar() {
               {menuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
             {brand_slug && (
-              <Link to="/discover" className="hidden md:inline-flex items-center text-[10px] font-bold tracking-wider text-secondary uppercase hover:text-black transition-colors">
+              <Link to="/discover" className="hidden md:inline-flex items-center text-[10px] font-bold tracking-wider text-secondary uppercase hover:text-black transition-colors mr-2">
                 {t("directory")}
               </Link>
             )}
+            
+            {/* Desktop Nav (Positioned Left to Avoid Center Overlap) */}
+            <nav className="hidden md:flex items-center gap-6">
+              {navLinks.map(({ to, label }) => (
+                <Link
+                  key={label}
+                  to={to}
+                  className="label-upper-dark hover:text-secondary transition-colors text-[10px] tracking-wider"
+                >
+                  {label}
+                </Link>
+              ))}
+            </nav>
           </div>
 
           {/* Logo / Brand Name (Always Perfectly Centered) */}
-          <div className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center">
+          <div className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center z-0">
             <Link
               to={logoLink}
               className="font-display text-2xl tracking-widest2 font-light text-primary flex items-center justify-center"
@@ -128,19 +141,6 @@ export default function Navbar() {
               )}
             </Link>
           </div>
-
-          {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-8">
-            {navLinks.map(({ to, label }) => (
-              <Link
-                key={label}
-                to={to}
-                className="label-upper-dark hover:text-secondary transition-colors"
-              >
-                {label}
-              </Link>
-            ))}
-          </nav>
 
           {/* Right Icons */}
           <div className="flex items-center gap-5 ml-auto md:ml-0 text-primary">
