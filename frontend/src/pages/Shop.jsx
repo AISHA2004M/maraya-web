@@ -344,6 +344,40 @@ export default function Shop() {
 
           {/* Catalog grid area */}
           <div className="space-y-8">
+            
+            {/* Primary Gender Separation Tabs */}
+            <div className="flex justify-center border-b border-rule pb-1 mb-2">
+              <div className="flex gap-8 md:gap-12">
+                {[
+                  { value: "all", label: "الكل / ALL" },
+                  { value: "women", label: "النساء / WOMEN" },
+                  { value: "men", label: "الرجال / MEN" }
+                ].map((tab) => {
+                  const isActive = selectedGender === tab.value;
+                  return (
+                    <button
+                      key={tab.value}
+                      onClick={() => {
+                        setSelectedGender(tab.value);
+                        setSearchParams((prev) => {
+                          if (tab.value === "all") prev.delete("gender");
+                          else prev.set("gender", tab.value);
+                          return prev;
+                        });
+                      }}
+                      className={`pb-3 text-[10px] md:text-xs font-bold tracking-[0.2em] uppercase transition-all duration-300 relative ${
+                        isActive
+                          ? "text-black font-semibold border-b-2 border-black -mb-[2px]"
+                          : "text-secondary hover:text-black"
+                      }`}
+                    >
+                      {tab.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             {/* Toolbar */}
             <div className="flex flex-col sm:flex-row gap-4 justify-between items-center bg-white dark:bg-neutral-900 p-4 border border-rule rounded-sm shadow-sm text-primary">
               <div className="relative w-full sm:max-w-xs">
