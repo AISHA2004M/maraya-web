@@ -571,319 +571,327 @@ export default function TryOn() {
                   </div>
                 </div>
               )}
-              {/* Advanced Toggle */}
-              <div className="pt-2 text-start">
-                <button
-                  type="button"
-                  onClick={() => setShowAdvanced(!showAdvanced)}
-                  className="text-[10px] font-bold uppercase tracking-widest text-secondary hover:text-black transition-colors flex items-center gap-1.5"
-                >
-                  <span>{showAdvanced ? "Collapse Advanced Settings / إخفاء الخيارات المتقدمة" : "Expand Advanced Settings / خيارات القياس المتقدمة"}</span>
-                </button>
+            {/* Step 2: Visual Style Collage Canvas (Always Visible) */}
+            <div className="space-y-4 bg-white p-6 border border-rule rounded-sm text-primary">
+              <div className="flex justify-between items-center border-b border-rule pb-3">
+                <h2 className="text-xs font-bold tracking-widest uppercase text-primary">
+                  2. لوحة تنسيق الإطلالة (Style Collage)
+                </h2>
+                {collageItems.length > 0 && (
+                  <button
+                    onClick={() => setCollageItems([])}
+                    className="text-[10px] text-red-500 uppercase hover:underline"
+                  >
+                    {language === "ar" ? "مسح اللوحة" : "Clear Board"}
+                  </button>
+                )}
+              </div>
+              <p className="text-[11px] text-secondary font-light leading-relaxed mb-3 text-start">
+                {language === "ar"
+                  ? "💡 يمكنك تحديد قطعتين معاً (مثلاً قميص وبنطلون) لتجربتهما معاً كطقم متكامل!"
+                  : "💡 You can select two pieces (e.g. a top and a bottom) to try them on together as a full outfit!"}
+              </p>
+
+              {/* Style Collage Canvas Container */}
+              <div
+                className="w-full h-80 bg-[#fbfbf9] border border-rule rounded-sm relative overflow-hidden select-none cursor-default"
+                style={{
+                  backgroundImage: "radial-gradient(#e5e4de 1px, transparent 1px)",
+                  backgroundSize: "20px 20px"
+                }}
+                onPointerMove={(e) => {
+                  if (!e.currentTarget.activeDragId) return;
+                  const canvasRect = e.currentTarget.getBoundingClientRect();
+                  let newX = e.clientX - canvasRect.left - e.currentTarget.offsetX;
+                  let newY = e.clientY - canvasRect.top - e.currentTarget.offsetY;
+                  
+                  // Keep item within bounds of canvas
+                  newX = Math.max(0, Math.min(canvasRect.width - 80, newX));
+                  newY = Math.max(0, Math.min(canvasRect.height - 100, newY));
+                  
+                  handleUpdateCollageItem(e.currentTarget.activeDragId, { x: newX, y: newY });
+                }}
+                onPointerUp={(e) => {
+                  e.currentTarget.activeDragId = null;
+                }}
+                onPointerLeave={(e) => {
+                  e.currentTarget.activeDragId = null;
+                }}
+                onPointerDown={(e) => {
+                  e.currentTarget.activeDragId = null;
+                }}
+              >
+                {collageItems.length === 0 ? (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center text-center opacity-40 p-6 pointer-events-none">
+                    <Sparkles size={24} className="mb-2 text-secondary" />
+                    <p className="text-[10px] uppercase tracking-widest font-bold text-secondary">
+                      لوحة تصميم المظهر (Moodboard)
+                    </p>
+                    <p className="text-[11px] font-light mt-1 max-w-[280px] leading-relaxed">
+                      {language === "ar" 
+                        ? "اختر القطع من المعرض أدناه، واسحبها هنا للتنسيق وتعديل المقاس."
+                        : "Select garments from the catalog below, and drag them here to style."}
+                    </p>
+                  </div>
+                ) : (
+                  collageItems.map((item) => (
+                    <div
+                      key={item.id}
+                      className="absolute bg-white border border-rule rounded shadow-sm flex flex-col cursor-move select-none p-1.5"
+                      style={{
+                        left: `${item.x}px`,
+                        top: `${item.y}px`,
+                        width: "90px",
+                        height: "120px",
+                        transform: `scale(${item.scale})`,
+                        transformOrigin: "center center",
+                        zIndex: 10
+                      }}
+                      onPointerDown={(e) => {
+                        e.stopPropagation();
+                        const canvas = e.currentTarget.parentElement;
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        canvas.activeDragId = item.id;
+                        canvas.offsetX = e.clientX - rect.left;
+                        canvas.offsetY = e.clientY - rect.top;
+                      }}
+                    >
+                      {/* Close button */}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setCollageItems(collageItems.filter((i) => i.id !== item.id));
+                        }}
+                        className="absolute top-1 right-1 w-4 h-4 bg-black/60 hover:bg-black text-white rounded-full flex items-center justify-center text-[8px] z-20"
+                      >
+                        ✕
+                      </button>
+                      {/* Scale Controls */}
+                      <div className="absolute bottom-1 right-1 flex gap-1 z-20">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleUpdateCollageItem(item.id, { scale: Math.min(1.5, item.scale + 0.1) });
+                          }}
+                          className="w-4 h-4 bg-black/60 hover:bg-black text-white rounded flex items-center justify-center text-[10px]"
+                        >
+                          +
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleUpdateCollageItem(item.id, { scale: Math.max(0.6, item.scale - 0.1) });
+                          }}
+                          className="w-4 h-4 bg-black/60 hover:bg-black text-white rounded flex items-center justify-center text-[10px]"
+                        >
+                          -
+                        </button>
+                      </div>
+                      {/* Image */}
+                      <div className="flex-1 bg-neutral-50 overflow-hidden relative rounded-sm">
+                        <img
+                          src={item.imageUrl}
+                          alt={item.name}
+                          className="w-full h-full object-cover pointer-events-none"
+                        />
+                      </div>
+                      <p className="text-[7.5px] font-bold text-primary truncate mt-1 text-center pointer-events-none">{item.name}</p>
+                    </div>
+                  ))
+                )}
               </div>
 
-              {showAdvanced && (
-                <div className="space-y-10 mt-6">
-                  {/* Step 2: Body Profile / Avatar */}
-                  <div className="space-y-4 bg-white dark:bg-neutral-900 p-6 border border-rule rounded-sm text-primary">
-                    <h2 className="text-xs font-bold tracking-widest uppercase text-primary border-b border-rule pb-3">
-                      2. مواصفات الجسم والمقاسات (Body Profile)
-                    </h2>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {/* Scrollable grid to select garments */}
+              <div className="space-y-2 text-start">
+                <p className="text-[10px] font-semibold text-secondary tracking-widest">
+                  {language === "ar" ? "الملابس المتاحة (Catalog)" : "Available Garments (Catalog)"}
+                </p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-56 overflow-y-auto pr-1">
+                  {brandProducts?.map((prod) => {
+                    const isSelected = selectedGarments.some((g) => g.id === prod.id);
+                    return (
+                      <div
+                        key={prod.id}
+                        onClick={() => toggleGarment(prod)}
+                        className={`cursor-pointer border p-3 flex flex-col gap-2 rounded-sm transition-all ${
+                          isSelected ? "border-black bg-neutral-50" : "border-rule hover:border-black/40"
+                        }`}
+                      >
+                        <div className="aspect-[3/4] bg-neutral-100 overflow-hidden">
+                          <img
+                            src={prod.main_image_url || prod.image_url}
+                            alt={prod.name}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-bold uppercase text-secondary truncate">{prod.brand?.name}</p>
+                          <p className="text-xs text-primary font-medium truncate">{prod.name}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {/* Advanced Toggle */}
+            <div className="pt-2 text-start">
+              <button
+                type="button"
+                onClick={() => setShowAdvanced(!showAdvanced)}
+                className="text-[10px] font-bold uppercase tracking-widest text-secondary hover:text-black transition-colors flex items-center gap-1.5"
+              >
+                <span>{showAdvanced ? "Collapse Advanced Settings / إخفاء الخيارات المتقدمة" : "Expand Advanced Settings / خيارات القياس المتقدمة"}</span>
+              </button>
+            </div>
+
+            {showAdvanced && (
+              <div className="space-y-6 mt-4">
+                {/* Step 3: Body Profile / Avatar */}
+                <div className="space-y-4 bg-white dark:bg-neutral-900 p-6 border border-rule rounded-sm text-primary">
+                  <h2 className="text-xs font-bold tracking-widest uppercase text-primary border-b border-rule pb-3">
+                    3. مواصفات الجسم والمقاسات (Body Profile)
+                  </h2>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {[
+                      { id: "Athletic M", name: "رياضي (Athletic M)" },
+                      { id: "Slim M", name: "نحيف (Slim M)" },
+                      { id: "Hourglass F", name: "ساعة رملية (Hourglass F)" },
+                      { id: "Petite F", name: "قوام ناعم (Petite F)" },
+                      { id: "Curve F", name: "قوام ممتلئ (Curve F)" },
+                      { id: "Plus Size", name: "وزن زائد (Plus Size)" }
+                    ].map((av) => (
+                      <button
+                        key={av.id}
+                        type="button"
+                        onClick={() => setAvatar(av.id)}
+                        className={`py-3 px-4 text-xs font-semibold tracking-wider uppercase border transition-all ${
+                          avatar === av.id
+                            ? "border-black bg-black text-white dark:border-white dark:bg-white dark:text-black"
+                            : "border-rule hover:border-black/50 text-secondary"
+                        }`}
+                      >
+                        {av.name}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="space-y-4 pt-3">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <div className="flex justify-between text-[10px] text-secondary font-bold uppercase tracking-wider mb-1">
+                          <span>الطول (Height)</span>
+                          <span>{height} سم</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="150"
+                          max="210"
+                          value={height}
+                          onChange={(e) => setHeight(Number(e.target.value))}
+                          className="w-full accent-black cursor-pointer bg-neutral-200 dark:bg-neutral-800 h-1 rounded-full"
+                        />
+                      </div>
+                      <div>
+                        <div className="flex justify-between text-[10px] text-secondary font-bold uppercase tracking-wider mb-1">
+                          <span>الوزن (Weight)</span>
+                          <span>{weight} كغم</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="45"
+                          max="120"
+                          value={weight}
+                          onChange={(e) => setWeight(Number(e.target.value))}
+                          className="w-full accent-black cursor-pointer bg-neutral-200 dark:bg-neutral-800 h-1 rounded-full"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-3 pt-2">
+                      <div>
+                        <div className="flex justify-between text-[9px] text-secondary font-bold uppercase tracking-wider mb-1">
+                          <span>الصدر (Bust)</span>
+                          <span>{bodyBust} سم</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="80"
+                          max="130"
+                          value={bodyBust}
+                          onChange={(e) => setBodyBust(Number(e.target.value))}
+                          className="w-full accent-black cursor-pointer bg-neutral-200 dark:bg-neutral-800 h-1 rounded-full"
+                        />
+                      </div>
+                      <div>
+                        <div className="flex justify-between text-[9px] text-secondary font-bold uppercase tracking-wider mb-1">
+                          <span>الخصر (Waist)</span>
+                          <span>{bodyWaist} سم</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="60"
+                          max="110"
+                          value={bodyWaist}
+                          onChange={(e) => setBodyWaist(Number(e.target.value))}
+                          className="w-full accent-black cursor-pointer bg-neutral-200 dark:bg-neutral-800 h-1 rounded-full"
+                        />
+                      </div>
+                      <div>
+                        <div className="flex justify-between text-[9px] text-secondary font-bold uppercase tracking-wider mb-1">
+                          <span>الأرداف (Hips)</span>
+                          <span>{bodyHips} سم</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="80"
+                          max="130"
+                          value={bodyHips}
+                          onChange={(e) => setBodyHips(Number(e.target.value))}
+                          className="w-full accent-black cursor-pointer bg-neutral-200 dark:bg-neutral-800 h-1 rounded-full"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* AI Engine Profile Selector */}
+                {!result && (
+                  <div className="space-y-3 bg-[#fcfcfa] dark:bg-neutral-900 p-4 border border-rule text-primary text-start">
+                    <h3 className="text-[10px] font-bold tracking-widest uppercase text-secondary">
+                      {language === "ar" ? "دقة محرك الذكاء الاصطناعي (AI Engine)" : "AI Engine Accuracy"}
+                    </h3>
+                    <div className="grid grid-cols-3 gap-3">
                       {[
-                        { id: "Athletic M", name: "رياضي (Athletic M)" },
-                        { id: "Slim M", name: "نحيف (Slim M)" },
-                        { id: "Hourglass F", name: "ساعة رملية (Hourglass F)" },
-                        { id: "Petite F", name: "قوام ناعم (Petite F)" },
-                        { id: "Curve F", name: "قوام ممتلئ (Curve F)" },
-                        { id: "Plus Size", name: "وزن زائد (Plus Size)" }
-                      ].map((av) => (
+                        { id: "fast", label: language === "ar" ? "سريع (Fast)" : "Fast", desc: language === "ar" ? "دقة منخفضة (~0.5ث)" : "Low res (~0.5s)" },
+                        { id: "balanced", label: language === "ar" ? "متوازن (Balanced)" : "Balanced", desc: language === "ar" ? "دقة قياسية (~1.5ث)" : "Std res (~1.5s)" },
+                        { id: "quality", label: language === "ar" ? "جودة (Quality)" : "Quality", desc: language === "ar" ? "تفاصيل كاملة (~3ث)" : "Full details (~3s)" },
+                      ].map((opt) => (
                         <button
-                          key={av.id}
+                          key={opt.id}
                           type="button"
-                          onClick={() => setAvatar(av.id)}
-                          className={`py-3 px-4 text-xs font-semibold tracking-wider uppercase border transition-all ${
-                            avatar === av.id
-                              ? "border-black bg-black text-white dark:border-white dark:bg-white dark:text-black"
-                              : "border-rule hover:border-black/50 text-secondary"
+                          disabled={loading}
+                          onClick={() => setModelVariant(opt.id)}
+                          className={`flex flex-col items-center justify-center p-2.5 border text-center transition-all ${
+                            modelVariant === opt.id
+                              ? "border-black bg-black text-white"
+                              : "border-neutral-200 hover:border-neutral-400 text-neutral-600 bg-white dark:bg-neutral-950"
                           }`}
                         >
-                          {av.name}
+                          <span className="text-[10px] font-bold uppercase tracking-wider">{opt.label}</span>
+                          <span className={`text-[8px] mt-0.5 leading-tight ${modelVariant === opt.id ? "text-neutral-300" : "text-neutral-400"}`}>
+                            {opt.desc}
+                          </span>
                         </button>
                       ))}
                     </div>
-                    <div className="space-y-4 pt-3">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <div className="flex justify-between text-[10px] text-secondary font-bold uppercase tracking-wider mb-1">
-                            <span>الطول (Height)</span>
-                            <span>{height} سم</span>
-                          </div>
-                          <input
-                            type="range"
-                            min="150"
-                            max="210"
-                            value={height}
-                            onChange={(e) => setHeight(Number(e.target.value))}
-                            className="w-full accent-black cursor-pointer bg-neutral-200 dark:bg-neutral-800 h-1 rounded-full"
-                          />
-                        </div>
-                        <div>
-                          <div className="flex justify-between text-[10px] text-secondary font-bold uppercase tracking-wider mb-1">
-                            <span>الوزن (Weight)</span>
-                            <span>{weight} كغم</span>
-                          </div>
-                          <input
-                            type="range"
-                            min="45"
-                            max="120"
-                            value={weight}
-                            onChange={(e) => setWeight(Number(e.target.value))}
-                            className="w-full accent-black cursor-pointer bg-neutral-200 dark:bg-neutral-800 h-1 rounded-full"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-3 gap-3 pt-2">
-                        <div>
-                          <div className="flex justify-between text-[9px] text-secondary font-bold uppercase tracking-wider mb-1">
-                            <span>الصدر (Bust)</span>
-                            <span>{bodyBust} سم</span>
-                          </div>
-                          <input
-                            type="range"
-                            min="80"
-                            max="130"
-                            value={bodyBust}
-                            onChange={(e) => setBodyBust(Number(e.target.value))}
-                            className="w-full accent-black cursor-pointer bg-neutral-200 dark:bg-neutral-800 h-1 rounded-full"
-                          />
-                        </div>
-                        <div>
-                          <div className="flex justify-between text-[9px] text-secondary font-bold uppercase tracking-wider mb-1">
-                            <span>الخصر (Waist)</span>
-                            <span>{bodyWaist} سم</span>
-                          </div>
-                          <input
-                            type="range"
-                            min="60"
-                            max="110"
-                            value={bodyWaist}
-                            onChange={(e) => setBodyWaist(Number(e.target.value))}
-                            className="w-full accent-black cursor-pointer bg-neutral-200 dark:bg-neutral-800 h-1 rounded-full"
-                          />
-                        </div>
-                        <div>
-                          <div className="flex justify-between text-[9px] text-secondary font-bold uppercase tracking-wider mb-1">
-                            <span>الأرداف (Hips)</span>
-                            <span>{bodyHips} سم</span>
-                          </div>
-                          <input
-                            type="range"
-                            min="80"
-                            max="130"
-                            value={bodyHips}
-                            onChange={(e) => setBodyHips(Number(e.target.value))}
-                            className="w-full accent-black cursor-pointer bg-neutral-200 dark:bg-neutral-800 h-1 rounded-full"
-                          />
-                        </div>
-                      </div>
-                    </div>
                   </div>
-
-                  {/* Step 3: Visual Style Collage Canvas */}
-                  <div className="space-y-4 bg-white p-6 border border-rule rounded-sm text-primary">
-                    <div className="flex justify-between items-center border-b border-rule pb-3">
-                      <h2 className="text-xs font-bold tracking-widest uppercase text-primary">
-                        3. لوحة تنسيق الإطلالة (Style Collage)
-                      </h2>
-                      {collageItems.length > 0 && (
-                        <button
-                          onClick={() => setCollageItems([])}
-                          className="text-[10px] text-red-500 uppercase hover:underline"
-                        >
-                          مسح اللوحة (Clear)
-                        </button>
-                      )}
-                    </div>
-
-                    {/* Style Collage Canvas Container */}
-                    <div
-                      className="w-full h-80 bg-[#fbfbf9] border border-rule rounded-sm relative overflow-hidden select-none cursor-default"
-                      style={{
-                        backgroundImage: "radial-gradient(#e5e4de 1px, transparent 1px)",
-                        backgroundSize: "20px 20px"
-                      }}
-                      onPointerMove={(e) => {
-                        if (!e.currentTarget.activeDragId) return;
-                        const canvasRect = e.currentTarget.getBoundingClientRect();
-                        let newX = e.clientX - canvasRect.left - e.currentTarget.offsetX;
-                        let newY = e.clientY - canvasRect.top - e.currentTarget.offsetY;
-                        
-                        // Keep item within bounds of canvas
-                        newX = Math.max(0, Math.min(canvasRect.width - 80, newX));
-                        newY = Math.max(0, Math.min(canvasRect.height - 100, newY));
-                        
-                        handleUpdateCollageItem(e.currentTarget.activeDragId, { x: newX, y: newY });
-                      }}
-                      onPointerUp={(e) => {
-                        e.currentTarget.activeDragId = null;
-                      }}
-                      onPointerLeave={(e) => {
-                        e.currentTarget.activeDragId = null;
-                      }}
-                      onPointerDown={(e) => {
-                        e.currentTarget.activeDragId = null;
-                      }}
-                    >
-                      {collageItems.length === 0 ? (
-                        <div className="absolute inset-0 flex flex-col items-center justify-center text-center opacity-40 p-6 pointer-events-none">
-                          <Sparkles size={24} className="mb-2 text-secondary" />
-                          <p className="text-[10px] uppercase tracking-widest font-bold text-secondary">
-                            لوحة تصميم المظهر (Moodboard)
-                          </p>
-                          <p className="text-[11px] font-light mt-1 max-w-[280px] leading-relaxed">
-                            اختر القطع من المعرض أدناه، واسحبها هنا للتنسيق وتعديل المقاس.
-                          </p>
-                        </div>
-                      ) : (
-                        collageItems.map((item) => (
-                          <div
-                            key={item.id}
-                            className="absolute bg-white border border-rule rounded shadow-sm flex flex-col cursor-move select-none p-1.5"
-                            style={{
-                              left: `${item.x}px`,
-                              top: `${item.y}px`,
-                              width: "90px",
-                              height: "120px",
-                              transform: `scale(${item.scale})`,
-                              transformOrigin: "center center",
-                              zIndex: 10
-                            }}
-                            onPointerDown={(e) => {
-                              e.stopPropagation();
-                              const canvas = e.currentTarget.parentElement;
-                              const rect = e.currentTarget.getBoundingClientRect();
-                              canvas.activeDragId = item.id;
-                              canvas.offsetX = e.clientX - rect.left;
-                              canvas.offsetY = e.clientY - rect.top;
-                            }}
-                          >
-                            {/* Close button */}
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setCollageItems(collageItems.filter((i) => i.id !== item.id));
-                              }}
-                              className="absolute top-1 right-1 w-4 h-4 bg-black/60 hover:bg-black text-white rounded-full flex items-center justify-center text-[8px] z-20"
-                            >
-                              ✕
-                            </button>
-                            {/* Scale Controls */}
-                            <div className="absolute bottom-1 right-1 flex gap-1 z-20">
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleUpdateCollageItem(item.id, { scale: Math.min(1.5, item.scale + 0.1) });
-                                }}
-                                className="w-4 h-4 bg-black/60 hover:bg-black text-white rounded flex items-center justify-center text-[10px]"
-                              >
-                                +
-                              </button>
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleUpdateCollageItem(item.id, { scale: Math.max(0.6, item.scale - 0.1) });
-                                }}
-                                className="w-4 h-4 bg-black/60 hover:bg-black text-white rounded flex items-center justify-center text-[10px]"
-                              >
-                                -
-                              </button>
-                            </div>
-                            {/* Image */}
-                            <div className="flex-1 bg-neutral-50 overflow-hidden relative rounded-sm">
-                              <img
-                                src={item.imageUrl}
-                                alt={item.name}
-                                className="w-full h-full object-cover pointer-events-none"
-                              />
-                            </div>
-                            <p className="text-[7.5px] font-bold text-primary truncate mt-1 text-center pointer-events-none">{item.name}</p>
-                          </div>
-                        ))
-                      )}
-                    </div>
-
-
-                    {/* Scrollable grid to select garments */}
-                    <div className="space-y-2">
-                      <p className="text-[10px] font-semibold text-secondary tracking-widest">الملابس المتاحة (Catalog)</p>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-56 overflow-y-auto pr-1">
-                        {brandProducts?.map((prod) => {
-                          const isSelected = selectedGarments.some((g) => g.id === prod.id);
-                          return (
-                            <div
-                              key={prod.id}
-                              onClick={() => toggleGarment(prod)}
-                              className={`cursor-pointer border p-3 flex flex-col gap-2 rounded-sm transition-all ${
-                                isSelected ? "border-black bg-neutral-50" : "border-rule hover:border-black/40"
-                              }`}
-                            >
-                              <div className="aspect-[3/4] bg-neutral-100 overflow-hidden">
-                                <img
-                                  src={prod.main_image_url || prod.image_url}
-                                  alt={prod.name}
-                                  className="w-full h-full object-cover"
-                                />
-                              </div>
-                              <div>
-                                <p className="text-[10px] font-bold uppercase text-secondary truncate">{prod.brand?.name}</p>
-                                <p className="text-xs text-primary font-medium truncate">{prod.name}</p>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* AI Engine Profile Selector */}
-                  {!result && (
-                    <div className="space-y-3 bg-[#fcfcfa] dark:bg-neutral-900 p-4 border border-rule text-primary">
-                      <h3 className="text-[10px] font-bold tracking-widest uppercase text-secondary">
-                        دقة محرك الذكاء الاصطناعي (AI Engine)
-                      </h3>
-                      <div className="grid grid-cols-3 gap-3">
-                        {[
-                          { id: "fast", label: "سريع (Fast)", desc: "دقة منخفضة (~0.5ث)" },
-                          { id: "balanced", label: "متوازن (Balanced)", desc: "دقة قياسية (~1.5ث)" },
-                          { id: "quality", label: "جودة (Quality)", desc: "تفاصيل كاملة (~3ث)" },
-                        ].map((opt) => (
-                          <button
-                            key={opt.id}
-                            type="button"
-                            disabled={loading}
-                            onClick={() => setModelVariant(opt.id)}
-                            className={`flex flex-col items-center justify-center p-2.5 border text-center transition-all ${
-                              modelVariant === opt.id
-                                ? "border-black bg-black text-white"
-                                : "border-neutral-200 hover:border-neutral-400 text-neutral-600 bg-white dark:bg-neutral-950"
-                            }`}
-                          >
-                            <span className="text-[10px] font-bold uppercase tracking-wider">{opt.label}</span>
-                            <span className={`text-[8px] mt-0.5 leading-tight ${modelVariant === opt.id ? "text-neutral-300" : "text-neutral-400"}`}>
-                              {opt.desc}
-                            </span>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
+                )}
+              </div>
+            )}
             </div>
 
             {/* Action execution */}
