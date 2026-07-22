@@ -903,7 +903,7 @@ async def run_local_drape_pipeline(
 
     # ── Step 1: Face extraction ───────────────────────────────────────────
     logger.info("[AI Pipeline v2] Step 1: Extracting face/head for identity lock...")
-    face_height = int(uh * 0.38)
+    face_height = int(uh * 0.42)  # Increased from 0.38 to capture more of the head
     user_face_crop = user_img.crop((0, 0, uw, face_height)).convert("RGBA")
 
     if garment_type in ("top", "dress"):
@@ -1253,10 +1253,10 @@ async def apply_post_processing_qc(
         if abs(current_ratio - target_ratio) < 1e-3:
             return img
         if current_ratio < target_ratio:
-            # Too narrow (tall): crop height from center
+            # Too narrow (tall): crop height from the BOTTOM to preserve the face/head at the top
             new_h = int(w / target_ratio)
-            dy = (h - new_h) // 2
-            return img.crop((0, dy, w, dy + new_h))
+            # Keep the top of the image (face/head) — crop from the bottom
+            return img.crop((0, 0, w, new_h))
         else:
             # Too wide: crop width from center
             new_w = int(h * target_ratio)
