@@ -689,7 +689,7 @@ export default function ProductDetails() {
           <span>Back to Collection</span>
         </button>
 
-        <div className="grid lg:grid-cols-[1.8fr_1.2fr] gap-12 lg:gap-24 items-start">
+        <div className="grid lg:grid-cols-[2.1fr_0.9fr] gap-12 lg:gap-24 items-start">
           
           {/* Left Column: Visual Showcase (Vertical stacked list and interactive 360 viewer) */}
           <div className="space-y-8 w-full fade-up">
@@ -928,85 +928,87 @@ export default function ProductDetails() {
               </div>
             </div>
 
-            {/* Product Details Grid — Essential buyer info */}
+            {/* Product Details Card — Essential buyer info */}
             {(product.garment_length || product.color || product.material_details || product.origin_country) && (
               <div className="pt-6 border-t border-rule text-start">
-                <h3 className="text-[10px] font-bold tracking-widest uppercase text-primary mb-4 flex items-center gap-2">
-                  <span>{language === "en" ? "Product Details" : "تفاصيل القطعة"}</span>
-                </h3>
-                <div className="grid grid-cols-2 gap-x-6 gap-y-3">
-                  {product.garment_length && (
-                    <div className="flex items-start gap-2">
-                      <span className="text-[11px] text-secondary shrink-0">📏</span>
-                      <div>
-                        <p className="text-[9px] font-bold tracking-wider uppercase text-secondary">{language === "en" ? "Length" : "الطول"}</p>
-                        <p className="text-xs font-medium text-primary">{product.garment_length}</p>
+                <div className="p-6 border border-rule rounded-xl bg-[#faf9f6] space-y-4 shadow-sm">
+                  <h3 className="text-[10px] font-bold tracking-widest uppercase text-primary mb-2 flex items-center gap-2">
+                    <span>{language === "en" ? "Product Details" : "تفاصيل القطعة"}</span>
+                  </h3>
+                  <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+                    {product.garment_length && (
+                      <div className="flex items-start gap-2">
+                        <span className="text-[11px] text-secondary shrink-0">📏</span>
+                        <div>
+                          <p className="text-[9px] font-bold tracking-wider uppercase text-secondary">{language === "en" ? "Length" : "الطول"}</p>
+                          <p className="text-xs font-medium text-primary">{product.garment_length}</p>
+                        </div>
                       </div>
-                    </div>
-                  )}
-                  {product.material_details && (
-                    <div className="flex items-start gap-2">
-                      <span className="text-[11px] text-secondary shrink-0">🧵</span>
-                      <div>
-                        <p className="text-[9px] font-bold tracking-wider uppercase text-secondary">{language === "en" ? "Fabric" : "القماش"}</p>
-                        <p className="text-xs font-medium text-primary">{product.material_details}</p>
+                    )}
+                    {product.material_details && (
+                      <div className="flex items-start gap-2">
+                        <span className="text-[11px] text-secondary shrink-0">🧵</span>
+                        <div>
+                          <p className="text-[9px] font-bold tracking-wider uppercase text-secondary">{language === "en" ? "Fabric" : "القماش"}</p>
+                          <p className="text-xs font-medium text-primary">{product.material_details}</p>
+                        </div>
                       </div>
-                    </div>
-                  )}
-                  {product.color && (
-                    <div className="flex items-start gap-2">
-                      <span className="text-[11px] text-secondary shrink-0">🎨</span>
-                      <div>
-                        <p className="text-[9px] font-bold tracking-wider uppercase text-secondary">{language === "en" ? "Color" : "اللون"}</p>
-                        <p className="text-xs font-medium text-primary">{product.color}</p>
+                    )}
+                    {product.color && (
+                      <div className="flex items-start gap-2">
+                        <span className="text-[11px] text-secondary shrink-0">🎨</span>
+                        <div>
+                          <p className="text-[9px] font-bold tracking-wider uppercase text-secondary">{language === "en" ? "Color" : "اللون"}</p>
+                          <p className="text-xs font-medium text-primary">{product.color}</p>
+                        </div>
                       </div>
-                    </div>
-                  )}
-                  {product.origin_country && (
-                    <div className="flex items-start gap-2">
-                      <span className="text-[11px] text-secondary shrink-0">🌍</span>
-                      <div>
-                        <p className="text-[9px] font-bold tracking-wider uppercase text-secondary">{language === "en" ? "Origin" : "بلد المنشأ"}</p>
-                        <p className="text-xs font-medium text-primary">{product.origin_country}</p>
+                    )}
+                    {product.origin_country && (
+                      <div className="flex items-start gap-2">
+                        <span className="text-[11px] text-secondary shrink-0">🌍</span>
+                        <div>
+                          <p className="text-[9px] font-bold tracking-wider uppercase text-secondary">{language === "en" ? "Origin" : "بلد المنشأ"}</p>
+                          <p className="text-xs font-medium text-primary">{product.origin_country}</p>
+                        </div>
                       </div>
-                    </div>
-                  )}
-                  {product.garment_weight && (
-                    <div className="flex items-start gap-2">
-                      <span className="text-[11px] text-secondary shrink-0">⚖️</span>
-                      <div>
-                        <p className="text-[9px] font-bold tracking-wider uppercase text-secondary">{language === "en" ? "Weight" : "الوزن"}</p>
-                        <p className="text-xs font-medium text-primary">{product.garment_weight}</p>
+                    )}
+                    {product.garment_weight && (
+                      <div className="flex items-start gap-2">
+                        <span className="text-[11px] text-secondary shrink-0">⚖️</span>
+                        <div>
+                          <p className="text-[9px] font-bold tracking-wider uppercase text-secondary">{language === "en" ? "Weight" : "الوزن"}</p>
+                          <p className="text-xs font-medium text-primary">{product.garment_weight}</p>
+                        </div>
                       </div>
-                    </div>
-                  )}
-                  {product.sleeve_length && (
-                    <div className="flex items-start gap-2">
-                      <span className="text-[11px] text-secondary shrink-0">👗</span>
-                      <div>
-                        <p className="text-[9px] font-bold tracking-wider uppercase text-secondary">{language === "en" ? "Sleeves" : "الأكمام"}</p>
-                        <p className="text-xs font-medium text-primary">{product.sleeve_length}</p>
+                    )}
+                    {product.sleeve_length && (
+                      <div className="flex items-start gap-2">
+                        <span className="text-[11px] text-secondary shrink-0">👗</span>
+                        <div>
+                          <p className="text-[9px] font-bold tracking-wider uppercase text-secondary">{language === "en" ? "Sleeves" : "الأكمام"}</p>
+                          <p className="text-xs font-medium text-primary">{product.sleeve_length}</p>
+                        </div>
                       </div>
-                    </div>
-                  )}
-                  {product.closure_type && (
-                    <div className="flex items-start gap-2">
-                      <span className="text-[11px] text-secondary shrink-0">📎</span>
-                      <div>
-                        <p className="text-[9px] font-bold tracking-wider uppercase text-secondary">{language === "en" ? "Closure" : "نوع الإغلاق"}</p>
-                        <p className="text-xs font-medium text-primary">{product.closure_type}</p>
+                    )}
+                    {product.closure_type && (
+                      <div className="flex items-start gap-2">
+                        <span className="text-[11px] text-secondary shrink-0">📎</span>
+                        <div>
+                          <p className="text-[9px] font-bold tracking-wider uppercase text-secondary">{language === "en" ? "Closure" : "نوع الإغلاق"}</p>
+                          <p className="text-xs font-medium text-primary">{product.closure_type}</p>
+                        </div>
                       </div>
-                    </div>
-                  )}
-                  {product.lining && (
-                    <div className="flex items-start gap-2">
-                      <span className="text-[11px] text-secondary shrink-0">🏷️</span>
-                      <div>
-                        <p className="text-[9px] font-bold tracking-wider uppercase text-secondary">{language === "en" ? "Lining" : "البطانة"}</p>
-                        <p className="text-xs font-medium text-primary">{product.lining}</p>
+                    )}
+                    {product.lining && (
+                      <div className="flex items-start gap-2">
+                        <span className="text-[11px] text-secondary shrink-0">🏷️</span>
+                        <div>
+                          <p className="text-[9px] font-bold tracking-wider uppercase text-secondary">{language === "en" ? "Lining" : "البطانة"}</p>
+                          <p className="text-xs font-medium text-primary">{product.lining}</p>
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               </div>
             )}
