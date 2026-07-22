@@ -928,38 +928,6 @@ export default function ProductDetails() {
               </div>
             </div>
 
-            {/* Bookstore / Distributor Agent Card */}
-            <div className="mt-8 p-6 border border-rule rounded-xl bg-[#faf9f6] text-start space-y-4 shadow-sm">
-              <div className="flex items-center gap-2 pb-2 border-b border-neutral-200">
-                <User size={16} className="text-secondary" />
-                <span className="text-xs font-bold tracking-widest uppercase text-primary">
-                  {language === "en" ? "Authorized Distributor" : "معلومات الموزع والوكيل"}
-                </span>
-              </div>
-              
-              <div className="space-y-2">
-                <h4 className="text-sm font-semibold text-primary">
-                  {language === "en" ? "Noor Al-Maaref Company Bookstore Agent" : "مكتبة وكيل شركة نور المعارف"}
-                </h4>
-                <p className="text-[11px] text-secondary font-light leading-relaxed">
-                  {language === "en" 
-                    ? "Official distributor and agent providing high-quality educational materials, publications, and uniform preparation."
-                    : "الموزع الرسمي والوكيل المعتمد لتوفير وتجهيز الملابس والمطبوعات والمستلزمات بجودة عالية."}
-                </p>
-              </div>
-
-              <div className="space-y-1.5 pt-2 text-xs">
-                <div className="flex items-center gap-2 text-secondary">
-                  <span className="text-[10px]">📍</span>
-                  <span>{language === "en" ? "Iraq, Mosul - Al-Dawasah" : "العراق، الموصل - الدواسة"}</span>
-                </div>
-                <div className="flex items-center gap-2 text-secondary">
-                  <span className="text-[10px]">📞</span>
-                  <span className="font-semibold text-primary dir-ltr">+964 780 123 4567</span>
-                </div>
-              </div>
-            </div>
-
             {/* Product Details Grid — Essential buyer info */}
             {(product.garment_length || product.color || product.material_details || product.origin_country) && (
               <div className="pt-6 border-t border-rule text-start">
@@ -1263,7 +1231,7 @@ export default function ProductDetails() {
                     </span>
                   )}
                 </div>
-                <div className="w-full max-w-md aspect-[3/4] mx-auto overflow-hidden relative rounded-lg border border-rule bg-white">
+                <div className="w-full max-w-sm aspect-[3/4] mx-auto overflow-hidden relative rounded-lg border border-rule bg-white">
                   <UploadBox
                     onUpload={(file) => {
                       setUserFile(file);
@@ -1318,7 +1286,7 @@ export default function ProductDetails() {
 
                 <div className="flex-grow flex items-center justify-center relative rounded-lg overflow-hidden mt-4">
                   {tryonResult ? (
-                    <div className="w-full h-full max-w-md aspect-[3/4] mx-auto overflow-hidden relative group shadow-lg border border-rule bg-white rounded-lg">
+                    <div className="w-full h-full max-w-sm aspect-[3/4] mx-auto overflow-hidden relative group shadow-lg border border-rule bg-white rounded-lg">
                       <img
                         src={tryonResult}
                         alt="Tryon Result"
