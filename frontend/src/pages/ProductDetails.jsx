@@ -523,7 +523,8 @@ export default function ProductDetails() {
   };
 
   const handleScrollToTryon = () => {
-    setShowTryOnModal(true);
+    const el = document.getElementById("ai-tryon-section");
+    if (el) el.scrollIntoView({ behavior: "smooth" });
   };
 
   const handleAddToCart = () => {
@@ -1191,9 +1192,9 @@ export default function ProductDetails() {
           )}
         </AnimatePresence>
 
-        {/* Fitting Room section */}
+        {/* AI Try-On section */}
         <section
-          id="fitting-room"
+          id="ai-tryon-section"
           className="mt-28 border border-rule rounded-xl bg-white overflow-hidden shadow-sm flex flex-col text-start"
         >
           <div className="bg-[#fcfcfa] text-primary p-8 md:p-12 flex flex-col md:flex-row justify-between items-baseline gap-6 border-b border-rule">
@@ -1201,11 +1202,11 @@ export default function ProductDetails() {
               <div className="flex items-center gap-2.5">
                 <Sparkles size={16} className="text-secondary animate-pulse" />
                 <span className="text-[9px] font-bold tracking-[0.25em] text-secondary uppercase">
-                  {language === "en" ? "Fitting Room" : "غرفة القياس الذكية"}
+                  {language === "en" ? "AI Try-On" : "القياس الافتراضي"}
                 </span>
               </div>
               <h2 className="heading-serif text-3xl md:text-5xl font-light">
-                {language === "en" ? "AI Try-On" : "القياس الافتراضي"}
+                {language === "en" ? "Virtual fitting room" : "تجربة المظهر بالذكاء الاصطناعي"}
               </h2>
             </div>
             <p className="text-secondary text-xs md:text-sm font-light max-w-sm leading-relaxed">
