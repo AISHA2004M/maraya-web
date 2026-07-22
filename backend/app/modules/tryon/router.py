@@ -243,6 +243,8 @@ async def create_ai_try_on(
     from app.modules.products.service import get_product_by_id
     from app.core.security import decode_token
 
+    from datetime import datetime, timedelta
+
     # ── Resolve user (optional auth — guest-friendly) ─────────────────────
     user_id = "guest"
     if credentials:
@@ -257,8 +259,9 @@ async def create_ai_try_on(
         except Exception:
             pass
 
-    # Read original image bytes
+    # Read original image
     contents = await user_image.read()
+
     
     # ── Parse product IDs list ───────────────────────────────────────────
     parsed_ids = [product_id]
@@ -275,6 +278,7 @@ async def create_ai_try_on(
     logger.info(f"[TryOn API] Image hash computed: {image_hash}. Checking cache...")
     
     # Check if a completed try-on session already exists for this image + exact garments list
+    cache_cutoff = datetime.utcnow() - timedelta(hours=24)
     cached_session = (
         db.query(TryOnSession)
         .filter(
@@ -287,10 +291,9 @@ async def create_ai_try_on(
             TryOnSession.body_waist == body_waist,
             TryOnSession.body_hips == body_hips,
             TryOnSession.status == "completed",
-            # Only reuse real AI results — never cache local pipeline fallback
-            TryOnSession.ai_model_version.like("%banana%")
-            | TryOnSession.ai_model_version.like("%idm%")
-            | TryOnSession.ai_model_version.like("%replicate%")
+            TryOnSession.result_image_url.isnot(None),
+            TryOnSession.result_image_url != "",
+            TryOnSession.created_at >= cache_cutoff,
         )
         .order_by(TryOnSession.created_at.desc())
         .first()
