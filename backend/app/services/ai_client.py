@@ -147,20 +147,16 @@ def _load_image(path_or_url: str, fallback_type: str = "portrait") -> Image.Imag
 
         # Download external URL
         logger.info(f"[AI Pipeline] Downloading image: {path_or_url}")
-        with httpx.Client(timeout=15) as client:
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        }
+        with httpx.Client(timeout=15, headers=headers) as client:
             r = client.get(path_or_url)
             r.raise_for_status()
             return Image.open(io.BytesIO(r.content))
     except Exception as err:
-        logger.warning(f"[AI Pipeline] Failed to load image {path_or_url}: {err}. Using fallback.")
-        if fallback_type == "garment":
-            fallback_url = "https://images.unsplash.com/photo-1572804013427-4d7ca7268217?w=600"
-        else:
-            fallback_url = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600"
-        with httpx.Client(timeout=15) as client:
-            r = client.get(fallback_url)
-            r.raise_for_status()
-            return Image.open(io.BytesIO(r.content))
+        logger.error(f"[AI Pipeline] Failed to load image {path_or_url}: {err}")
+        raise ValueError(f"Failed to load image ({fallback_type}) from path or URL {path_or_url}: {err}")
 
 
 # ---------------------------------------------------------------------------
@@ -1065,7 +1061,8 @@ async def run_local_drape_pipeline(
     paste_x = (uw - final_w) // 2
 
     # Validation: reject if the scaled garment is too small or incomplete coverage
-    if final_w < int(uw * 0.2) or final_h < int(uh * 0.2):
+    min_h_ratio = 0.12 if garment_type == "bottom" else 0.2
+    if final_w < int(uw * 0.2) or final_h < int(uh * min_h_ratio):
         logger.error(f"[AI Pipeline v2 QC] Scaled garment too small: {final_w}x{final_h} relative to canvas {uw}x{uh}")
         raise ValueError("Try-on output rejected: scaled garment does not cover the body adequately.")
 

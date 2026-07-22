@@ -34,37 +34,38 @@ const PRESET_MODELS = [
     name: "عارضة ممشوقة (Slim)",
     gender: "female",
     size: "S / M",
-    url: "https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=500&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=500&h=750&auto=format&fit=crop",
   },
   {
     id: "female_medium",
     name: "عارضة قوام معتدل (Medium)",
     gender: "female",
     size: "M / L",
-    url: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=500&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=500&h=750&auto=format&fit=crop",
   },
   {
     id: "female_plus",
     name: "عارضة قوام ممتلئ (Plus Size)",
     gender: "female",
     size: "XL / XXL",
-    url: "https://images.unsplash.com/photo-1608748010899-18f300247112?q=80&w=500&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1608748010899-18f300247112?q=80&w=500&h=750&auto=format&fit=crop",
   },
   {
     id: "male_slim",
     name: "عارض ممشوق (Slim)",
     gender: "male",
     size: "M",
-    url: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=500&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=500&h=750&auto=format&fit=crop",
   },
   {
     id: "male_medium",
     name: "عارض قوام معتدل (Medium)",
     gender: "male",
     size: "L / XL",
-    url: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?q=80&w=500&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?q=80&w=500&h=750&auto=format&fit=crop",
   }
 ];
+
 
 const urlToFile = async (url, filename) => {
   const res = await fetch(url);
@@ -380,6 +381,15 @@ export default function TryOnModal({ isOpen, onClose, product }) {
   const [modelVariant, setModelVariant] = useState("balanced"); // fast | balanced | quality
   const { token, user } = useUserStore();
 
+  // Filter preset models based on product gender
+  const filteredPresetModels = PRESET_MODELS.filter((model) => {
+    if (!product || !product.gender) return true;
+    const prodGender = product.gender.toLowerCase();
+    if (prodGender === "women") return model.gender === "female";
+    if (prodGender === "men") return model.gender === "male";
+    return true;
+  });
+
   const handleSelectPreset = async (model) => {
     if (stage === STAGES.preparing || stage === STAGES.generating) return;
     setLoadingPresetId(model.id);
@@ -682,7 +692,7 @@ export default function TryOnModal({ isOpen, onClose, product }) {
                           أو اختر عارضاً افتراضياً (Or Choose a Preset Model):
                         </span>
                         <div className="flex gap-2.5 overflow-x-auto pb-1.5 scrollbar-thin">
-                          {PRESET_MODELS.map((model) => (
+                          {filteredPresetModels.map((model) => (
                             <button
                               key={model.id}
                               type="button"

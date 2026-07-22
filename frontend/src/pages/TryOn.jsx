@@ -17,37 +17,38 @@ const PRESET_MODELS = [
     name: "عارضة ممشوقة (Slim)",
     gender: "female",
     size: "S / M",
-    url: "https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=500&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=500&h=750&auto=format&fit=crop",
   },
   {
     id: "female_medium",
     name: "عارضة قوام معتدل (Medium)",
     gender: "female",
     size: "M / L",
-    url: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=500&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=500&h=750&auto=format&fit=crop",
   },
   {
     id: "female_plus",
     name: "عارضة قوام ممتلئ (Plus Size)",
     gender: "female",
     size: "XL / XXL",
-    url: "https://images.unsplash.com/photo-1608748010899-18f300247112?q=80&w=500&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1608748010899-18f300247112?q=80&w=500&h=750&auto=format&fit=crop",
   },
   {
     id: "male_slim",
     name: "عارض ممشوق (Slim)",
     gender: "male",
     size: "M",
-    url: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=500&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=500&h=750&auto=format&fit=crop",
   },
   {
     id: "male_medium",
     name: "عارض قوام معتدل (Medium)",
     gender: "male",
     size: "L / XL",
-    url: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?q=80&w=500&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?q=80&w=500&h=750&auto=format&fit=crop",
   }
 ];
+
 
 const urlToFile = async (url, filename) => {
   const res = await fetch(url);
@@ -196,6 +197,27 @@ export default function TryOn() {
     }
   }, [user]);
 
+  // Clear preset model selection if it becomes incompatible with selected garments gender
+  useEffect(() => {
+    if (selectedPresetId && selectedGarments.length > 0) {
+      const currentPreset = PRESET_MODELS.find(m => m.id === selectedPresetId);
+      if (currentPreset) {
+        const hasWomen = selectedGarments.some(g => (g.gender || "").toLowerCase() === "women");
+        const hasMen = selectedGarments.some(g => (g.gender || "").toLowerCase() === "men");
+        
+        if (hasWomen && !hasMen && currentPreset.gender !== "female") {
+          setSelectedPresetId(null);
+          setUserFile(null);
+          setUserImagePreview(null);
+        } else if (hasMen && !hasWomen && currentPreset.gender !== "male") {
+          setSelectedPresetId(null);
+          setUserFile(null);
+          setUserImagePreview(null);
+        }
+      }
+    }
+  }, [selectedGarments, selectedPresetId]);
+
   // Try-on generation state
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -221,6 +243,16 @@ export default function TryOn() {
 
   // Fitting History (persistent in localStorage & cloud database)
   const [history, setHistory] = useState([]);
+
+  // Filter preset models based on selected garments gender
+  const filteredPresetModels = PRESET_MODELS.filter((model) => {
+    if (selectedGarments.length === 0) return true;
+    const hasWomen = selectedGarments.some((g) => (g.gender || "").toLowerCase() === "women");
+    const hasMen = selectedGarments.some((g) => (g.gender || "").toLowerCase() === "men");
+    if (hasWomen && !hasMen) return model.gender === "female";
+    if (hasMen && !hasWomen) return model.gender === "male";
+    return true;
+  });
 
   // Helper to map list of garment IDs to product objects from products query
   const resolveGarments = (garmentsListStr, primaryProdId) => {
@@ -539,7 +571,7 @@ export default function TryOn() {
                     {t("choose_preset")}
                   </span>
                   <div className="flex gap-2.5 overflow-x-auto pb-1.5 scrollbar-thin">
-                    {PRESET_MODELS.map((model) => (
+                    {filteredPresetModels.map((model) => (
                       <button
                         key={model.id}
                         type="button"
