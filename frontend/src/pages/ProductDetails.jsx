@@ -4,8 +4,10 @@ import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import { useCartStore } from "../store/useCartStore";
 import { useWishlistStore } from "../store/useWishlistStore";
+import UploadBox from "../components/tryon/UploadBox";
 import TryOnModal from "../components/tryon/TryOnModal";
 import api from "../api/client";
+import { submitTryOn, waitForTryOnResult, getTryOnResult } from "../api/tryon";
 import {
   ShoppingBag, Sparkles, ArrowLeft, Check, Heart, ChevronDown, ChevronUp,
   Loader2, Download, AlertCircle, RotateCcw, Wind, HelpCircle as HelpIcon, User
@@ -419,9 +421,16 @@ export default function ProductDetails() {
 
   // Reset all state when product ID changes to avoid leaking previous state/try-on images to a new product details page
   useEffect(() => {
+    setTryonResult(null);
+    setTryonError(null);
+    setTryonLoading(false);
+    setTryonProgress(0);
+    setTryonDelayed(false);
     setRotationIndex(0);
     setSelectedSize(null);
     setAdded(false);
+    setUserFile(null);
+    setUserImagePreview(null);
     setShowTryOnModal(false);
     setSizeRecommendation("");
     setSelectedBrand("");
@@ -441,7 +450,23 @@ export default function ProductDetails() {
   const [selectedBrandSize, setSelectedBrandSize] = useState("");
   const [sizeRecommendation, setSizeRecommendation] = useState("");
 
+  // Try-On States
+  const [userFile, setUserFile] = useState(null);
+  const [userImagePreview, setUserImagePreview] = useState(null);
+  const [tryonResult, setTryonResult] = useState(null);
+  const [tryonLoading, setTryonLoading] = useState(false);
+  const [tryonError, setTryonError] = useState(null);
+  const [loadingPhase, setLoadingPhase] = useState("Calibrating silhouette");
+  const [tryonProgress, setTryonProgress] = useState(0);
+  const [tryonDelayed, setTryonDelayed] = useState(false);
+  const activeTryonInstanceRef = useRef(null);
+  const pollingOptionsRef = useRef({ cancelled: false });
 
+  useEffect(() => {
+    return () => {
+      pollingOptionsRef.current.cancelled = true;
+    };
+  }, []);
 
   const [fabricSimulationActive, setFabricSimulationActive] = useState(false);
   const [windSpeed, setWindSpeed] = useState(5);
@@ -551,7 +576,96 @@ export default function ProductDetails() {
     setSizeRecommendation(recommended);
   };
 
+  // Generate Try-On logic
+  const handleTryOnGenerate = async () => {
+    if (!userFile) return;
+    console.log("[Try-On PDP] Request initiated for product ID:", product.id);
+    pollingOptionsRef.current.cancelled = true;
+    pollingOptionsRef.current = { cancelled: false };
 
+    setTryonLoading(true);
+    setTryonError(null);
+    setTryonResult(null);
+    setTryonProgress(0);
+    setTryonDelayed(false);
+    setLoadingPhase("Preparing silhouette...");
+
+    const currentInstanceId = Math.random().toString(36).substring(7);
+    activeTryonInstanceRef.current = currentInstanceId;
+
+    let delayTimer = setTimeout(() => {
+      if (activeTryonInstanceRef.current === currentInstanceId) {
+        console.warn("[Try-On PDP] Generation has taken longer than 35 seconds.");
+        setTryonDelayed(true);
+      }
+    }, 35000);
+
+    let activeJobId = null;
+
+    try {
+      // Use the unified multipart submit endpoint
+      const dispatch = await submitTryOn(userFile, product.id, "balanced");
+      activeJobId = dispatch.job_id || dispatch.session_id;
+      console.log("[Try-On PDP] Job submitted successfully. Job ID:", activeJobId, "Initial status:", dispatch.status);
+
+      if (activeTryonInstanceRef.current !== currentInstanceId) {
+        console.log("[Try-On PDP] Stale request instance detected, ignoring response.");
+        clearTimeout(delayTimer);
+        return;
+      }
+
+      if (dispatch.status === "completed" || dispatch.progress === 100) {
+        console.log("[Try-On PDP] Cache hit! Retrieving final result for Job ID:", activeJobId);
+        setTryonProgress(100);
+        setLoadingPhase("Complete!");
+        const finalResult = await getTryOnResult(activeJobId);
+        if (activeTryonInstanceRef.current === currentInstanceId) {
+          setTryonResult(finalResult.result_image_url);
+          console.log("[Try-On PDP] Synthesis completed successfully (Cache hit). Result URL:", finalResult.result_image_url);
+        }
+      } else {
+        console.log("[Try-On PDP] Starting status polling for Job ID:", activeJobId);
+        // Poll with 30 second timeout as requested (30,000ms)
+        const resultUrl = await waitForTryOnResult(
+          activeJobId,
+          (pct, status) => {
+            if (activeTryonInstanceRef.current !== currentInstanceId) return;
+            console.log(`[Try-On PDP] Polling update for Job ID ${activeJobId}: progress=${pct}%, status=${status}`);
+            setTryonProgress(pct);
+            if (pct <= 20) {
+              setLoadingPhase("Preparing silhouette...");
+            } else if (pct <= 45) {
+              setLoadingPhase("Analyzing body contours...");
+            } else if (pct <= 65) {
+              setLoadingPhase("Extracting garment lines...");
+            } else if (pct <= 85) {
+              setLoadingPhase("Neural drape rendering...");
+            } else {
+              setLoadingPhase("Almost ready...");
+            }
+          },
+          1000,
+          60000, // 60 seconds timeout
+          pollingOptionsRef.current
+        );
+
+        if (activeTryonInstanceRef.current === currentInstanceId) {
+          setTryonResult(resultUrl);
+          console.log("[Try-On PDP] Synthesis completed successfully. Result URL:", resultUrl);
+        }
+      }
+    } catch (err) {
+      if (activeTryonInstanceRef.current === currentInstanceId) {
+        console.error("[Try-On PDP Error]", err);
+        setTryonError(err.message || "Try-on synthesis failed. Please try again.");
+      }
+    } finally {
+      if (activeTryonInstanceRef.current === currentInstanceId) {
+        setTryonLoading(false);
+        clearTimeout(delayTimer);
+      }
+    }
+  };
 
   return (
     <div className="min-h-screen font-sans text-primary transition-colors duration-1000" style={{ backgroundColor: activeBgColor }}>
@@ -1077,6 +1191,186 @@ export default function ProductDetails() {
           )}
         </AnimatePresence>
 
+        {/* Fitting Room section */}
+        <section
+          id="fitting-room"
+          className="mt-28 border border-rule rounded-xl bg-white overflow-hidden shadow-sm flex flex-col text-start"
+        >
+          <div className="bg-[#fcfcfa] text-primary p-8 md:p-12 flex flex-col md:flex-row justify-between items-baseline gap-6 border-b border-rule">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2.5">
+                <Sparkles size={16} className="text-secondary animate-pulse" />
+                <span className="text-[9px] font-bold tracking-[0.25em] text-secondary uppercase">
+                  {language === "en" ? "Fitting Room" : "غرفة القياس الذكية"}
+                </span>
+              </div>
+              <h2 className="heading-serif text-3xl md:text-5xl font-light">
+                {language === "en" ? "AI Try-On" : "القياس الافتراضي"}
+              </h2>
+            </div>
+            <p className="text-secondary text-xs md:text-sm font-light max-w-sm leading-relaxed">
+              {language === "en" 
+                ? `See how the ${product.name} looks on you. Choose a preset model or upload your own photo to try it on in seconds.`
+                : `شاهد كيف ستبدو قطعة ${product.name} عليك. اختر عارضاً افتراضياً أو ارفع صورتك الشخصية لتجربتها بالذكاء الاصطناعي في ثوانٍ.`}
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-rule">
+            
+            {/* Input Zone */}
+            <div className="p-8 md:p-12 flex flex-col justify-between space-y-8">
+              <div className="space-y-4">
+                <div className="flex justify-between items-baseline">
+                  <h3 className="text-xs font-bold tracking-widest uppercase">
+                    {t("upload_portrait")}
+                  </h3>
+                  {userFile && (
+                    <span className="text-[10px] text-green-600 font-bold uppercase tracking-wider flex items-center gap-1">
+                      <Check size={12} /> {language === "en" ? "Image Ready" : "الصورة جاهزة"}
+                    </span>
+                  )}
+                </div>
+                <div className="w-full max-w-sm aspect-[3/4] mx-auto overflow-hidden relative rounded-lg border border-rule bg-white">
+                  <UploadBox
+                    onUpload={(file) => {
+                      setUserFile(file);
+                      setUserImagePreview(URL.createObjectURL(file));
+                    }}
+                    preview={userImagePreview}
+                  />
+                </div>
+              </div>
+
+              {userFile && !tryonResult && (
+                <div className="pt-2">
+                  {tryonError && (
+                    <div className="flex items-center gap-2 text-red-500 text-xs mb-3 font-semibold">
+                      <AlertCircle size={14} />
+                      {tryonError}
+                    </div>
+                  )}
+                  <button
+                    id="pdp-generate-tryon"
+                    onClick={handleTryOnGenerate}
+                    disabled={tryonLoading}
+                    className="w-full btn-black py-4 text-xs font-bold tracking-widest uppercase flex items-center justify-center gap-2"
+                  >
+                    {tryonLoading ? (
+                      <>
+                        <Loader2 size={14} className="animate-spin" />
+                        <span>{language === "en" ? "Synthesizing..." : "جاري تفصيل الملابس..."}</span>
+                      </>
+                    ) : tryonError ? (
+                      <>
+                        <RotateCcw size={14} />
+                        <span>{language === "en" ? "Retry Synthesis" : "إعادة المحاولة"}</span>
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles size={14} />
+                        <span>{language === "en" ? "Synthesize Silhouette" : "توليد القياس الافتراضي"}</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Output Zone */}
+            <div className="p-8 md:p-12 bg-surface-bright flex flex-col justify-between min-h-[400px] text-start">
+              <div className="space-y-4 flex-grow flex flex-col">
+                <h3 className="text-xs font-bold tracking-widest uppercase border-b border-rule pb-3.5">
+                  {t("tryon_result")}
+                </h3>
+
+                <div className="flex-grow flex items-center justify-center relative rounded-lg overflow-hidden mt-4">
+                  {tryonResult ? (
+                    <div className="w-full h-full max-w-sm aspect-[3/4] mx-auto overflow-hidden relative group shadow-lg border border-rule bg-white rounded-lg">
+                      <img
+                        src={tryonResult}
+                        alt="Tryon Result"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ) : tryonLoading ? (
+                    <div className="text-center space-y-6">
+                      <div className="relative w-20 h-20 mx-auto">
+                        <div className="absolute inset-0 rounded-full border-2 border-rule animate-[spin_3s_linear_infinite]" />
+                        <div className="absolute inset-0 rounded-full border-t-2 border-black animate-spin" />
+                        <Sparkles size={20} className="absolute inset-0 m-auto text-primary animate-pulse" />
+                      </div>
+                      <div className="space-y-2 flex flex-col items-center">
+                        <p className="text-xs font-bold tracking-widest uppercase">{loadingPhase}</p>
+                        <div className="w-40 bg-neutral-100 h-1 rounded-full overflow-hidden">
+                          <div 
+                            className="h-full bg-black rounded-full transition-all duration-300"
+                            style={{ width: `${tryonProgress}%` }}
+                          />
+                        </div>
+                        <p className="text-[10px] text-secondary font-semibold">{tryonProgress}% {language === "en" ? "completed" : "مكتمل"}</p>
+                      </div>
+                      {tryonDelayed && (
+                        <div className="space-y-3 pt-2">
+                          <p className="text-[11px] text-amber-600 font-medium animate-pulse">
+                            {language === "en" ? "Generation is taking longer than expected." : "العملية تستغرق وقتاً أطول من المتوقع."}
+                          </p>
+                          <button
+                            onClick={handleTryOnGenerate}
+                            className="btn-black py-2.5 px-6 text-[10px] font-bold tracking-widest uppercase flex items-center justify-center gap-1.5 mx-auto hover:bg-neutral-800 transition-colors"
+                          >
+                            <RotateCcw size={12} />
+                            <span>{language === "en" ? "Retry Synthesis" : "إعادة المحاولة"}</span>
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ) : tryonError ? (
+                    <div className="text-center space-y-4 max-w-xs p-6 bg-red-50/50 border border-red-100 rounded-lg">
+                      <AlertCircle size={28} className="mx-auto text-red-500" />
+                      <div className="space-y-1">
+                        <p className="text-xs font-bold tracking-widest uppercase text-red-600">{language === "en" ? "Generation Failed" : "فشل توليد الصورة"}</p>
+                        <p className="text-[11px] text-red-500 font-light leading-relaxed">{tryonError}</p>
+                      </div>
+                      <button
+                        onClick={handleTryOnGenerate}
+                        className="btn-black py-2.5 px-6 text-[10px] font-bold tracking-widest uppercase flex items-center justify-center gap-1.5 mx-auto hover:bg-neutral-800 transition-colors"
+                      >
+                        <RotateCcw size={12} />
+                        <span>{language === "en" ? "Retry Synthesis" : "إعادة المحاولة"}</span>
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="text-center opacity-40 space-y-3">
+                      <Sparkles size={28} className="mx-auto text-secondary" strokeWidth={1.2} />
+                      <p className="text-[10px] uppercase tracking-widest font-bold text-secondary">
+                        {language === "en" ? "Awaiting Silhouette" : "في انتظار توليد القياس الافتراضي"}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {tryonResult && (
+                <div className="pt-8 flex gap-4 w-full max-w-sm mx-auto">
+                  <button
+                    onClick={() => window.open(tryonResult, "_blank")}
+                    className="flex-1 btn-outline py-3 text-xs font-bold tracking-widest uppercase flex items-center justify-center gap-2"
+                  >
+                    <Download size={14} />
+                    <span>{t("save_image")}</span>
+                  </button>
+                  <button
+                    onClick={handleAddToCart}
+                    className="flex-grow btn-black py-3 text-xs font-bold tracking-widest uppercase flex items-center justify-center gap-2"
+                  >
+                    <ShoppingBag size={14} />
+                    <span>{language === "en" ? "Buy Piece" : "شراء القطعة"}</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
 
         {/* AI Stylist Recommendations rail */}
         {recommendations.length > 0 && (
