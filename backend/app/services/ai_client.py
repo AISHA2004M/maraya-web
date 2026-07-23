@@ -1376,20 +1376,24 @@ async def _call_nano_banana_2(
     garment_b64 = base64.b64encode(garment_buffer.getvalue()).decode("utf-8")
 
     # Construct the multimodal prompt
+    garment_region = "lower body (legs/pants area)" if garment_type == "bottom" else ("full body" if garment_type == "dress" else "upper body (chest/torso)")
+
     prompt = (
-        f"Virtual try-on task. You are given two images: "
-        f"Image 1 is a full-body portrait photo of a person. "
-        f"Image 2 is the clothing item to put on the person. "
-        f"Generate a photorealistic full-body portrait (head to toe) of THE EXACT SAME PERSON from Image 1 "
-        f"wearing the clothing from Image 2. "
-        f"The clothing item is: {description}. "
-        f"IMPORTANT RULES: "
-        f"1. Keep the person's face, hair, skin tone, and facial features EXACTLY the same as in Image 1. "
-        f"2. Keep the same standing pose and body proportions as in Image 1. "
-        f"3. Show the full body from head to feet in the output image. "
-        f"4. The clothing must be worn naturally with a perfect fit. "
-        f"5. Use the same clean studio background lighting as in Image 1. "
-        f"6. Photorealistic, commercial fashion photography quality, 4K resolution. "
+        f"VIRTUAL TRY-ON TASK. "
+        f"You are given two reference images: "
+        f"[IMAGE 1] is a full-body fashion photo of a person standing upright. "
+        f"[IMAGE 2] is the clothing item to dress the person in. "
+        f"\n\nYour task: Generate a COMPLETE FULL-BODY photorealistic fashion photo of the EXACT SAME PERSON from Image 1 "
+        f"now wearing the clothing item from Image 2 on their {garment_region}. "
+        f"The garment is: {description}. "
+        f"\n\nCRITICAL OUTPUT REQUIREMENTS (must follow all): "
+        f"1. OUTPUT MUST SHOW THE ENTIRE BODY - head, torso, legs, AND feet all visible from top to bottom. Do NOT crop. Do NOT zoom in. "
+        f"2. The person's face, hair, skin tone, and body proportions must be IDENTICAL to Image 1. "
+        f"3. Same upright standing pose as Image 1. "
+        f"4. The garment from Image 2 must be worn realistically with a natural fit. "
+        f"5. Same studio lighting and clean grey/white background as Image 1. "
+        f"6. Photorealistic 4K fashion photography quality. "
+        f"7. Wide enough framing so both feet and the full head are always visible with some space around them. "
     )
     if avatar or height or weight or body_bust or body_waist or body_hips:
         profile_desc = []
