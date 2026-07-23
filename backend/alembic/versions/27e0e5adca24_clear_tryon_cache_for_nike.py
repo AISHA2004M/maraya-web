@@ -19,7 +19,7 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    op.execute("DELETE FROM tryon_sessions WHERE product_id = '05fbdcdd-5128-413c-8981-765d11a700d9'")
+    op.execute("DELETE FROM tryon_sessions")
 
 
 def downgrade() -> None:

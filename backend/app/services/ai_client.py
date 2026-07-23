@@ -181,8 +181,19 @@ def _classify_garment_type(category: str, description: str, cloth_img: Image.Ima
         return "dress"
 
     # 1. Check category first for bottom and top keywords
-    bottom_kws = ("bottom", "pant", "trouser", "jeans", "jean", "skirt", "short", "legging")
-    top_kws = ("top", "shirt", "t-shirt", "tee", "blouse", "sweater", "hoodie", "jacket", "coat", "blazer", "cardigan", "pullover", "outerwear")
+    bottom_kws = (
+        "bottom", "pant", "pants", "trouser", "trousers", "jeans", "jean", 
+        "skirt", "skirts", "short", "shorts", "legging", "leggings", "jogger", 
+        "joggers", "sweatpant", "sweatpants", "tight", "tights", "brief", 
+        "briefs", "boxer", "boxers", "undergarment", "undergarments"
+    )
+    top_kws = (
+        "top", "tops", "shirt", "shirts", "t-shirt", "t-shirts", "tee", "tees", 
+        "blouse", "blouses", "sweater", "sweaters", "hoodie", "hoodies", 
+        "jacket", "jackets", "coat", "coats", "blazer", "blazers", "cardigan", 
+        "cardigans", "pullover", "pullovers", "outerwear", "vest", "vests", 
+        "bra", "bras", "tank", "tanks"
+    )
     
     if any(k in cat for k in bottom_kws):
         return "bottom"
