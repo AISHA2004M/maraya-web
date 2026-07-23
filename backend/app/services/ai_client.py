@@ -1217,17 +1217,19 @@ async def run_local_drape_pipeline(
 async def apply_post_processing_qc(
     result_image_url: str,
     user_image_path_or_url: str,
-    session_id: str
+    session_id: str,
+    garment_type: str = "top"
 ) -> str:
     """
     Quality Control Post-Processor for external AI results:
     1. Downloads the generated result from the AI service.
     2. Aligns and crops the result to match the original user image's aspect ratio and dimensions.
-    3. Saves the cleaned image and returns the URL.
+    3. Composites the aligned result and the original user image using the clothing mask to preserve the original face, hair, background, and unmasked clothing.
+    4. Saves the cleaned image and returns the URL.
     """
     from app.services.upload_service import save_file_from_bytes
 
-    logger.info(f"[AI Pipeline QC] Running post-processing alignment for session: {session_id}")
+    logger.info(f"[AI Pipeline QC] Running post-processing alignment and composition for session: {session_id}")
 
     try:
         user_img = _load_image(user_image_path_or_url).convert("RGB")
@@ -1236,41 +1238,65 @@ async def apply_post_processing_qc(
         logger.warning(f"[AI Pipeline QC] Could not run post-processing: {e}. Returning original result URL.")
         return result_image_url
 
-    uw, uh = user_img.size
-    rw, rh = result_img.size
+    try:
+        uw, uh = user_img.size
+        rw, rh = result_img.size
 
-    # Calculate padding offsets added by the AI pipeline (letterboxing)
-    scale = min(rw / uw, rh / uh)
-    sw = int(uw * scale)
-    sh = int(uh * scale)
-    
-    pad_x = (rw - sw) // 2
-    pad_y = (rh - sh) // 2
+        # Calculate padding offsets added by the AI pipeline (letterboxing)
+        scale = min(rw / uw, rh / uh)
+        sw = int(uw * scale)
+        sh = int(uh * scale)
+        
+        pad_x = (rw - sw) // 2
+        pad_y = (rh - sh) // 2
 
-    def crop_to_ratio(img: Image.Image, target_ratio: float = 0.75) -> Image.Image:
-        w, h = img.size
-        current_ratio = w / h
-        if abs(current_ratio - target_ratio) < 1e-3:
-            return img
-        if current_ratio < target_ratio:
-            # Too narrow (tall): crop height from the BOTTOM to preserve the face/head at the top
-            new_h = int(w / target_ratio)
-            # Keep the top of the image (face/head) — crop from the bottom
-            return img.crop((0, 0, w, new_h))
-        else:
-            # Too wide: crop width from center
-            new_w = int(h * target_ratio)
-            dx = (w - new_w) // 2
-            return img.crop((dx, 0, dx + new_w, h))
+        def crop_to_ratio(img: Image.Image, target_ratio: float = 0.75) -> Image.Image:
+            w, h = img.size
+            current_ratio = w / h
+            if abs(current_ratio - target_ratio) < 1e-3:
+                return img
+            if current_ratio < target_ratio:
+                # Too narrow (tall): crop height from the BOTTOM to preserve the face/head at the top
+                new_h = int(w / target_ratio)
+                # Keep the top of the image (face/head) — crop from the bottom
+                return img.crop((0, 0, w, new_h))
+            else:
+                # Too wide: crop width from center
+                new_w = int(h * target_ratio)
+                dx = (w - new_w) // 2
+                return img.crop((dx, 0, dx + new_w, h))
 
-    # Crop and resize the AI result to standard 768x1024 resolution (3:4 aspect ratio)
-    cropped_result = result_img.crop((pad_x, pad_y, pad_x + sw, pad_y + sh))
-    cropped_34 = crop_to_ratio(cropped_result, 0.75)
-    aligned_result = cropped_34.resize((768, 1024), Image.Resampling.LANCZOS)
+        # Crop and resize the AI result to standard 768x1024 resolution (3:4 aspect ratio)
+        cropped_result = result_img.crop((pad_x, pad_y, pad_x + sw, pad_y + sh))
+        cropped_34 = crop_to_ratio(cropped_result, 0.75)
+        aligned_result = cropped_34.resize((768, 1024), Image.Resampling.LANCZOS)
+
+        # Generate the clothing mask on the original user image
+        face_height = int(uh * 0.38)
+        clothing_region_mask = _create_clothing_mask(user_img, face_height, garment_type=garment_type)
+
+        # Crop and resize the user image and the mask to 768x1024 in the exact same way
+        user_34 = crop_to_ratio(user_img, 0.75)
+        aligned_user = user_34.resize((768, 1024), Image.Resampling.LANCZOS)
+
+        mask_34 = crop_to_ratio(clothing_region_mask, 0.75)
+        aligned_mask = mask_34.resize((768, 1024), Image.Resampling.LANCZOS)
+
+        # Composite the generated result and the original user image using the mask
+        final_result = Image.composite(aligned_result, aligned_user, aligned_mask)
+    except Exception as e:
+        logger.warning(f"[AI Pipeline QC] Alignment/Composition failed ({e}). Falling back to simple resize.")
+        # Fallback to simple cropped result if mask/composite fails
+        try:
+            cropped_result = result_img.crop((pad_x, pad_y, pad_x + sw, pad_y + sh))
+            cropped_34 = crop_to_ratio(cropped_result, 0.75)
+            final_result = cropped_34.resize((768, 1024), Image.Resampling.LANCZOS)
+        except Exception:
+            return result_image_url
 
     # Save processed image
     out_buf = io.BytesIO()
-    aligned_result.save(out_buf, format="JPEG", quality=95)
+    final_result.save(out_buf, format="JPEG", quality=95)
     processed_bytes = out_buf.getvalue()
 
     refined_url = await save_file_from_bytes(
@@ -1682,7 +1708,7 @@ class AIClient:
                     body_hips=body_hips
                 )
                 # Apply post-processing / alignment
-                result_url = await apply_post_processing_qc(result_url, user_image, effective_session_id)
+                result_url = await apply_post_processing_qc(result_url, user_image, effective_session_id, garment_type=_garment_type_for_routing)
                 elapsed = int((time.time() - start) * 1000)
                 logger.info(f"[AIClient] Nano Banana 2 try-on completed in {elapsed}ms")
                 return {
@@ -1706,7 +1732,7 @@ class AIClient:
                     session_id=effective_session_id
                 )
                 # Post-process alignment
-                result_url = await apply_post_processing_qc(result_url, user_image, effective_session_id)
+                result_url = await apply_post_processing_qc(result_url, user_image, effective_session_id, garment_type=_garment_type_for_routing)
                 elapsed = int((time.time() - start) * 1000)
                 logger.info(f"[AIClient] Replicate IDM-VTON completed in {elapsed}ms")
                 return {
@@ -1750,7 +1776,7 @@ class AIClient:
                                 result_url = saved_url
                                 logger.info(f"[AIClient] IDM result saved to backend: {saved_url}")
                                 # Apply post-processing / alignment to preserve correct aspect ratio and prevent stretching
-                                result_url = await apply_post_processing_qc(result_url, user_image, effective_session_id)
+                                result_url = await apply_post_processing_qc(result_url, user_image, effective_session_id, garment_type=_garment_type_for_routing)
                         except Exception as dl_err:
                             logger.warning(f"[AIClient] Could not re-save or align IDM result ({dl_err}), using original URL")
                     else:
