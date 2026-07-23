@@ -1271,19 +1271,24 @@ async def apply_post_processing_qc(
         cropped_34 = crop_to_ratio(cropped_result, 0.75)
         aligned_result = cropped_34.resize((768, 1024), Image.Resampling.LANCZOS)
 
-        # Generate the clothing mask on the original user image
-        face_height = int(uh * 0.38)
-        clothing_region_mask = _create_clothing_mask(user_img, face_height, garment_type=garment_type)
+        if garment_type == "bottom":
+            # Generate the clothing mask on the original user image
+            face_height = int(uh * 0.38)
+            clothing_region_mask = _create_clothing_mask(user_img, face_height, garment_type=garment_type)
 
-        # Crop and resize the user image and the mask to 768x1024 in the exact same way
-        user_34 = crop_to_ratio(user_img, 0.75)
-        aligned_user = user_34.resize((768, 1024), Image.Resampling.LANCZOS)
+            # Crop and resize the user image and the mask to 768x1024 in the exact same way
+            user_34 = crop_to_ratio(user_img, 0.75)
+            aligned_user = user_34.resize((768, 1024), Image.Resampling.LANCZOS)
 
-        mask_34 = crop_to_ratio(clothing_region_mask, 0.75)
-        aligned_mask = mask_34.resize((768, 1024), Image.Resampling.LANCZOS)
+            mask_34 = crop_to_ratio(clothing_region_mask, 0.75)
+            aligned_mask = mask_34.resize((768, 1024), Image.Resampling.LANCZOS)
 
-        # Composite the generated result and the original user image using the mask
-        final_result = Image.composite(aligned_result, aligned_user, aligned_mask)
+            # Composite the generated result and the original user image using the mask
+            final_result = Image.composite(aligned_result, aligned_user, aligned_mask)
+        else:
+            # For tops, dresses, outerwear: return the aligned result directly to prevent face/neck distortion.
+            # Gemini generates beautiful, clean faces and garments from scratch when not forced to blend.
+            final_result = aligned_result
     except Exception as e:
         logger.warning(f"[AI Pipeline QC] Alignment/Composition failed ({e}). Falling back to simple resize.")
         # Fallback to simple cropped result if mask/composite fails
