@@ -522,10 +522,6 @@ export default function ProductDetails() {
     setActiveAccordion(activeAccordion === accordion ? null : accordion);
   };
 
-  const handleScrollToTryon = () => {
-    const el = document.getElementById("ai-tryon-section");
-    if (el) el.scrollIntoView({ behavior: "smooth" });
-  };
 
   const handleAddToCart = () => {
     const hasSizes = product.sizes && product.sizes.length > 0;
@@ -880,25 +876,15 @@ export default function ProductDetails() {
                 </span>
               </button>
 
-              <div className="grid grid-cols-2 gap-4">
-                <button
-                  onClick={() => toggleWishlist(product)}
-                  className={`w-full btn-outline py-3.5 text-xs font-bold tracking-widest uppercase flex items-center justify-center gap-2 transition-all ${
-                    isInWishlist ? "bg-black text-white" : ""
-                  }`}
-                >
-                  <Heart size={13} className={isInWishlist ? "fill-white text-white" : "text-black"} />
-                  <span>{isInWishlist ? (language === "en" ? "Wishlisted" : "في المفضلة") : t("wishlist")}</span>
-                </button>
-
-                <button
-                  onClick={handleScrollToTryon}
-                  className="w-full btn-outline py-3.5 text-xs font-bold tracking-widest uppercase flex items-center justify-center gap-2 bg-[#f2f1ed]"
-                >
-                  <Sparkles size={13} className="text-black" />
-                  <span>{t("ai_tryon")}</span>
-                </button>
-              </div>
+              <button
+                onClick={() => toggleWishlist(product)}
+                className={`w-full btn-outline py-3.5 text-xs font-bold tracking-widest uppercase flex items-center justify-center gap-2 transition-all ${
+                  isInWishlist ? "bg-black text-white" : ""
+                }`}
+              >
+                <Heart size={13} className={isInWishlist ? "fill-white text-white" : "text-black"} />
+                <span>{isInWishlist ? (language === "en" ? "Wishlisted" : "في المفضلة") : t("wishlist")}</span>
+              </button>
 
               {/* WhatsApp Order CTA */}
               <a

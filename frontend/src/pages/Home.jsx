@@ -233,13 +233,6 @@ export default function Home() {
               >
                 {brand?.hero_cta_text || "Shop the Campaign"}
               </Link>
-              <Link
-                to={`/brands/${brand_slug}/tryon`}
-                className="flex items-center gap-2 text-white text-[10px] font-bold tracking-widest uppercase border border-white/30 hover:border-white py-3.5 px-8 transition-colors"
-              >
-                <Sparkles size={12} />
-                Fitting Room
-              </Link>
             </div>
           </div>
         </div>
