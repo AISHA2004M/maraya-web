@@ -1232,83 +1232,50 @@ async def apply_post_processing_qc(
     garment_type: str = "top"
 ) -> str:
     """
-    Quality Control Post-Processor for external AI results:
-    1. Downloads the generated result from the AI service.
-    2. Aligns and crops the result to match the original user image's aspect ratio and dimensions.
-    3. Composites the aligned result and the original user image using the clothing mask to preserve the original face, hair, background, and unmasked clothing.
-    4. Saves the cleaned image and returns the URL.
+    Quality Control Post-Processor for external AI results.
+
+    Simply cleans up the Gemini output by:
+    1. Decoding the image (data URL or remote URL).
+    2. Resizing to 768x1024 while preserving aspect ratio (no cropping).
+    3. Padding with a neutral grey background so the full body is always visible.
+    4. Saving and returning the URL.
+
+    NOTE: We do NOT composite with the original user image because that was causing
+    the face to be cropped off and the image to become distorted.
     """
     from app.services.upload_service import save_file_from_bytes
 
-    logger.info(f"[AI Pipeline QC] Running post-processing alignment and composition for session: {session_id}")
+    logger.info(f"[AI Pipeline QC] Running clean resize/pad post-processing for session: {session_id}")
 
     try:
-        user_img = _load_image(user_image_path_or_url).convert("RGB")
         result_img = _load_image(result_image_url).convert("RGB")
     except Exception as e:
-        logger.warning(f"[AI Pipeline QC] Could not run post-processing: {e}. Returning original result URL.")
+        logger.warning(f"[AI Pipeline QC] Could not load result image: {e}. Returning original.")
         return result_image_url
 
     try:
-        uw, uh = user_img.size
+        TARGET_W, TARGET_H = 768, 1024
+
         rw, rh = result_img.size
+        scale = min(TARGET_W / rw, TARGET_H / rh)
+        new_w = int(rw * scale)
+        new_h = int(rh * scale)
 
-        # Calculate padding offsets added by the AI pipeline (letterboxing)
-        scale = min(rw / uw, rh / uh)
-        sw = int(uw * scale)
-        sh = int(uh * scale)
-        
-        pad_x = (rw - sw) // 2
-        pad_y = (rh - sh) // 2
+        resized = result_img.resize((new_w, new_h), Image.Resampling.LANCZOS)
 
-        def crop_to_ratio(img: Image.Image, target_ratio: float = 0.75) -> Image.Image:
-            w, h = img.size
-            current_ratio = w / h
-            if abs(current_ratio - target_ratio) < 1e-3:
-                return img
-            if current_ratio < target_ratio:
-                # Too narrow (tall): crop height from the BOTTOM to preserve the face/head at the top
-                new_h = int(w / target_ratio)
-                # Keep the top of the image (face/head) — crop from the bottom
-                return img.crop((0, 0, w, new_h))
-            else:
-                # Too wide: crop width from center
-                new_w = int(h * target_ratio)
-                dx = (w - new_w) // 2
-                return img.crop((dx, 0, dx + new_w, h))
+        # Create a clean neutral grey background (matches typical studio backgrounds)
+        canvas = Image.new("RGB", (TARGET_W, TARGET_H), (240, 240, 240))
 
-        # Crop and resize the AI result to standard 768x1024 resolution (3:4 aspect ratio)
-        cropped_result = result_img.crop((pad_x, pad_y, pad_x + sw, pad_y + sh))
-        cropped_34 = crop_to_ratio(cropped_result, 0.75)
-        aligned_result = cropped_34.resize((768, 1024), Image.Resampling.LANCZOS)
+        # Center the resized image on the canvas
+        paste_x = (TARGET_W - new_w) // 2
+        paste_y = (TARGET_H - new_h) // 2
+        canvas.paste(resized, (paste_x, paste_y))
 
-        if garment_type == "bottom":
-            # Generate the clothing mask on the original user image
-            face_height = int(uh * 0.38)
-            clothing_region_mask = _create_clothing_mask(user_img, face_height, garment_type=garment_type)
+        final_result = canvas
 
-            # Crop and resize the user image and the mask to 768x1024 in the exact same way
-            user_34 = crop_to_ratio(user_img, 0.75)
-            aligned_user = user_34.resize((768, 1024), Image.Resampling.LANCZOS)
-
-            mask_34 = crop_to_ratio(clothing_region_mask, 0.75)
-            aligned_mask = mask_34.resize((768, 1024), Image.Resampling.LANCZOS)
-
-            # Composite the generated result and the original user image using the mask
-            final_result = Image.composite(aligned_result, aligned_user, aligned_mask)
-        else:
-            # For tops, dresses, outerwear: return the aligned result directly to prevent face/neck distortion.
-            # Gemini generates beautiful, clean faces and garments from scratch when not forced to blend.
-            final_result = aligned_result
     except Exception as e:
-        logger.warning(f"[AI Pipeline QC] Alignment/Composition failed ({e}). Falling back to simple resize.")
-        # Fallback to simple cropped result if mask/composite fails
-        try:
-            cropped_result = result_img.crop((pad_x, pad_y, pad_x + sw, pad_y + sh))
-            cropped_34 = crop_to_ratio(cropped_result, 0.75)
-            final_result = cropped_34.resize((768, 1024), Image.Resampling.LANCZOS)
-        except Exception:
-            return result_image_url
+        logger.warning(f"[AI Pipeline QC] Resize/pad failed ({e}). Returning original.")
+        return result_image_url
 
     # Save processed image
     out_buf = io.BytesIO()
@@ -1320,7 +1287,7 @@ async def apply_post_processing_qc(
         original_filename=f"tryon_refined_{session_id}.jpg",
         folder="results"
     )
-    logger.info(f"[AI Pipeline QC] Aligned result saved. URL: {refined_url}")
+    logger.info(f"[AI Pipeline QC] Clean output saved. URL: {refined_url}")
     return refined_url
 
 # ---------------------------------------------------------------------------
@@ -1410,7 +1377,19 @@ async def _call_nano_banana_2(
 
     # Construct the multimodal prompt
     prompt = (
-        f"Inpainting photo of the same person from the input image, maintaining their exact facial features, skin tone, hair, identical body pose, body shape, body width, proportions, and slim silhouette. The shoulders, neck, waist, arms, and body width must remain extremely thin, slender, and identical to the original image. Do not make the person look heavier, wider, bulkier, or chubbier than the original image. "
+        f"Virtual try-on task. You are given two images: "
+        f"Image 1 is a full-body portrait photo of a person. "
+        f"Image 2 is the clothing item to put on the person. "
+        f"Generate a photorealistic full-body portrait (head to toe) of THE EXACT SAME PERSON from Image 1 "
+        f"wearing the clothing from Image 2. "
+        f"The clothing item is: {description}. "
+        f"IMPORTANT RULES: "
+        f"1. Keep the person's face, hair, skin tone, and facial features EXACTLY the same as in Image 1. "
+        f"2. Keep the same standing pose and body proportions as in Image 1. "
+        f"3. Show the full body from head to feet in the output image. "
+        f"4. The clothing must be worn naturally with a perfect fit. "
+        f"5. Use the same clean studio background lighting as in Image 1. "
+        f"6. Photorealistic, commercial fashion photography quality, 4K resolution. "
     )
     if avatar or height or weight or body_bust or body_waist or body_hips:
         profile_desc = []
@@ -1428,10 +1407,7 @@ async def _call_nano_banana_2(
             profile_desc.append(f"hips size {body_hips} cm")
         prompt += f"The person has {', '.join(profile_desc)}. "
 
-    prompt += (
-        f"In the masked area (defined by the mask image), render a high-fidelity, highly detailed {description} matching the reference garment image. "
-        f"The clothing must be styled with a perfect tight fit, slim fit, form-fitting, hugging the body curves and waist naturally, without adding bulk or thickness to the body shape. Crisp studio lighting, clean solid light-grey background, photorealistic texture of the fabric, 8k resolution, commercial fashion photography style."
-    )
+
 
     if has_openrouter:
         logger.info(f"[Nano Banana 2] Routing request via OpenRouter API using model {model_name}...")
@@ -1449,16 +1425,18 @@ async def _call_nano_banana_2(
                     "role": "user",
                     "content": [
                         {
+                            "type": "text",
+                            "text": "IMAGE 1 - Person portrait:"
+                        },
+                        {
                             "type": "image_url",
                             "image_url": {
                                 "url": f"data:image/jpeg;base64,{user_b64}"
                             }
                         },
                         {
-                            "type": "image_url",
-                            "image_url": {
-                                "url": f"data:image/png;base64,{mask_b64}"
-                            }
+                            "type": "text",
+                            "text": "IMAGE 2 - Clothing item to wear:"
                         },
                         {
                             "type": "image_url",
@@ -1485,16 +1463,16 @@ async def _call_nano_banana_2(
                     "role": "user",
                     "parts": [
                         {
+                            "text": "IMAGE 1 - Person portrait:"
+                        },
+                        {
                             "inlineData": {
                                 "mimeType": "image/jpeg",
                                 "data": user_b64
                             }
                         },
                         {
-                            "inlineData": {
-                                "mimeType": "image/png",
-                                "data": mask_b64
-                            }
+                            "text": "IMAGE 2 - Clothing item to wear:"
                         },
                         {
                             "inlineData": {
