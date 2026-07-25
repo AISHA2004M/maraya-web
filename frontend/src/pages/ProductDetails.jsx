@@ -542,8 +542,8 @@ export default function ProductDetails() {
     const currentX = e.clientX || e.touches?.[0]?.clientX || 0;
     const difference = currentX - dragStartX.current;
     
-    // Rotate every 15px dragged
-    if (Math.abs(difference) > 15) {
+    // Rotate every 7px dragged
+    if (Math.abs(difference) > 7) {
       const direction = difference > 0 ? -1 : 1;
       setRotationIndex((prev) => (prev + direction + rotationImages.length) % rotationImages.length);
       dragStartX.current = currentX;
@@ -710,9 +710,29 @@ export default function ProductDetails() {
                 />
 
                 {rotationImages.length > 1 && (
-                  <div className="absolute bottom-4 right-4 bg-black/60 backdrop-blur-sm text-[8px] font-bold tracking-widest text-white px-2 py-1 uppercase rounded-sm">
-                    Angle {rotationIndex + 1} / {rotationImages.length}
-                  </div>
+                  <>
+                    {/* Bottom-center dot indicators */}
+                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-10 bg-black/30 backdrop-blur-md px-3 py-1.5 rounded-full">
+                      {rotationImages.map((_, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setRotationIndex(idx);
+                          }}
+                          className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
+                            rotationIndex === idx ? "bg-white scale-125" : "bg-white/40 hover:bg-white/70"
+                          }`}
+                          aria-label={`Go to angle ${idx + 1}`}
+                        />
+                      ))}
+                    </div>
+                    {/* Angle badge */}
+                    <div className="absolute bottom-4 right-4 bg-black/60 backdrop-blur-sm text-[8px] font-bold tracking-widest text-white px-2 py-1 uppercase rounded-sm">
+                      Angle {rotationIndex + 1} / {rotationImages.length}
+                    </div>
+                  </>
                 )}
               </div>
             </div>

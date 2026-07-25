@@ -54,7 +54,7 @@ export default function ProductCard({ product }) {
     if (hoverTimerRef.current) clearInterval(hoverTimerRef.current);
     hoverTimerRef.current = setInterval(() => {
       setActiveImgIndex((prev) => (prev + 1) % angles.length);
-    }, 1200);
+    }, 700);
   }, [angles.length]);
 
   const handleMouseLeave = useCallback(() => {
