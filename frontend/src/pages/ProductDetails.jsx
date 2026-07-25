@@ -18,6 +18,7 @@ import { useUserStore } from "../store/useUserStore";
 import { useLanguageStore } from "../store/useLanguageStore";
 import { formatPrice } from "../utils/formatPrice";
 import { resolveImageUrl } from "../utils/resolveImageUrl";
+import { parseAnglesImages } from "../utils/parseAnglesImages";
 
 function FabricCanvas({ imageUrl, windSpeed, isActive, fabricType }) {
   const canvasRef = useRef(null);
@@ -508,14 +509,7 @@ export default function ProductDetails() {
   }
 
   // Create list of images for 360 rotation simulator using database values if present
-  const rawRotationImages = (product.angles_images_url && !product.angles_images_url.startsWith("data:"))
-    ? product.angles_images_url.split(",").map(url => url.trim()).filter(Boolean)
-    : [
-        product.angles_images_url ||
-          product.main_image_url ||
-          product.image_url ||
-          "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=600",
-      ];
+  const rawRotationImages = parseAnglesImages(product);
   const rotationImages = rawRotationImages.map(resolveImageUrl);
 
   const handleAccordionToggle = (accordion) => {

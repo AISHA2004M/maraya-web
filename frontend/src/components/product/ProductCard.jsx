@@ -22,6 +22,8 @@ import { useWishlistStore } from "../../store/useWishlistStore";
 import { formatPrice } from "../../utils/formatPrice";
 import { resolveImageUrl } from "../../utils/resolveImageUrl";
 
+import { parseAnglesImages } from "../../utils/parseAnglesImages";
+
 export default function ProductCard({ product }) {
   const navigate = useNavigate();
   const { brand_slug } = useParams();
@@ -41,14 +43,7 @@ export default function ProductCard({ product }) {
   const addedTimerRef = useRef(null);
 
   // ─── Image angles ──────────────────────────────────────────────────────────
-  const rawAngles = (product.angles_images_url && !product.angles_images_url.startsWith("data:"))
-    ? product.angles_images_url.split(",").map((u) => u.trim()).filter(Boolean)
-    : [
-        product.angles_images_url ||
-          product.main_image_url ||
-          product.image_url ||
-          "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=600",
-      ];
+  const rawAngles = parseAnglesImages(product);
 
   const angles = rawAngles.map(resolveImageUrl);
 
