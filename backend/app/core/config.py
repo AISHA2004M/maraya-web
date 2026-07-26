@@ -41,6 +41,10 @@ class Settings(BaseSettings):
 
 settings = Settings()
 
+# Fix Render/PostgreSQL database scheme compatibility for SQLAlchemy
+if settings.DATABASE_URL.startswith("postgres://"):
+    settings.DATABASE_URL = settings.DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
 # Hardcoded fallback values for keys (if not set in the environment or if set to placeholder values)
 # Keys are base64-encoded to bypass GitHub's push protection secret scanning.
 import base64
