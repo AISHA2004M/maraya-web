@@ -11,8 +11,8 @@ def calculate_image_hash(contents: bytes) -> str:
 
 def compress_and_resize_image(
     contents: bytes,
-    max_dim: int = 1024,
-    quality: int = 80
+    max_dim: int = 2048,
+    quality: int = 95
 ) -> bytes:
     """
     Compress and resize input image bytes before sending to AI model.

@@ -358,7 +358,7 @@ async def create_ai_try_on(
 
     # ── Compress and resize image ────────────────────────────────────────
     logger.info(f"[TryOn API] Image validation passed. Optimizing & compressing portrait...")
-    optimized_contents = compress_and_resize_image(contents, max_dim=1024, quality=80)
+    optimized_contents = compress_and_resize_image(contents, max_dim=2048, quality=95)
 
     # ── Save optimized portrait ──────────────────────────────────────────
     try:
