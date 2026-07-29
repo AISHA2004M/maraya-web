@@ -14,6 +14,11 @@ export function parseAnglesImages(product) {
     ];
   }
 
+  // Handle single base64 data URL
+  if (str.startsWith("data:") && !str.includes(",data:") && !str.includes(", data:")) {
+    return [str];
+  }
+
   // Handle base64 data URLs separated by commas
   if (str.includes(",data:") || str.includes(", data:")) {
     const delimiter = str.includes(", data:") ? ", data:" : ",data:";
