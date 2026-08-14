@@ -5,20 +5,80 @@ import api from "../api/client";
 import Navbar from "../components/layout/Navbar";
 import { Sparkles, Camera } from "lucide-react";
 
+const FALLBACK_BRANDS = [
+  {
+    id: 1,
+    name: "ZARA",
+    slug: "zara",
+    hero_title: "The Urban Vanguard",
+    description: "Modern street tailoring, unstructured coats, and sleek minimal aesthetics designed for the contemporary urban lifestyle.",
+    banner_url: "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1200",
+  },
+  {
+    id: 2,
+    name: "GUCCI",
+    slug: "gucci",
+    hero_title: "Eclectic Heritage",
+    description: "Opulent Italian craftsmanship, bold signature patterns, and timeless luxury tailored for statement elegance.",
+    banner_url: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1200",
+  },
+  {
+    id: 3,
+    name: "H&M",
+    slug: "hm",
+    hero_title: "Essential Simplicity",
+    description: "Versatile capsule wardrobes, relaxed silhouettes, and effortless everyday luxury.",
+    banner_url: "https://images.unsplash.com/photo-1445205170230-053b83016050?w=1200",
+  },
+  {
+    id: 4,
+    name: "NIKE",
+    slug: "nike",
+    hero_title: "Performance Engineering",
+    description: "High-tech sportswear, activewear innovation, and iconographic athletic footwear.",
+    banner_url: "https://images.unsplash.com/photo-1552346154-21d32810aba3?w=1200",
+  }
+];
+
 export default function Discover() {
   const [brands, setBrands] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let mounted = true;
+
+    // Safety timeout: if API is taking long (e.g. Render cold start), show fallback brands after 3 seconds
+    const safetyTimer = setTimeout(() => {
+      if (mounted && loading) {
+        setBrands(FALLBACK_BRANDS);
+        setLoading(false);
+      }
+    }, 3000);
+
     api.get("/products/brands/all")
       .then((res) => {
-        setBrands(res.data);
-        setLoading(false);
+        if (mounted) {
+          if (res.data && res.data.length > 0) {
+            setBrands(res.data);
+          } else {
+            setBrands(FALLBACK_BRANDS);
+          }
+          setLoading(false);
+        }
       })
       .catch((err) => {
         console.error("Failed to load brands", err);
-        setLoading(false);
-      });
+        if (mounted) {
+          setBrands((prev) => (prev.length > 0 ? prev : FALLBACK_BRANDS));
+          setLoading(false);
+        }
+      })
+      .finally(() => clearTimeout(safetyTimer));
+
+    return () => {
+      mounted = false;
+      clearTimeout(safetyTimer);
+    };
   }, []);
 
   if (loading) {
