@@ -102,6 +102,139 @@ function useScrollReveal(threshold = 0.1) {
   return [ref, visible];
 }
 
+const FALLBACK_BRANDS_CMS = [
+  {
+    id: 1,
+    name: "Zara",
+    slug: "zara",
+    description: "Bold, contemporary street-inspired aesthetics with structured silhouettes and quick-to-market fashion forward edits.",
+    logo_url: "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=200&q=80",
+    banner_url: "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1600&q=80",
+    hero_title: "Zara Atelier",
+    hero_subtitle: "Bold, contemporary street-inspired aesthetics with structured silhouettes.",
+    hero_image_url: "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1600&q=80",
+    hero_cta_text: "Discover Zara",
+    story_title: "Fast Fashion Reimagined",
+    story_description: "Zara Atelier represents our high-end limited collection edits. Focused on structured silhouettes, quick-to-market responsiveness, and bold shapes.",
+    story_image_url: "https://images.unsplash.com/photo-1485968579580-b6d095142e6e?w=1200&q=80",
+    philosophy_title: "Democratic Design",
+    philosophy_text: "We believe high-fashion aesthetics should be accessible to all. Our lines are designed with clean structural forms suited for daily modern elegance.",
+    accent_color: "#FFFFFF",
+    font_family: "Montserrat, sans-serif",
+    seasonal_title: "Summer/Spring Edit",
+    seasonal_desc: "Curated drapes and contemporary textures."
+  },
+  {
+    id: 2,
+    name: "Nike",
+    slug: "nike",
+    description: "Technological innovation meets high-performance streetwear. Pushing boundaries of movement, form, and performance fashion.",
+    logo_url: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=200&q=80",
+    banner_url: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=1600&q=80",
+    hero_title: "Nike Lab",
+    hero_subtitle: "Technological innovation meets high-performance streetwear.",
+    hero_image_url: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=1600&q=80",
+    hero_cta_text: "Explore Nike",
+    story_title: "The Athletic Evolution",
+    story_description: "Pushing boundaries of movement, form, and athletic fashion. Engineered with custom technical fabrics and dynamic silhouettes.",
+    story_image_url: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1200&q=80",
+    philosophy_title: "Performance & Style",
+    philosophy_text: "Design should not compromise performance. Our garments are building blocks for motion and stature in urban spaces.",
+    accent_color: "#F3F4F6",
+    font_family: "Hanken Grotesk, sans-serif",
+    seasonal_title: "Active Tech Campaign",
+    seasonal_desc: "Technical details and raw pieces."
+  },
+  {
+    id: 3,
+    name: "H&M",
+    slug: "hm",
+    description: "Sustainable essentials and relaxed, accessible contemporary garments designed for modern effortless daily elegance.",
+    logo_url: "https://images.unsplash.com/photo-1485968579580-b6d095142e6e?w=200&q=80",
+    banner_url: "https://images.unsplash.com/photo-1485968579580-b6d095142e6e?w=1600&q=80",
+    hero_title: "H&M Edition",
+    hero_subtitle: "Sustainable essentials and relaxed, accessible contemporary garments.",
+    hero_image_url: "https://images.unsplash.com/photo-1485968579580-b6d095142e6e?w=1600&q=80",
+    hero_cta_text: "View Edition",
+    story_title: "Conscious Tailoring",
+    story_description: "Essentials stripped of unnecessary details. Made of premium organic cotton, structured stretch chinos, and breathable fabrics.",
+    story_image_url: "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=1200&q=80",
+    philosophy_title: "Sustainability First",
+    philosophy_text: "Designing with tomorrow in mind. Premium tailoring and classic structural forms suited for the modern high fashion enthusiast.",
+    accent_color: "#F7F7F7",
+    font_family: "Hanken Grotesk, sans-serif",
+    seasonal_title: "Sustainable Comfort",
+    seasonal_desc: "Minimalist essentials for daily elegance."
+  },
+  {
+    id: 4,
+    name: "Gucci",
+    slug: "gucci",
+    description: "Renowned Italian luxury fashion house redefining 21st-century luxury through influential, innovative, and progressive design codes.",
+    logo_url: "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=200&q=80",
+    banner_url: "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=1600&q=80",
+    hero_title: "Gucci Atelier",
+    hero_subtitle: "Redefining 21st-century luxury through innovative and progressive design codes.",
+    hero_image_url: "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=1600&q=80",
+    hero_cta_text: "Enter Gucci",
+    story_title: "The Italian Silhouette",
+    story_description: "A fluid draping narrative designed to float gracefully with movement. Crafted in our Italian ateliers with hand-painted motifs.",
+    story_image_url: "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=1200&q=80",
+    philosophy_title: "Heritage & Drama",
+    philosophy_text: "Style is a deeply personal signature, a silent dialogue between dress and context. We redefine luxury through influential codes.",
+    accent_color: "#FAF5EC",
+    font_family: "Bodoni Moda, serif",
+    seasonal_title: "Autumnal Narrative",
+    seasonal_desc: "Discover structural lines and seasonal drapes."
+  }
+];
+
+const FALLBACK_PRODUCTS = [
+  // Zara
+  {
+    id: 1,
+    name: "Linen Halter Jumpsuit",
+    price: 89.99,
+    brand_id: 1,
+    category_id: 2,
+    gender: "women",
+    main_image_url: "https://images.unsplash.com/photo-1566206091558-7f218b696731?w=600",
+    editorial_tags: "Summer Atelier, Minimalist Core",
+  },
+  {
+    id: 3,
+    name: "Slim Fit Chinos",
+    price: 59.99,
+    brand_id: 1,
+    category_id: 4,
+    gender: "men",
+    main_image_url: "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=600",
+    editorial_tags: "Minimalist Core, Everyday Luxury",
+  },
+  // Nike
+  {
+    id: 4,
+    name: "Air Max Sneakers",
+    price: 139.99,
+    brand_id: 2,
+    category_id: 1,
+    gender: "unisex",
+    main_image_url: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600",
+    editorial_tags: "Cyber Streetwear, Avant-Garde",
+  },
+  // H&M
+  {
+    id: 2,
+    name: "Classic White Tee",
+    price: 29.99,
+    brand_id: 3,
+    category_id: 3,
+    gender: "unisex",
+    main_image_url: "https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=600",
+    editorial_tags: "Minimalist Core, Daily Foundations",
+  }
+];
+
 export default function Home() {
   const { brand_slug } = useParams();
   const navigate = useNavigate();
@@ -118,15 +251,47 @@ export default function Home() {
       return;
     }
     setBrandLoading(true);
+
+    let active = true;
+
+    // Safety timer: if API takes too long, fall back to static config
+    const timer = setTimeout(() => {
+      if (active && brandLoading) {
+        const fallback = FALLBACK_BRANDS_CMS.find((b) => b.slug === brand_slug.toLowerCase());
+        if (fallback) {
+          setBrand(fallback);
+          setBrandLoading(false);
+        } else {
+          navigate("/discover");
+        }
+      }
+    }, 2500);
+
     api.get(`/products/brands/slug/${brand_slug}`)
       .then((res) => {
-        setBrand(res.data);
-        setBrandLoading(false);
+        if (active) {
+          setBrand(res.data);
+          setBrandLoading(false);
+        }
       })
       .catch((err) => {
         console.error("Failed to load brand", err);
-        navigate("/discover");
-      });
+        if (active) {
+          const fallback = FALLBACK_BRANDS_CMS.find((b) => b.slug === brand_slug.toLowerCase());
+          if (fallback) {
+            setBrand(fallback);
+            setBrandLoading(false);
+          } else {
+            navigate("/discover");
+          }
+        }
+      })
+      .finally(() => clearTimeout(timer));
+
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
   }, [brand_slug, navigate]);
 
   // Apply typography and dynamic accents
@@ -186,7 +351,10 @@ export default function Home() {
     );
   }
 
-  const brandProducts = products ? products.filter((p) => p.brand_id === brand?.id) : [];
+  let brandProducts = (products && products.length > 0) ? products.filter((p) => p.brand_id === brand?.id) : [];
+  if (brandProducts.length === 0) {
+    brandProducts = FALLBACK_PRODUCTS.filter((p) => p.brand_id === brand?.id);
+  }
   const { seasonal, evening, trending, essentials } = partitionProducts(brandProducts);
 
   const brandBg = brand?.accent_color || "#FFFFFF";
