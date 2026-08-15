@@ -12,7 +12,7 @@ const FALLBACK_BRANDS = [
     slug: "zara",
     hero_title: "The Urban Vanguard",
     description: "Modern street tailoring, unstructured coats, and sleek minimal aesthetics designed for the contemporary urban lifestyle.",
-    banner_url: "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1200",
+    banner_url: "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=800&q=75",
   },
   {
     id: 2,
@@ -20,7 +20,7 @@ const FALLBACK_BRANDS = [
     slug: "gucci",
     hero_title: "Eclectic Heritage",
     description: "Opulent Italian craftsmanship, bold signature patterns, and timeless luxury tailored for statement elegance.",
-    banner_url: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1200",
+    banner_url: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=800&q=75",
   },
   {
     id: 3,
@@ -28,7 +28,7 @@ const FALLBACK_BRANDS = [
     slug: "hm",
     hero_title: "Essential Simplicity",
     description: "Versatile capsule wardrobes, relaxed silhouettes, and effortless everyday luxury.",
-    banner_url: "https://images.unsplash.com/photo-1445205170230-053b83016050?w=1200",
+    banner_url: "https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=800&q=75",
   },
   {
     id: 4,
@@ -36,7 +36,7 @@ const FALLBACK_BRANDS = [
     slug: "nike",
     hero_title: "Performance Engineering",
     description: "High-tech sportswear, activewear innovation, and iconographic athletic footwear.",
-    banner_url: "https://images.unsplash.com/photo-1552346154-21d32810aba3?w=1200",
+    banner_url: "https://images.unsplash.com/photo-1552346154-21d32810aba3?auto=format&fit=crop&w=800&q=75",
   }
 ];
 
@@ -47,13 +47,13 @@ export default function Discover() {
   useEffect(() => {
     let mounted = true;
 
-    // Safety timeout: if API is taking long (e.g. Render cold start), show fallback brands after 3 seconds
+    // Safety timeout: if API is taking long (e.g. Render cold start), show fallback brands after 800ms
     const safetyTimer = setTimeout(() => {
       if (mounted && loading) {
         setBrands(FALLBACK_BRANDS);
         setLoading(false);
       }
-    }, 3000);
+    }, 800);
 
     api.get("/products/brands/all")
       .then((res) => {
