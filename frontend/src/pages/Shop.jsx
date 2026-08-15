@@ -157,8 +157,18 @@ export default function Shop() {
     setSortBy("default");
   };
 
-  // Use fallback data when API returns nothing (e.g. Render cold start)
-  const activeProducts = (products && products.length > 0) ? products : FALLBACK_PRODUCTS;
+  // Merge database products with fallback products to ensure all brands have items shown
+  const dbProducts = products || [];
+  const activeProducts = [...dbProducts];
+  FALLBACK_PRODUCTS.forEach((fp) => {
+    const exists = dbProducts.some(
+      (dp) => dp.name.toLowerCase() === fp.name.toLowerCase()
+    );
+    if (!exists) {
+      activeProducts.push(fp);
+    }
+  });
+
   const activeBrands = (brands && brands.length > 0) ? brands : FALLBACK_BRANDS;
   const activeCategories = (categories && categories.length > 0) ? categories : FALLBACK_CATEGORIES;
 

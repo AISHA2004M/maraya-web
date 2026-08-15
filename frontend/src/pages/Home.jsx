@@ -351,17 +351,27 @@ export default function Home() {
     );
   }
 
-  let brandProducts = (products && products.length > 0)
-    ? products.filter((p) => p.brand?.slug?.toLowerCase() === brand_slug?.toLowerCase() || p.brand_id === brand?.id)
-    : [];
-  if (brandProducts.length === 0 && brand_slug) {
-    const canonicalSlug = brand_slug.toLowerCase();
-    const fallbackBrandMap = { zara: 1, nike: 2, hm: 3, gucci: 4 };
-    const fallbackId = fallbackBrandMap[canonicalSlug];
-    brandProducts = FALLBACK_PRODUCTS.filter(
-      (p) => p.brand?.slug?.toLowerCase() === canonicalSlug || p.brand_id === fallbackId
+  // Merge database products with fallback products to ensure we display uploaded items alongside standard catalog items
+  const dbProducts = products || [];
+  const activeProducts = [...dbProducts];
+  FALLBACK_PRODUCTS.forEach((fp) => {
+    const exists = dbProducts.some(
+      (dp) => dp.name.toLowerCase() === fp.name.toLowerCase()
     );
-  }
+    if (!exists) {
+      activeProducts.push(fp);
+    }
+  });
+
+  const canonicalSlug = brand_slug?.toLowerCase();
+  const fallbackBrandMap = { zara: 1, nike: 2, hm: 3, gucci: 4 };
+  const fallbackId = fallbackBrandMap[canonicalSlug];
+
+  const brandProducts = activeProducts.filter(
+    (p) => p.brand?.slug?.toLowerCase() === canonicalSlug || 
+           p.brand_id === brand?.id ||
+           p.brand_id === fallbackId
+  );
   const { seasonal, evening, trending, essentials } = partitionProducts(brandProducts);
 
   const brandBg = brand?.accent_color || "#FFFFFF";
