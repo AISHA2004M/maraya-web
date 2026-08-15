@@ -20,6 +20,24 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { router } from "./app/router";
 import "./styles/index.css";
 
+// ─── Render Warmup Ping ────────────────────────────────────────────────────────
+// The Render free tier sleeps after 15min of inactivity.
+// We fire a lightweight ping immediately on app load so the server wakes
+// up in the background while the user sees the page with fallback data.
+const RENDER_BASE = import.meta.env.VITE_API_URL || "https://vrital-api-1yxc.onrender.com";
+
+// Ping backend immediately and again after 8s (in case it needs a moment)
+function warmupRenderServer() {
+  const ping = () =>
+    fetch(`${RENDER_BASE}/api/v1/health`, { method: "GET", mode: "cors" }).catch(() => {});
+  ping();
+  setTimeout(ping, 8000);
+}
+// Only ping in production
+if (import.meta.env.PROD) {
+  warmupRenderServer();
+}
+
 // ─── Query Client Configuration ───────────────────────────────────────────────
 
 const queryClient = new QueryClient({
@@ -27,11 +45,10 @@ const queryClient = new QueryClient({
     queries: {
       // Global defaults — overridden per-query in hooks/useProducts.js
       staleTime: 1000 * 60 * 10,   // 10 minutes: data is fresh for 10 min
-      gcTime: 1000 * 60 * 30,      // 30 minutes: remove from memory if unused
-      retry: 2,                     // Retry failed requests twice
-      retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 10000), // Exponential backoff
-      refetchOnWindowFocus: false,  // Don't refetch when user tabs back (fashion data is stable)
-      refetchOnReconnect: true,     // Do refetch on network reconnect
+      gcTime: 1000 * 60 * 60,      // 60 minutes: keep in memory longer
+      retry: 0,                     // Don't retry — use fallback data instead (no slow retry delays)
+      refetchOnWindowFocus: false,  // Don't refetch when user tabs back
+      refetchOnReconnect: false,    // Don't refetch on reconnect (we have fallbacks)
     },
     mutations: {
       retry: 0, // Don't retry mutations (cart additions, etc.)

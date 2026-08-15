@@ -23,8 +23,8 @@ export const useProducts = (params = {}) =>
   useQuery({
     queryKey: ["products", params],
     queryFn: () => getProducts(params),
-    staleTime: 1000 * 5,         // 5 seconds stale check (updates show up quickly)
-    gcTime: 1000 * 60 * 30,      // 30 minutes in memory
+    staleTime: 1000 * 60 * 5,    // 5 minutes — reduces repeated API calls on navigation
+    gcTime: 1000 * 60 * 60,      // 60 minutes in memory
   });
 
 // ─── Single Product ────────────────────────────────────────────────────────────
@@ -33,8 +33,8 @@ export const useProduct = (id) =>
     queryKey: ["product", id],
     queryFn: () => getProductById(id),
     enabled: !!id,
-    staleTime: 1000 * 5,         // 5 seconds stale check
-    gcTime: 1000 * 60 * 30,
+    staleTime: 1000 * 60 * 5,   // 5 minutes
+    gcTime: 1000 * 60 * 60,
   });
 
 // ─── Brands ───────────────────────────────────────────────────────────────────
