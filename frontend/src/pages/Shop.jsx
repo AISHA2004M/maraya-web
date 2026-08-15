@@ -120,15 +120,15 @@ export default function Shop() {
     setSearchQuery(searchParams.get("search") || "");
   }, [searchParams]);
 
-  const handleBrandChange = (brandId) => {
+  const handleBrandChange = (brandVal) => {
     setSelectedBrands((prev) =>
-      prev.includes(brandId) ? prev.filter((id) => id !== brandId) : [...prev, brandId]
+      prev.includes(brandVal) ? prev.filter((v) => v !== brandVal) : [...prev, brandVal]
     );
   };
 
-  const handleCategoryChange = (catId) => {
+  const handleCategoryChange = (catVal) => {
     setSelectedCategories((prev) =>
-      prev.includes(catId) ? prev.filter((id) => id !== catId) : [...prev, catId]
+      prev.includes(catVal) ? prev.filter((v) => v !== catVal) : [...prev, catVal]
     );
   };
 
@@ -173,10 +173,18 @@ export default function Shop() {
       ? product.brand?.slug?.toLowerCase() === brand.slug?.toLowerCase() ||
         product.brand?.id === brand.id ||
         product.brand_id === brand.id
-      : (selectedBrands.length === 0 || selectedBrands.includes(product.brand?.id));
+      : (selectedBrands.length === 0 ||
+         selectedBrands.includes(product.brand?.id) ||
+         selectedBrands.includes(product.brand_id) ||
+         selectedBrands.includes(product.brand?.slug?.toLowerCase()) ||
+         selectedBrands.includes(product.brand?.slug));
 
     const matchesCategory =
-      selectedCategories.length === 0 || selectedCategories.includes(product.category?.id);
+      selectedCategories.length === 0 ||
+      selectedCategories.includes(product.category?.id) ||
+      selectedCategories.includes(product.category_id) ||
+      selectedCategories.includes(product.category?.name) ||
+      selectedCategories.includes(product.category?.name?.toLowerCase());
 
     const matchesPrice = Number(product.price) <= maxPrice;
 
@@ -309,11 +317,11 @@ export default function Shop() {
                 ) : (
                   <div className="flex flex-wrap gap-2">
                     {activeBrands.map((b) => {
-                      const isSelected = selectedBrands.includes(b.id);
+                      const isSelected = selectedBrands.includes(b.slug) || selectedBrands.includes(b.id);
                       return (
                         <button
                           key={b.id}
-                          onClick={() => handleBrandChange(b.id)}
+                          onClick={() => handleBrandChange(b.slug || b.id)}
                           className={`px-3 py-1.5 text-[9px] font-bold tracking-widest uppercase border transition-all duration-300 rounded-full ${isSelected
                               ? "bg-black text-white border-black"
                               : "bg-transparent text-secondary border-[#eae6df] hover:border-black hover:text-primary"
@@ -339,11 +347,11 @@ export default function Shop() {
               ) : (
                 <div className="flex flex-wrap gap-2">
                   {activeCategories.map((cat) => {
-                    const isSelected = selectedCategories.includes(cat.id);
+                    const isSelected = selectedCategories.includes(cat.name) || selectedCategories.includes(cat.id);
                     return (
                       <button
                         key={cat.id}
-                        onClick={() => handleCategoryChange(cat.id)}
+                        onClick={() => handleCategoryChange(cat.name || cat.id)}
                         className={`px-3 py-1.5 text-[9px] font-bold tracking-widest uppercase border transition-all duration-300 rounded-full ${isSelected
                             ? "bg-black text-white border-black"
                             : "bg-transparent text-secondary border-[#eae6df] hover:border-black hover:text-primary"
@@ -601,11 +609,11 @@ export default function Shop() {
                   <h4 className="text-xs font-bold tracking-wider uppercase text-secondary">Brands</h4>
                   <div className="flex flex-wrap gap-2">
                     {activeBrands.map((b) => {
-                      const isSelected = selectedBrands.includes(b.id);
+                      const isSelected = selectedBrands.includes(b.slug) || selectedBrands.includes(b.id);
                       return (
                         <button
                           key={b.id}
-                          onClick={() => handleBrandChange(b.id)}
+                          onClick={() => handleBrandChange(b.slug || b.id)}
                           className={`px-3 py-1.5 text-[9px] font-bold tracking-widest uppercase border transition-all duration-300 rounded-full ${isSelected
                               ? "bg-black text-white border-black"
                               : "bg-transparent text-secondary border-[#eae6df] hover:border-black hover:text-primary"
