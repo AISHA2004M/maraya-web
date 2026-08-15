@@ -351,9 +351,16 @@ export default function Home() {
     );
   }
 
-  let brandProducts = (products && products.length > 0) ? products.filter((p) => p.brand_id === brand?.id) : [];
-  if (brandProducts.length === 0) {
-    brandProducts = FALLBACK_PRODUCTS.filter((p) => p.brand_id === brand?.id);
+  let brandProducts = (products && products.length > 0)
+    ? products.filter((p) => p.brand?.slug?.toLowerCase() === brand_slug?.toLowerCase() || p.brand_id === brand?.id)
+    : [];
+  if (brandProducts.length === 0 && brand_slug) {
+    const canonicalSlug = brand_slug.toLowerCase();
+    const fallbackBrandMap = { zara: 1, nike: 2, hm: 3, gucci: 4 };
+    const fallbackId = fallbackBrandMap[canonicalSlug];
+    brandProducts = FALLBACK_PRODUCTS.filter(
+      (p) => p.brand?.slug?.toLowerCase() === canonicalSlug || p.brand_id === fallbackId
+    );
   }
   const { seasonal, evening, trending, essentials } = partitionProducts(brandProducts);
 

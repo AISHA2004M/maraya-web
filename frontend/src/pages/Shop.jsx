@@ -169,9 +169,10 @@ export default function Shop() {
       (product.description || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
       (product.fabric_type || "").toLowerCase().includes(searchQuery.toLowerCase());
 
-    const activeBrandId = brand ? brand.id : null;
-    const matchesBrand = activeBrandId
-      ? product.brand?.id === activeBrandId || product.brand_id === activeBrandId
+    const matchesBrand = brand
+      ? product.brand?.slug?.toLowerCase() === brand.slug?.toLowerCase() ||
+        product.brand?.id === brand.id ||
+        product.brand_id === brand.id
       : (selectedBrands.length === 0 || selectedBrands.includes(product.brand?.id));
 
     const matchesCategory =
