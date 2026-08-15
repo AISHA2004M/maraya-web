@@ -9,6 +9,32 @@ import { Search, SlidersHorizontal, X, ArrowUpDown, Sparkles } from "lucide-reac
 import api from "../api/client";
 import { formatPrice } from "../utils/formatPrice";
 
+const FALLBACK_PRODUCTS = [
+  { id: 1, name: "Linen Halter Jumpsuit", description: "Elegant white linen sleeveless halter jumpsuit, perfect for summer days.", price: 89.99, brand_id: 1, brand: { id: 1, name: "Zara", slug: "zara" }, category: { id: 2, name: "Dresses" }, gender: "women", main_image_url: "https://images.unsplash.com/photo-1566206091558-7f218b696731?auto=format&fit=crop&w=400&q=75", fabric_type: "Linen Blend", editorial_tags: "Summer Atelier, Minimalist Core", mood_aesthetic: "Minimalist Core", occasion: "Daily Outing", stock_quantity: 50 },
+  { id: 2, name: "Classic White Tee", description: "Essential cotton crew-neck tee in crisp white.", price: 29.99, brand_id: 3, brand: { id: 3, name: "H&M", slug: "hm" }, category: { id: 3, name: "Tops" }, gender: "unisex", main_image_url: "https://images.unsplash.com/photo-1581655353564-df123a1eb820?auto=format&fit=crop&w=400&q=75", fabric_type: "100% Cotton", editorial_tags: "Minimalist Core, Daily Foundations", mood_aesthetic: "Cozy Minimalism", occasion: "Daily Outing", stock_quantity: 200 },
+  { id: 3, name: "Slim Fit Chinos", description: "Tailored slim-fit chino trousers in khaki.", price: 59.99, brand_id: 1, brand: { id: 1, name: "Zara", slug: "zara" }, category: { id: 4, name: "Bottoms" }, gender: "men", main_image_url: "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?auto=format&fit=crop&w=400&q=75", fabric_type: "Stretch Cotton", editorial_tags: "Minimalist Core, Everyday Luxury", mood_aesthetic: "Stealth Wealth", occasion: "Smart Casual", stock_quantity: 80 },
+  { id: 4, name: "Air Max Sneakers", description: "Iconic Nike Air Max for street and sport.", price: 139.99, brand_id: 2, brand: { id: 2, name: "Nike", slug: "nike" }, category: { id: 1, name: "Clothing" }, gender: "unisex", main_image_url: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=400&q=75", fabric_type: "Mesh/Synthetic", editorial_tags: "Cyber Streetwear, Avant-Garde", mood_aesthetic: "Avant-Garde", occasion: "Active Urban", stock_quantity: 60 },
+  { id: 5, name: "Leather Biker Jacket", description: "Premium leather motorcycle jacket with silver hardware.", price: 299.99, brand_id: 4, brand: { id: 4, name: "Gucci", slug: "gucci" }, category: { id: 5, name: "Outerwear" }, gender: "unisex", main_image_url: "https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=400&q=75", fabric_type: "Genuine Leather", editorial_tags: "After Hours, Rock Couture", mood_aesthetic: "Avant-Garde", occasion: "Club & Concert", stock_quantity: 25 },
+  { id: 6, name: "Mini Silk Slip Dress", description: "Luxurious silk-satin slip dress in champagne.", price: 199.99, brand_id: 4, brand: { id: 4, name: "Gucci", slug: "gucci" }, category: { id: 2, name: "Dresses" }, gender: "women", main_image_url: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=400&q=75", fabric_type: "Silk", editorial_tags: "Evening Elegance, After Hours", mood_aesthetic: "Stealth Wealth", occasion: "Cocktail Party", stock_quantity: 30 },
+  { id: 7, name: "Denim Jacket", description: "Classic washed denim jacket, a wardrobe staple.", price: 79.99, brand_id: 3, brand: { id: 3, name: "H&M", slug: "hm" }, category: { id: 5, name: "Outerwear" }, gender: "unisex", main_image_url: "https://images.unsplash.com/photo-1576995853123-5a10305d93c0?auto=format&fit=crop&w=400&q=75", fabric_type: "Denim", editorial_tags: "Minimalist Core, Wardrobe Staples", mood_aesthetic: "Cozy Minimalism", occasion: "Daily Outing", stock_quantity: 70 },
+  { id: 8, name: "Checked Wool Suit", description: "A tailored three-piece suit featuring a classic blue check pattern.", price: 185.00, brand_id: 1, brand: { id: 1, name: "Zara", slug: "zara" }, category: { id: 5, name: "Outerwear" }, gender: "men", main_image_url: "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=400&q=75", fabric_type: "Wool Blend", editorial_tags: "Classic Checked, Tailored", mood_aesthetic: "Stealth Wealth", occasion: "Formal", stock_quantity: 30 },
+];
+
+const FALLBACK_BRANDS = [
+  { id: 1, name: "Zara", slug: "zara" },
+  { id: 2, name: "Nike", slug: "nike" },
+  { id: 3, name: "H&M", slug: "hm" },
+  { id: 4, name: "Gucci", slug: "gucci" },
+];
+
+const FALLBACK_CATEGORIES = [
+  { id: 1, name: "Clothing" },
+  { id: 2, name: "Dresses" },
+  { id: 3, name: "Tops" },
+  { id: 4, name: "Bottoms" },
+  { id: 5, name: "Outerwear" },
+];
+
 export default function Shop() {
   const { brand_slug } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -131,8 +157,13 @@ export default function Shop() {
     setSortBy("default");
   };
 
+  // Use fallback data when API returns nothing (e.g. Render cold start)
+  const activeProducts = (products && products.length > 0) ? products : FALLBACK_PRODUCTS;
+  const activeBrands = (brands && brands.length > 0) ? brands : FALLBACK_BRANDS;
+  const activeCategories = (categories && categories.length > 0) ? categories : FALLBACK_CATEGORIES;
+
   // Filter products
-  const filteredProducts = (products || []).filter((product) => {
+  const filteredProducts = activeProducts.filter((product) => {
     const matchesSearch =
       product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (product.description || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -140,7 +171,7 @@ export default function Shop() {
 
     const activeBrandId = brand ? brand.id : null;
     const matchesBrand = activeBrandId
-      ? product.brand?.id === activeBrandId
+      ? product.brand?.id === activeBrandId || product.brand_id === activeBrandId
       : (selectedBrands.length === 0 || selectedBrands.includes(product.brand?.id));
 
     const matchesCategory =
@@ -168,8 +199,8 @@ export default function Shop() {
     return 0;
   });
 
-  const highestPriceLimit = products && products.length > 0
-    ? Math.ceil(Math.max(...products.map((p) => Number(p.price))))
+  const highestPriceLimit = activeProducts.length > 0
+    ? Math.ceil(Math.max(...activeProducts.map((p) => Number(p.price))))
     : 1000;
 
   return (
@@ -276,7 +307,7 @@ export default function Shop() {
                   </div>
                 ) : (
                   <div className="flex flex-wrap gap-2">
-                    {brands?.map((b) => {
+                    {activeBrands.map((b) => {
                       const isSelected = selectedBrands.includes(b.id);
                       return (
                         <button
@@ -306,7 +337,7 @@ export default function Shop() {
                 </div>
               ) : (
                 <div className="flex flex-wrap gap-2">
-                  {categories?.map((cat) => {
+                  {activeCategories.map((cat) => {
                     const isSelected = selectedCategories.includes(cat.id);
                     return (
                       <button
@@ -444,7 +475,7 @@ export default function Shop() {
                     Today's Edit — handpicked from across the catalog.
                   </p>
                   <p className="text-[11px] font-light text-secondary">
-                    {sortedProducts.length} pieces across {categories?.length || 0} categories
+                    {sortedProducts.length} pieces across {activeCategories.length} categories
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -568,7 +599,7 @@ export default function Shop() {
                 <div className="space-y-4 mb-6">
                   <h4 className="text-xs font-bold tracking-wider uppercase text-secondary">Brands</h4>
                   <div className="flex flex-wrap gap-2">
-                    {brands?.map((b) => {
+                    {activeBrands.map((b) => {
                       const isSelected = selectedBrands.includes(b.id);
                       return (
                         <button
