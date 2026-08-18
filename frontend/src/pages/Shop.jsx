@@ -295,7 +295,7 @@ export default function Shop() {
             {!brand && (
               <div className="space-y-4">
                 <h4 className="text-xs font-bold tracking-wider uppercase text-secondary">Brands</h4>
-                {isBrandsLoading ? (
+                {isBrandsLoading && activeBrands.length === 0 ? (
                   <div className="flex flex-wrap gap-2">
                     <div className="shimmer h-6 w-16 rounded-full" />
                     <div className="shimmer h-6 w-20 rounded-full" />
@@ -325,7 +325,7 @@ export default function Shop() {
             {/* Category Filter */}
             <div className="space-y-4">
               <h4 className="text-xs font-bold tracking-wider uppercase text-secondary">Categories</h4>
-              {isCategoriesLoading ? (
+              {isCategoriesLoading && activeCategories.length === 0 ? (
                 <div className="flex flex-wrap gap-2">
                   <div className="shimmer h-6 w-16 rounded-full" />
                   <div className="shimmer h-6 w-20 rounded-full" />
@@ -481,7 +481,7 @@ export default function Shop() {
             )}
 
             {/* Asymmetric lookbook list */}
-            {isProductsLoading ? (
+            {isProductsLoading && sortedProducts.length === 0 ? (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
                 {Array.from({ length: 6 }).map((_, i) => (
                   <SkeletonCard key={i} aspectRatio="3/4" />

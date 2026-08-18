@@ -1,12 +1,7 @@
 /**
- * useProducts Hooks — Optimized Cache Settings
- * =============================================
- * Each hook has tailored staleTime based on how often that data changes:
- *
- * Products:   10 min stale (updated by admin occasionally)
- * Brands:     1 hour stale (change very rarely)
- * Categories: 2 hours stale (almost never change)
- * Single product: 15 min stale (price/stock can change)
+ * useProducts Hooks — Optimized Zero-Latency Data Hooks
+ * ====================================================
+ * Automatically provides instantaneous fallback catalog data while syncing in the background.
  */
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -17,14 +12,21 @@ import {
   getBrandById,
   getCategories,
 } from "../api/products";
+import {
+  FALLBACK_PRODUCTS,
+  FALLBACK_BRANDS,
+  FALLBACK_CATEGORIES,
+  findFallbackProduct
+} from "../utils/fallbackData";
 
 // ─── Products List ─────────────────────────────────────────────────────────────
 export const useProducts = (params = {}) =>
   useQuery({
     queryKey: ["products", params],
     queryFn: () => getProducts(params),
-    staleTime: 1000 * 60 * 5,    // 5 minutes — reduces repeated API calls on navigation
-    gcTime: 1000 * 60 * 60,      // 60 minutes in memory
+    placeholderData: FALLBACK_PRODUCTS,
+    staleTime: 1000 * 60 * 10,
+    gcTime: 1000 * 60 * 60,
   });
 
 // ─── Single Product ────────────────────────────────────────────────────────────
@@ -32,8 +34,9 @@ export const useProduct = (id) =>
   useQuery({
     queryKey: ["product", id],
     queryFn: () => getProductById(id),
+    placeholderData: () => findFallbackProduct(id),
     enabled: !!id,
-    staleTime: 1000 * 60 * 5,   // 5 minutes
+    staleTime: 1000 * 60 * 10,
     gcTime: 1000 * 60 * 60,
   });
 
@@ -42,8 +45,9 @@ export const useBrands = () =>
   useQuery({
     queryKey: ["brands"],
     queryFn: getBrands,
-    staleTime: 1000 * 60 * 60,   // 1 hour — brands rarely change
-    gcTime: 1000 * 60 * 120,     // 2 hours in memory
+    placeholderData: FALLBACK_BRANDS,
+    staleTime: 1000 * 60 * 60,
+    gcTime: 1000 * 60 * 120,
   });
 
 // ─── Single Brand ──────────────────────────────────────────────────────────────
@@ -51,6 +55,7 @@ export const useBrand = (id) =>
   useQuery({
     queryKey: ["brand", id],
     queryFn: () => getBrandById(id),
+    placeholderData: () => FALLBACK_BRANDS.find(b => String(b.id) === String(id) || b.slug === id) || FALLBACK_BRANDS[0],
     enabled: !!id,
     staleTime: 1000 * 60 * 60,
     gcTime: 1000 * 60 * 120,
@@ -61,19 +66,12 @@ export const useCategories = () =>
   useQuery({
     queryKey: ["categories"],
     queryFn: getCategories,
-    staleTime: 1000 * 60 * 120,  // 2 hours — categories almost never change
-    gcTime: 1000 * 60 * 240,     // 4 hours in memory
+    placeholderData: FALLBACK_CATEGORIES,
+    staleTime: 1000 * 60 * 120,
+    gcTime: 1000 * 60 * 240,
   });
 
 // ─── Prefetch Utility ──────────────────────────────────────────────────────────
-/**
- * useProductPrefetch — prefetch a product on card hover
- * Usage: const prefetch = useProductPrefetch();
- *        <div onMouseEnter={() => prefetch(product.id)}>
- *
- * This preloads the product detail data 300ms into the hover,
- * so by the time user clicks, the data is already cached.
- */
 export const useProductPrefetch = () => {
   const queryClient = useQueryClient();
 
