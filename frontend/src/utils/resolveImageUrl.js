@@ -8,7 +8,8 @@ export function resolveImageUrl(url) {
   if (
     url.startsWith("http://") || 
     url.startsWith("https://") || 
-    url.startsWith("data:")
+    url.startsWith("data:") ||
+    url.startsWith("/uploads/")
   ) {
     return url;
   }
