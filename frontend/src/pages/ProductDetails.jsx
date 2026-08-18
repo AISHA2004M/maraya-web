@@ -8,7 +8,7 @@ import UploadBox from "../components/tryon/UploadBox";
 import TryOnModal from "../components/tryon/TryOnModal";
 import api from "../api/client";
 import { submitTryOn, waitForTryOnResult, getTryOnResult, DEMO_FALLBACK_RESULT } from "../api/tryon";
-import { createVirtualTryOnComposite } from "../utils/tryonCanvas";
+import { getProductTryOnModelUrl } from "../utils/fallbackData";
 import {
   ShoppingBag, Sparkles, ArrowLeft, Check, Heart, ChevronDown, ChevronUp,
   Loader2, Download, AlertCircle, RotateCcw, Wind, HelpCircle as HelpIcon, User
@@ -613,16 +613,9 @@ export default function ProductDetails() {
         return;
       }
 
-      const resolveResultUrl = async (url) => {
+      const resolveResultUrl = (url) => {
         if (!url || url === DEMO_FALLBACK_RESULT) {
-          if (userImagePreview && product?.main_image_url) {
-            try {
-              return await createVirtualTryOnComposite(userImagePreview, product.main_image_url, product?.category?.name || "top");
-            } catch (e) {
-              return product.main_image_url || userImagePreview;
-            }
-          }
-          return product.main_image_url || userImagePreview;
+          return getProductTryOnModelUrl(product);
         }
         return url;
       };
@@ -633,7 +626,7 @@ export default function ProductDetails() {
         setLoadingPhase("Complete!");
         const finalResult = await getTryOnResult(activeJobId);
         if (activeTryonInstanceRef.current === currentInstanceId) {
-          const compResult = await resolveResultUrl(finalResult.result_image_url);
+          const compResult = resolveResultUrl(finalResult.result_image_url);
           setTryonResult(compResult);
           console.log("[Try-On PDP] Synthesis completed successfully (Cache hit). Result URL:", finalResult.result_image_url);
         }
@@ -664,20 +657,15 @@ export default function ProductDetails() {
         );
 
         if (activeTryonInstanceRef.current === currentInstanceId) {
-          const compResult = await resolveResultUrl(resultUrl);
+          const compResult = resolveResultUrl(resultUrl);
           setTryonResult(compResult);
           console.log("[Try-On PDP] Synthesis completed successfully. Result URL:", resultUrl);
         }
       }
     } catch (err) {
       if (activeTryonInstanceRef.current === currentInstanceId) {
-        console.warn("[Try-On PDP] API offline or timed out, activating composite result fallback:", err);
-        let fallbackRes = product?.main_image_url || userImagePreview;
-        if (userImagePreview && product?.main_image_url) {
-          try {
-            fallbackRes = await createVirtualTryOnComposite(userImagePreview, product.main_image_url, product?.category?.name || "top");
-          } catch (e) {}
-        }
+        console.warn("[Try-On PDP] API offline or timed out, activating fashion model result fallback:", err);
+        const fallbackRes = getProductTryOnModelUrl(product);
         setTryonResult(fallbackRes);
         setTryonProgress(100);
       }
