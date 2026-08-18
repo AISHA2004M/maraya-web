@@ -214,31 +214,42 @@ export function getProductTryOnModelUrl(product) {
   if (product.model_tryon_url) return product.model_tryon_url;
   
   const id = String(product.id || "").toLowerCase();
+  const name = String(product.name || "").toLowerCase();
   
   // Custom piece 1: Zara Draped Asymmetric Midi Dress
-  if (id.includes("eb838ca7")) return "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&q=90";
+  if (id.includes("eb838ca7") || name.includes("asymmetric") || name.includes("chocolate") || (name.includes("draped") && name.includes("zara"))) {
+    return "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&q=90";
+  }
   
   // Custom piece 2: Gucci Red Velvet Double-Breasted Blazer
-  if (id.includes("8750612d")) return "https://images.unsplash.com/photo-1539008835657-9e8e9680c956?w=800&q=90";
-  
-  // Custom piece 3: Zara Oversized Sky Blue Poplin Shirt
-  if (id.includes("f02a279c")) return "https://images.unsplash.com/photo-1598554747436-c9293d6a588f?w=800&q=90";
-  
-  // Custom piece 4: H&M Botanical Print Maxi Dress
-  if (id.includes("3c6b5f9b")) return "https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=800&q=90";
-  
-  // Custom piece 5: Zara Off-White Ruffled Mini Dress
-  if (id.includes("313f681a")) return "https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=800&q=90";
-
-  // Category fallback
-  const cat = (product.category?.name || "").toLowerCase();
-  if (cat.includes("outerwear") || cat.includes("blazer") || cat.includes("jacket")) {
+  if (id.includes("8750612d") || name.includes("velvet") || name.includes("gucci red") || (name.includes("red") && name.includes("blazer"))) {
     return "https://images.unsplash.com/photo-1539008835657-9e8e9680c956?w=800&q=90";
   }
-  if (cat.includes("dress")) {
+  
+  // Custom piece 3: Zara Oversized Sky Blue Poplin Shirt
+  if (id.includes("f02a279c") || name.includes("sky blue") || name.includes("poplin") || (name.includes("blue") && name.includes("shirt"))) {
+    return "https://images.unsplash.com/photo-1598554747436-c9293d6a588f?w=800&q=90";
+  }
+  
+  // Custom piece 4: H&M Botanical Print Maxi Dress
+  if (id.includes("3c6b5f9b") || name.includes("botanical") || (name.includes("h&m") && name.includes("maxi"))) {
     return "https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=800&q=90";
   }
-  if (cat.includes("top") || cat.includes("shirt")) {
+  
+  // Custom piece 5: Zara Off-White Ruffled Mini Dress
+  if (id.includes("313f681a") || name.includes("ruffled") || name.includes("off-white") || (name.includes("white") && name.includes("mini"))) {
+    return "https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=800&q=90";
+  }
+
+  // Category & Name Fallbacks
+  const cat = (product.category?.name || "").toLowerCase();
+  if (cat.includes("outerwear") || cat.includes("blazer") || cat.includes("jacket") || name.includes("blazer") || name.includes("jacket")) {
+    return "https://images.unsplash.com/photo-1539008835657-9e8e9680c956?w=800&q=90";
+  }
+  if (cat.includes("dress") || name.includes("dress")) {
+    return "https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=800&q=90";
+  }
+  if (cat.includes("top") || cat.includes("shirt") || name.includes("shirt") || name.includes("top")) {
     return "https://images.unsplash.com/photo-1598554747436-c9293d6a588f?w=800&q=90";
   }
 
