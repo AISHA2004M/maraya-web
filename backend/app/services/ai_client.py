@@ -1337,10 +1337,12 @@ async def _call_nano_banana_2(
     if not has_gemini and not has_openrouter:
         raise ValueError("Google Gemini / Nano Banana 2 API Key or OpenRouter API Key not configured")
 
-    model_name = settings.NANO_BANANA_MODEL or os.getenv("NANO_BANANA_MODEL", "gemini-3.1-flash-image-preview")
+    model_name = settings.NANO_BANANA_MODEL or os.getenv("NANO_BANANA_MODEL", "google/gemini-3.1-flash-image")
     if has_openrouter:
         if not model_name.startswith("google/"):
             model_name = f"google/{model_name}"
+        if model_name.endswith("-preview"):
+            model_name = model_name.replace("-preview", "")
 
     logger.info(f"[Nano Banana 2] Preparing try-on inpainting request for session {session_id} using model {model_name}...")
 

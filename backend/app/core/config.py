@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     # Nano Banana 2 / Gemini API
     GEMINI_API_KEY: str = ""
     NANO_BANANA_API_KEY: str = ""
-    NANO_BANANA_MODEL: str = "gemini-3.1-flash-image-preview"
+    NANO_BANANA_MODEL: str = "google/gemini-3.1-flash-image"
     OPENROUTER_API_KEY: str = ""
 
     # Cloudinary (free cloud storage for production images)
