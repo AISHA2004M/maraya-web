@@ -7,7 +7,7 @@ import { useWishlistStore } from "../store/useWishlistStore";
 import UploadBox from "../components/tryon/UploadBox";
 import TryOnModal from "../components/tryon/TryOnModal";
 import api from "../api/client";
-import { submitTryOn, waitForTryOnResult, getTryOnResult } from "../api/tryon";
+import { submitTryOn, waitForTryOnResult, getTryOnResult, DEMO_FALLBACK_RESULT } from "../api/tryon";
 import {
   ShoppingBag, Sparkles, ArrowLeft, Check, Heart, ChevronDown, ChevronUp,
   Loader2, Download, AlertCircle, RotateCcw, Wind, HelpCircle as HelpIcon, User
@@ -612,13 +612,20 @@ export default function ProductDetails() {
         return;
       }
 
+      const resolveResultUrl = (url) => {
+        if (!url || url === DEMO_FALLBACK_RESULT) {
+          return product.main_image_url || userImagePreview;
+        }
+        return url;
+      };
+
       if (dispatch.status === "completed" || dispatch.progress === 100) {
         console.log("[Try-On PDP] Cache hit! Retrieving final result for Job ID:", activeJobId);
         setTryonProgress(100);
         setLoadingPhase("Complete!");
         const finalResult = await getTryOnResult(activeJobId);
         if (activeTryonInstanceRef.current === currentInstanceId) {
-          setTryonResult(finalResult.result_image_url);
+          setTryonResult(resolveResultUrl(finalResult.result_image_url));
           console.log("[Try-On PDP] Synthesis completed successfully (Cache hit). Result URL:", finalResult.result_image_url);
         }
       } else {
@@ -648,7 +655,7 @@ export default function ProductDetails() {
         );
 
         if (activeTryonInstanceRef.current === currentInstanceId) {
-          setTryonResult(resultUrl);
+          setTryonResult(resolveResultUrl(resultUrl));
           console.log("[Try-On PDP] Synthesis completed successfully. Result URL:", resultUrl);
         }
       }

@@ -25,7 +25,7 @@ import {
   Download, ChevronRight, ImageIcon, CheckCircle2,
   Camera, XCircle, Clock
 } from "lucide-react";
-import { submitTryOn, waitForTryOnResult, pollTryOnStatus, getTryOnResult } from "../../api/tryon";
+import { submitTryOn, waitForTryOnResult, pollTryOnStatus, getTryOnResult, DEMO_FALLBACK_RESULT } from "../../api/tryon";
 import { useUserStore } from "../../store/useUserStore";
 
 const PRESET_MODELS = [
@@ -546,12 +546,19 @@ export default function TryOnModal({ isOpen, onClose, product }) {
 
       const jobId = dispatch.job_id || dispatch.session_id;
 
+      const resolveResultImage = (resUrl) => {
+        if (!resUrl || resUrl === DEMO_FALLBACK_RESULT) {
+          return product?.main_image_url || portraitPreview;
+        }
+        return resUrl;
+      };
+
       if (dispatch.status === "completed" || dispatch.progress === 100) {
         // Cache hit / sync completion
         const resultRes = await getTryOnResult(jobId);
         if (cancelRef.current) return;
         stopProgress(100);
-        setResult(resultRes.result_image_url);
+        setResult(resolveResultImage(resultRes.result_image_url));
         setStage(STAGES.result);
       } else {
         // Async mode — poll with real status + progress updates
@@ -560,7 +567,6 @@ export default function TryOnModal({ isOpen, onClose, product }) {
           (progressPct, jobStatus) => {
             if (cancelRef.current) return;
             setPct(progressPct);
-            // Dynamically set label based on progress range
             if (progressPct <= 20) setLabel("Preparing your silhouette…");
             else if (progressPct <= 45) setLabel("Analyzing body contours…");
             else if (progressPct <= 65) setLabel("Extracting garment texture…");
@@ -573,7 +579,7 @@ export default function TryOnModal({ isOpen, onClose, product }) {
         );
         if (cancelRef.current) return;
         stopProgress(100);
-        setResult(resultUrl);
+        setResult(resolveResultImage(resultUrl));
         setStage(STAGES.result);
       }
     } catch (err) {

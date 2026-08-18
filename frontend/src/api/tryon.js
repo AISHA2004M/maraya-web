@@ -10,7 +10,7 @@
 
 import api from "./client";
 
-const DEMO_FALLBACK_RESULT = "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=700&q=90";
+export const DEMO_FALLBACK_RESULT = "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=700&q=90";
 
 /**
  * Submit a try-on request via the optimized multipart endpoint.
