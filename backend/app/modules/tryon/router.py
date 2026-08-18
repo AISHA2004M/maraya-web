@@ -42,6 +42,7 @@ router = APIRouter()
 async def ai_try_on(
     user_image: UploadFile = File(..., description="Front-facing portrait photo (JPEG/PNG/WebP, max 10 MB)"),
     product_id: str = Form(..., description="ID of the clothing product to try on"),
+    garment_image_url: Optional[str] = Form(None, description="Direct URL or path to garment image"),
     db: Session = Depends(get_db),
     credentials=Depends(security),
 ):
@@ -225,6 +226,7 @@ async def create_ai_try_on(
     user_image: UploadFile = File(..., description="Front-facing portrait photo (JPEG/PNG/WebP, max 10 MB)"),
     product_id: str = Form(..., description="ID of the clothing product to try on"),
     product_ids: Optional[str] = Form(None, description="JSON array of product IDs to try on"),
+    garment_image_url: Optional[str] = Form(None, description="Direct URL or path to garment image"),
     model_variant: Optional[str] = Form("balanced", description="Model variant: fast | balanced | quality"),
     avatar: Optional[str] = Form(None, description="Selected avatar profile name"),
     height: Optional[int] = Form(None, description="Height in cm"),
@@ -377,8 +379,18 @@ async def create_ai_try_on(
     # ── Resolve product ──────────────────────────────────────────────────
     product = get_product_by_id(db, product_id)
     if not product:
-        raise HTTPException(status_code=404, detail="Product not found.")
-    if not product.main_image_url:
+        if garment_image_url:
+            class CustomProductWrapper:
+                id = product_id
+                name = "Apparel Garment"
+                description = "luxury apparel product piece"
+                main_image_url = garment_image_url
+                category = None
+            product = CustomProductWrapper()
+        else:
+            raise HTTPException(status_code=404, detail="Product not found.")
+
+    if not getattr(product, "main_image_url", None) and not garment_image_url:
         raise HTTPException(
             status_code=422,
             detail="This product does not have a qualifying image for try-on.",
