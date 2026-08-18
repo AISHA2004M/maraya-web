@@ -584,18 +584,40 @@ export default function ProductDetails() {
     setTryonLoading(true);
     setTryonError(null);
     setTryonResult(null);
-    setTryonProgress(0);
     setTryonDelayed(false);
-    setLoadingPhase(language === "en" ? "Generating your virtual try-on..." : "جاري توليد القياس الافتراضي...");
+    
+    let currentPct = 12;
+    setTryonProgress(currentPct);
+    setLoadingPhase(language === "en" ? "Preparing silhouette..." : "تحضير الصورة الشخصية...");
 
     const currentInstanceId = Math.random().toString(36).substring(7);
     activeTryonInstanceRef.current = currentInstanceId;
+
+    // Smooth real-time progress simulation
+    const progressTicker = setInterval(() => {
+      if (activeTryonInstanceRef.current !== currentInstanceId) {
+        clearInterval(progressTicker);
+        return;
+      }
+      currentPct += Math.floor(Math.random() * 8) + 4;
+      if (currentPct > 95) currentPct = 95;
+      setTryonProgress(currentPct);
+      if (currentPct <= 30) {
+        setLoadingPhase(language === "en" ? "Preparing silhouette..." : "تحضير الصورة الشخصية...");
+      } else if (currentPct <= 55) {
+        setLoadingPhase(language === "en" ? "Analyzing body contours..." : "تحليل ملامح الجسم...");
+      } else if (currentPct <= 80) {
+        setLoadingPhase(language === "en" ? "Neural drape rendering..." : "تطبيق وتفصيل الملابس...");
+      } else {
+        setLoadingPhase(language === "en" ? "Finalizing high-res fit..." : "اللمسات الأخيرة...");
+      }
+    }, 450);
 
     let delayTimer = setTimeout(() => {
       if (activeTryonInstanceRef.current === currentInstanceId) {
         setTryonDelayed(true);
       }
-    }, 35000);
+    }, 30000);
 
     let activeJobId = null;
 
@@ -607,6 +629,7 @@ export default function ProductDetails() {
       activeJobId = dispatch.job_id || dispatch.session_id;
 
       if (activeTryonInstanceRef.current !== currentInstanceId) {
+        clearInterval(progressTicker);
         clearTimeout(delayTimer);
         return;
       }
@@ -615,9 +638,10 @@ export default function ProductDetails() {
         const finalResult = await getTryOnResult(activeJobId);
         if (activeTryonInstanceRef.current === currentInstanceId) {
           if (finalResult && finalResult.result_image_url) {
+            clearInterval(progressTicker);
+            setTryonProgress(100);
             setTryonResult(finalResult.result_image_url);
             setLoadingPhase(language === "en" ? "Generated successfully" : "تم التوليد بنجاح");
-            setTryonProgress(100);
           } else {
             throw new Error("Virtual try-on output was empty.");
           }
@@ -628,17 +652,6 @@ export default function ProductDetails() {
           (pct, status) => {
             if (activeTryonInstanceRef.current !== currentInstanceId) return;
             setTryonProgress(pct);
-            if (pct <= 20) {
-              setLoadingPhase(language === "en" ? "Preparing silhouette..." : "تحضير الصورة الشخصية...");
-            } else if (pct <= 45) {
-              setLoadingPhase(language === "en" ? "Analyzing body contours..." : "تحليل ملامح الجسم...");
-            } else if (pct <= 65) {
-              setLoadingPhase(language === "en" ? "Extracting garment lines..." : "استخراج تفاصيل القطعة...");
-            } else if (pct <= 85) {
-              setLoadingPhase(language === "en" ? "Neural drape rendering..." : "تطبيق وتفصيل الملابس...");
-            } else {
-              setLoadingPhase(language === "en" ? "Finalizing fit..." : "اللمسات الأخيرة...");
-            }
           },
           1000,
           60000,
@@ -646,9 +659,10 @@ export default function ProductDetails() {
         );
 
         if (activeTryonInstanceRef.current === currentInstanceId) {
+          clearInterval(progressTicker);
+          setTryonProgress(100);
           setTryonResult(resultUrl);
           setLoadingPhase(language === "en" ? "Generated successfully" : "تم التوليد بنجاح");
-          setTryonProgress(100);
         }
       }
     } catch (err) {
@@ -663,6 +677,7 @@ export default function ProductDetails() {
       }
     } finally {
       if (activeTryonInstanceRef.current === currentInstanceId) {
+        clearInterval(progressTicker);
         setTryonLoading(false);
         clearTimeout(delayTimer);
       }
