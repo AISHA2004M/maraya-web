@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import api from "../api/client";
 import Navbar from "../components/layout/Navbar";
 import { Sparkles, Camera } from "lucide-react";
+import { useLanguageStore } from "../store/useLanguageStore";
 
 const FALLBACK_BRANDS = [
   {
@@ -41,6 +42,7 @@ const FALLBACK_BRANDS = [
 ];
 
 export default function Discover() {
+  const { language } = useLanguageStore();
   const [brands, setBrands] = useState([]);
   const [loading, setLoading] = useState(true);
 
