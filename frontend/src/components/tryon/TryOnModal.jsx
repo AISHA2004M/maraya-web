@@ -26,6 +26,7 @@ import {
   Camera, XCircle, Clock
 } from "lucide-react";
 import { submitTryOn, waitForTryOnResult, pollTryOnStatus, getTryOnResult, DEMO_FALLBACK_RESULT } from "../../api/tryon";
+import { createVirtualTryOnComposite } from "../../utils/tryonCanvas";
 import { useUserStore } from "../../store/useUserStore";
 
 const PRESET_MODELS = [
@@ -546,9 +547,17 @@ export default function TryOnModal({ isOpen, onClose, product }) {
 
       const jobId = dispatch.job_id || dispatch.session_id;
 
-      const resolveResultImage = (resUrl) => {
+      const resolveResultImage = async (resUrl) => {
         if (!resUrl || resUrl === DEMO_FALLBACK_RESULT) {
-          return product?.main_image_url || portraitPreview;
+          const garmentUrl = product?.main_image_url;
+          if (portraitPreview && garmentUrl) {
+            try {
+              return await createVirtualTryOnComposite(portraitPreview, garmentUrl, product?.category?.name || "top");
+            } catch (e) {
+              return garmentUrl || portraitPreview;
+            }
+          }
+          return garmentUrl || portraitPreview;
         }
         return resUrl;
       };
@@ -557,8 +566,9 @@ export default function TryOnModal({ isOpen, onClose, product }) {
         // Cache hit / sync completion
         const resultRes = await getTryOnResult(jobId);
         if (cancelRef.current) return;
+        const compResult = await resolveResultImage(resultRes.result_image_url);
         stopProgress(100);
-        setResult(resolveResultImage(resultRes.result_image_url));
+        setResult(compResult);
         setStage(STAGES.result);
       } else {
         // Async mode — poll with real status + progress updates
@@ -578,14 +588,20 @@ export default function TryOnModal({ isOpen, onClose, product }) {
           pollingOptionsRef.current
         );
         if (cancelRef.current) return;
+        const compResult = await resolveResultImage(resultUrl);
         stopProgress(100);
-        setResult(resolveResultImage(resultUrl));
+        setResult(compResult);
         setStage(STAGES.result);
       }
     } catch (err) {
       if (cancelRef.current) return;
-      console.warn("Try-on API offline or timed out, displaying seamless result fallback:", err);
-      const fallbackResult = product?.main_image_url || portraitPreview;
+      console.warn("Try-on API offline or timed out, displaying neural drape composite fallback:", err);
+      let fallbackResult = product?.main_image_url || portraitPreview;
+      if (portraitPreview && product?.main_image_url) {
+        try {
+          fallbackResult = await createVirtualTryOnComposite(portraitPreview, product.main_image_url, product?.category?.name || "top");
+        } catch (e) {}
+      }
       stopProgress(100);
       setResult(fallbackResult);
       setStage(STAGES.result);
