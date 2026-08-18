@@ -189,51 +189,7 @@ const FALLBACK_BRANDS_CMS = [
   }
 ];
 
-const FALLBACK_PRODUCTS = [
-  // Zara
-  {
-    id: 1,
-    name: "Linen Halter Jumpsuit",
-    price: 89.99,
-    brand_id: 1,
-    category_id: 2,
-    gender: "women",
-    main_image_url: "https://images.unsplash.com/photo-1566206091558-7f218b696731?auto=format&fit=crop&w=400&q=75",
-    editorial_tags: "Summer Atelier, Minimalist Core",
-  },
-  {
-    id: 3,
-    name: "Slim Fit Chinos",
-    price: 59.99,
-    brand_id: 1,
-    category_id: 4,
-    gender: "men",
-    main_image_url: "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?auto=format&fit=crop&w=400&q=75",
-    editorial_tags: "Minimalist Core, Everyday Luxury",
-  },
-  // Nike
-  {
-    id: 4,
-    name: "Air Max Sneakers",
-    price: 139.99,
-    brand_id: 2,
-    category_id: 1,
-    gender: "unisex",
-    main_image_url: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=400&q=75",
-    editorial_tags: "Cyber Streetwear, Avant-Garde",
-  },
-  // H&M
-  {
-    id: 2,
-    name: "Classic White Tee",
-    price: 29.99,
-    brand_id: 3,
-    category_id: 3,
-    gender: "unisex",
-    main_image_url: "https://images.unsplash.com/photo-1581655353564-df123a1eb820?auto=format&fit=crop&w=400&q=75",
-    editorial_tags: "Minimalist Core, Daily Foundations",
-  }
-];
+import { FALLBACK_PRODUCTS } from "../utils/fallbackData";
 
 export default function Home() {
   const { brand_slug } = useParams();

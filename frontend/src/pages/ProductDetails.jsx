@@ -19,6 +19,7 @@ import { useLanguageStore } from "../store/useLanguageStore";
 import { formatPrice } from "../utils/formatPrice";
 import { resolveImageUrl } from "../utils/resolveImageUrl";
 import { parseAnglesImages } from "../utils/parseAnglesImages";
+import { findFallbackProduct } from "../utils/fallbackData";
 
 function FabricCanvas({ imageUrl, windSpeed, isActive, fabricType }) {
   const canvasRef = useRef(null);
@@ -363,12 +364,18 @@ export default function ProductDetails() {
   const isInWishlist = useWishlistStore((s) => s.isInWishlist(id));
 
   const { t, language } = useLanguageStore();
-  const { data: product, isLoading, isError } = useProduct(id);
+  const { data: dbProduct, isLoading, isError } = useProduct(id);
+  const fallbackProduct = findFallbackProduct(id);
+  const product = dbProduct || fallbackProduct;
 
   // Security & Scoping Redirect: ensure the product belongs to the current brand scope
   useEffect(() => {
-    if (product && brand_slug && product.brand?.slug !== brand_slug) {
-      navigate(`/brands/${product.brand.slug}/product/${id}`, { replace: true });
+    if (product && product.brand?.slug && brand_slug) {
+      const bSlug = product.brand.slug.toLowerCase();
+      const uSlug = brand_slug.toLowerCase();
+      if (!uSlug.startsWith(bSlug) && !bSlug.startsWith(uSlug)) {
+        navigate(`/brands/${product.brand.slug}/product/${id}`, { replace: true });
+      }
     }
   }, [product, brand_slug, id, navigate]);
 
@@ -472,7 +479,7 @@ export default function ProductDetails() {
   const [fabricSimulationActive, setFabricSimulationActive] = useState(false);
   const [windSpeed, setWindSpeed] = useState(5);
 
-  if (isLoading) {
+  if (isLoading && !product) {
     return (
       <div className="min-h-screen bg-surface flex flex-col">
         <Navbar />
@@ -490,7 +497,7 @@ export default function ProductDetails() {
     );
   }
 
-  if (isError || !product) {
+  if (!isLoading && !product) {
     return (
       <div className="min-h-screen bg-surface flex flex-col">
         <Navbar />
