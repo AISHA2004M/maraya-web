@@ -179,120 +179,12 @@ export default function Discover() {
             );
           })}
         </div>
-
-        {/* ── AI Visual Search Feature — Luxury Editorial Showcase ── */}
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-60px" }}
-          transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
-          className="mt-28"
-        >
-          <div className="bg-[#0b0b0b] text-white rounded-2xl border border-neutral-800 overflow-hidden shadow-2xl relative">
-            {/* Subtle glow background */}
-            <div className="absolute -top-24 -right-24 w-96 h-96 bg-emerald-950/20 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-neutral-800/20 rounded-full blur-3xl pointer-events-none" />
-
-            <div className="grid lg:grid-cols-[1.2fr_1fr] items-center relative z-10">
-
-              {/* Left: Text & Action */}
-              <div className="p-8 md:p-14 lg:p-16 space-y-6 text-start">
-                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-white/10 border border-white/15 rounded-full backdrop-blur-sm">
-                  <Sparkles size={11} className="text-[#d4af37]" />
-                  <span className="text-[8px] font-bold tracking-[0.25em] text-[#e0d6c3] uppercase">
-                    {language === "en" ? "AI Vision Engine · High-Precision" : "محرك الرؤية بالذكاء الاصطناعي · فائق الدقة"}
-                  </span>
-                </div>
-
-                <div className="space-y-3">
-                  <h2 className="heading-serif text-3xl md:text-5xl font-light text-white tracking-tight leading-tight">
-                    {language === "en" ? "Search by Image" : "ابحث بصورة أي قطعة"}
-                  </h2>
-                  <p className="text-sm md:text-base text-neutral-400 font-light leading-relaxed max-w-lg">
-                    {language === "en"
-                      ? "Seen an outfit you love? Upload any photo and our multimodal AI will instantly scan every boutique atelier to find exact and closely matching silhouettes with similarity scores."
-                      : "هل رأيت إطلالة أعجبتك؟ ارفع أي صورة وسيقوم الذكاء الاصطناعي بمسح كافة دور الأزياء وعرض القطع المتطابقة والبدائل الأقرب مع نسب التطابق فوراً."}
-                  </p>
-                </div>
-
-                <div className="pt-2 flex flex-wrap items-center gap-4">
-                  <Link
-                    to="/search-by-image"
-                    className="inline-flex items-center gap-3 bg-white text-black text-[10px] font-bold tracking-[0.2em] uppercase px-8 py-4 hover:bg-neutral-200 transition-all duration-300 rounded-full shadow-lg"
-                  >
-                    <Camera size={14} />
-                    <span>{language === "en" ? "Launch Visual Search" : "ابدأ البحث بالصورة الآن"}</span>
-                  </Link>
-                  <span className="text-[11px] text-neutral-500 font-light tracking-wide">
-                    {language === "en" ? "Supports JPG, PNG & WebP" : "يدعم جميع صيغ الصور"}
-                  </span>
-                </div>
-              </div>
-
-              {/* Right: Interactive Scanner Visualizer */}
-              <div className="p-8 md:p-14 bg-white/[0.02] border-t lg:border-t-0 lg:border-l border-neutral-800 flex items-center justify-center">
-                <div className="w-full max-w-[320px] space-y-6">
-
-                  {/* Scan viewfinder frame */}
-                  <div className="relative w-28 h-28 border border-neutral-700 bg-neutral-900/60 rounded-lg flex items-center justify-center mx-auto shadow-inner">
-                    <Camera size={32} className="text-neutral-400" />
-                    <span className="absolute -top-1 -left-1 w-3.5 h-3.5 border-t-2 border-l-2 border-emerald-400" />
-                    <span className="absolute -top-1 -right-1 w-3.5 h-3.5 border-t-2 border-r-2 border-emerald-400" />
-                    <span className="absolute -bottom-1 -left-1 w-3.5 h-3.5 border-b-2 border-l-2 border-emerald-400" />
-                    <span className="absolute -bottom-1 -right-1 w-3.5 h-3.5 border-b-2 border-r-2 border-emerald-400" />
-                    <div className="absolute left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-emerald-400 to-transparent opacity-80 animate-[scan_2.5s_ease-in-out_infinite]" />
-                  </div>
-
-                  {/* Precision match bars */}
-                  <div className="space-y-3.5 bg-neutral-900/40 p-4 rounded-xl border border-neutral-800/80">
-                    {[
-                      { label: "Zara Draped Asymmetric Midi Dress", brand: "Zara Atelier", score: 98 },
-                      { label: "Gucci Red Velvet Blazer", brand: "Gucci", score: 94 },
-                      { label: "Poplin Sky Blue Shirt", brand: "Zara", score: 88 },
-                    ].map((item, i) => (
-                      <div key={i} className="space-y-1.5 text-start">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-[10px] font-medium text-neutral-200">{item.label}</p>
-                            <p className="text-[8px] text-neutral-500 tracking-wider uppercase">{item.brand}</p>
-                          </div>
-                          <span className="text-[11px] font-bold text-emerald-400 tabular-nums">{item.score}%</span>
-                        </div>
-                        {/* Progress bar */}
-                        <div className="h-[3px] bg-neutral-800 w-full rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full"
-                            style={{ width: `${item.score}%` }}
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <p className="text-[9px] font-medium text-neutral-500 tracking-widest uppercase text-center">
-                    {language === "en" ? "Real-Time Visual Match Confidence" : "دقة المطابقة البصرية الفورية"}
-                  </p>
-                </div>
-              </div>
-
-            </div>
-          </div>
-        </motion.div>
-
       </main>
 
       {/* Footer */}
       <footer className="border-t border-[#eae6df] bg-white py-16 text-center text-[10px] font-bold tracking-widest text-secondary uppercase">
         Vrital Ateliers © {new Date().getFullYear()} — Powered by Advanced Fashion Infrastructures
       </footer>
-
-      <style dangerouslySetInnerHTML={{__html: `
-        @keyframes scan {
-          0% { top: 0%; }
-          50% { top: 100%; }
-          100% { top: 0%; }
-        }
-      `}} />
     </div>
   );
 }

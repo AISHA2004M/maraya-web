@@ -4,8 +4,9 @@ import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import ProductCard from "../components/product/ProductCard";
 import { useProducts } from "../hooks/useProducts";
-import { Sparkles, ArrowRight, Flame, ChevronRight } from "lucide-react";
+import { Sparkles, ArrowRight, Flame, ChevronRight, Camera } from "lucide-react";
 import api from "../api/client";
+import { useLanguageStore } from "../store/useLanguageStore";
 
 // Helper to partition products dynamically so they NEVER repeat
 function partitionProducts(allProducts) {
@@ -192,6 +193,7 @@ const FALLBACK_BRANDS_CMS = [
 import { FALLBACK_PRODUCTS } from "../utils/fallbackData";
 
 export default function Home() {
+  const { language } = useLanguageStore();
   const { brand_slug } = useParams();
   const navigate = useNavigate();
   const [brand, setBrand] = useState(null);
@@ -644,51 +646,140 @@ export default function Home() {
         </section>
       )}
 
-      {/* 8. DIGITAL ATELIER PROMO (AI Try-On Highlight) */}
+      {/* 8. DIGITAL ATELIER AI SUITE (Dual Flagship AI Features) */}
       <section
         ref={fittingRef}
-        className={`bg-white/40 backdrop-blur-sm border-t border-b border-rule transition-all duration-[1000ms] ${
+        className={`bg-[#0b0b0b] text-white border-t border-b border-neutral-900 transition-all duration-[1000ms] ${
           fittingVisible ? "opacity-100 translate-y-0" : "opacity-100 translate-y-12"
         }`}
       >
-        <div className="max-w-[1600px] mx-auto px-6 md:px-12 py-24 md:py-36 grid md:grid-cols-2 gap-16 lg:gap-24 items-center">
-          <div className="space-y-8 max-w-lg">
-            <div className="space-y-3">
-              <span className="text-[9px] font-bold tracking-[0.3em] text-secondary uppercase block">
-                The Digital Atelier
+        <div className="max-w-[1600px] mx-auto px-6 md:px-12 py-24 md:py-36 space-y-16">
+          
+          {/* Header */}
+          <div className="max-w-xl space-y-4 text-start">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-white/10 border border-white/15 rounded-full backdrop-blur-sm">
+              <Sparkles size={11} className="text-[#d4af37]" />
+              <span className="text-[8px] font-bold tracking-[0.25em] text-[#e0d6c3] uppercase">
+                {language === "en" ? "Digital Atelier · AI Experience Suite" : "الاستوديو الرقمي · جناح الذكاء الاصطناعي"}
               </span>
-              <h2 className="heading-serif text-5xl md:text-6xl text-primary leading-tight font-light">
-                Bespoke Fitting Room
-              </h2>
             </div>
-            <p className="text-secondary text-sm font-light leading-relaxed">
-              Upload a portrait photo to witness the accurate drape of {brand?.name} apparel on your own body before checkout.
+            <h2 className="heading-serif text-4xl md:text-6xl font-light text-white leading-tight">
+              {language === "en" ? "Future of Fashion Tech" : "مستقبل تقنيات الأزياء"}
+            </h2>
+            <p className="text-neutral-400 text-sm md:text-base font-light leading-relaxed">
+              {language === "en"
+                ? "Experience our flagship multimodal AI tools designed to transform how you discover, match, and virtually wear luxury fashion."
+                : "جرب أدواتنا الرائدة بالذكاء الاصطناعي المصممة لإعادة ابتكار تجربة استكشاف ومطابقة وقياس الأزياء الفاخرة افتراضياً."}
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 pt-4">
-              <Link
-                to={`/brands/${brand_slug}/tryon`}
-                className="inline-flex items-center justify-center gap-2.5 bg-black text-white dark:bg-white dark:text-black text-[10px] font-bold tracking-widest uppercase py-4 px-8 hover:bg-neutral-800 transition-colors"
-              >
-                <Sparkles size={13} />
-                <span>Enter Fitting Room</span>
-              </Link>
-              <Link
-                to={`/brands/${brand_slug}/shop`}
-                className="inline-flex items-center justify-center gap-2 border border-rule text-secondary hover:border-black text-[10px] font-bold tracking-widest uppercase py-4 px-8 transition-colors"
-              >
-                <span>Browse Designs</span>
-              </Link>
-            </div>
           </div>
 
-          <div className="relative aspect-[4/5] overflow-hidden border border-rule bg-neutral-50">
-            <img
-              src={brand?.hero_image_url || "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1200"}
-              alt="AI digital Tryon"
-              className="w-full h-full object-cover opacity-90 hover:scale-105 transition-transform duration-[8000ms]"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-white/10 to-transparent" />
+          {/* Dual AI Grid */}
+          <div className="grid lg:grid-cols-2 gap-8 items-stretch">
+            
+            {/* 1. AI Visual Search Card */}
+            <div className="bg-neutral-900/60 border border-neutral-800 rounded-2xl p-8 md:p-12 flex flex-col justify-between space-y-8 relative overflow-hidden group shadow-xl">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-950/20 rounded-full blur-3xl pointer-events-none" />
+              
+              <div className="space-y-6 text-start relative z-10">
+                <div className="flex items-center justify-between">
+                  <div className="w-10 h-10 rounded-full bg-white/10 border border-white/10 flex items-center justify-center text-emerald-400">
+                    <Camera size={18} />
+                  </div>
+                  <span className="text-[8px] font-bold tracking-widest uppercase text-emerald-400 bg-emerald-950/60 border border-emerald-800/60 px-3 py-1 rounded-full">
+                    AI Vision Match
+                  </span>
+                </div>
+
+                <div className="space-y-2">
+                  <h3 className="heading-serif text-3xl md:text-4xl text-white font-light">
+                    {language === "en" ? "Search by Image" : "ابحث بصورة أي قطعة"}
+                  </h3>
+                  <p className="text-neutral-400 text-xs md:text-sm font-light leading-relaxed">
+                    {language === "en"
+                      ? "Upload any outfit photo. Our multimodal vision AI scans all boutique houses to locate exact and matching silhouettes in seconds."
+                      : "ارفع صورة أي إطلالة أو قطعة وسيبحث الذكاء الاصطناعي في كافة الماركات لعرض القطع المطابقة فوراً."}
+                  </p>
+                </div>
+
+                {/* Mini Scanner Visualizer */}
+                <div className="bg-black/50 p-4 rounded-xl border border-neutral-800/80 space-y-2.5">
+                  <div className="flex items-center justify-between text-[10px] text-neutral-300">
+                    <span>{language === "en" ? "Precision Match Confidence" : "دقة المطابقة البصرية"}</span>
+                    <span className="text-emerald-400 font-bold">98% Match</span>
+                  </div>
+                  <div className="h-1.5 bg-neutral-800 rounded-full overflow-hidden">
+                    <div className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full w-[98%]" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-2 relative z-10 text-start">
+                <Link
+                  to="/search-by-image"
+                  className="inline-flex items-center gap-2.5 bg-white text-black text-[9px] font-bold tracking-[0.2em] uppercase px-8 py-3.5 hover:bg-neutral-200 transition-all rounded-full shadow-md"
+                >
+                  <Camera size={13} />
+                  <span>{language === "en" ? "Launch Visual Search" : "ابدأ البحث بالصورة"}</span>
+                </Link>
+              </div>
+            </div>
+
+            {/* 2. Virtual Fitting Room Card */}
+            <div className="bg-neutral-900/60 border border-neutral-800 rounded-2xl p-8 md:p-12 flex flex-col justify-between space-y-8 relative overflow-hidden group shadow-xl">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-amber-950/20 rounded-full blur-3xl pointer-events-none" />
+              
+              <div className="space-y-6 text-start relative z-10">
+                <div className="flex items-center justify-between">
+                  <div className="w-10 h-10 rounded-full bg-white/10 border border-white/10 flex items-center justify-center text-[#d4af37]">
+                    <Sparkles size={18} />
+                  </div>
+                  <span className="text-[8px] font-bold tracking-widest uppercase text-[#d4af37] bg-amber-950/60 border border-amber-800/60 px-3 py-1 rounded-full">
+                    Neural Drape 4K
+                  </span>
+                </div>
+
+                <div className="space-y-2">
+                  <h3 className="heading-serif text-3xl md:text-4xl text-white font-light">
+                    {language === "en" ? "Virtual Fitting Room" : "غرفة القياس الافتراضي"}
+                  </h3>
+                  <p className="text-neutral-400 text-xs md:text-sm font-light leading-relaxed">
+                    {language === "en"
+                      ? "Upload a portrait to see how any luxury piece drapes on your own body silhouette with photorealistic lighting before checkout."
+                      : "ارفع صورتك الشخصية وجرب قياس وتفصيل أي قطعة على قوامك الحقيقي بدقة خرافية وسرعة فائقة."}
+                  </p>
+                </div>
+
+                {/* Silhouette Drape Indicator */}
+                <div className="bg-black/50 p-4 rounded-xl border border-neutral-800/80 space-y-2.5">
+                  <div className="flex items-center justify-between text-[10px] text-neutral-300">
+                    <span>{language === "en" ? "Fabric Contour Alignment" : "محاذاة وانسيابية القماش"}</span>
+                    <span className="text-[#d4af37] font-bold">100% Calibrated</span>
+                  </div>
+                  <div className="h-1.5 bg-neutral-800 rounded-full overflow-hidden">
+                    <div className="h-full bg-gradient-to-r from-amber-500 to-yellow-400 rounded-full w-[100%]" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-2 relative z-10 text-start flex flex-wrap gap-3">
+                <Link
+                  to={brand_slug ? `/brands/${brand_slug}/tryon` : "/shop"}
+                  className="inline-flex items-center gap-2.5 bg-[#d4af37] text-black text-[9px] font-bold tracking-[0.2em] uppercase px-8 py-3.5 hover:bg-[#e0be48] transition-all rounded-full shadow-md"
+                >
+                  <Sparkles size={13} />
+                  <span>{language === "en" ? "Enter Fitting Room" : "ادخل غرفة القياس"}</span>
+                </Link>
+                <Link
+                  to={brand_slug ? `/brands/${brand_slug}/shop` : "/shop"}
+                  className="inline-flex items-center gap-2 border border-neutral-700 text-neutral-300 hover:border-white text-[9px] font-bold tracking-widest uppercase px-6 py-3.5 rounded-full transition-colors"
+                >
+                  <span>{language === "en" ? "Browse Designs" : "تصفح الكتالوج"}</span>
+                </Link>
+              </div>
+            </div>
+
           </div>
+
         </div>
       </section>
 
