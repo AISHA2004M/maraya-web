@@ -151,6 +151,17 @@ export default function Navbar() {
               {language === "en" ? "العربية" : "English"}
             </button>
 
+            {/* AI Visual Search Capsule Button */}
+            <Link
+              to="/search-by-image"
+              className="inline-flex items-center gap-1.5 px-3 py-1 bg-black text-white text-[9px] font-bold tracking-widest uppercase hover:bg-neutral-800 transition-all rounded-full shadow-sm group border border-neutral-800"
+              title={language === "en" ? "Search by Image with AI" : "البحث بالصورة بواسطة الذكاء الاصطناعي"}
+            >
+              <Camera size={13} className="group-hover:scale-110 transition-transform text-neutral-300" />
+              <span className="hidden sm:inline">{language === "en" ? "Visual Search" : "ابحث بالصورة"}</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            </Link>
+
             {/* Search Icon */}
             <button
               onClick={() => setSearchOpen(true)}

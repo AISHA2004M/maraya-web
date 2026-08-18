@@ -5,13 +5,15 @@ import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import ProductCard from "../components/product/ProductCard";
 import SkeletonCard from "../components/ui/SkeletonCard";
-import { Search, SlidersHorizontal, X, ArrowUpDown, Sparkles } from "lucide-react";
+import { Search, SlidersHorizontal, X, ArrowUpDown, Sparkles, Camera } from "lucide-react";
 import api from "../api/client";
 import { formatPrice } from "../utils/formatPrice";
+import { useLanguageStore } from "../store/useLanguageStore";
 
 import { FALLBACK_PRODUCTS, FALLBACK_BRANDS, FALLBACK_CATEGORIES } from "../utils/fallbackData";
 
 export default function Shop() {
+  const { language } = useLanguageStore();
   const { brand_slug } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -216,6 +218,24 @@ export default function Shop() {
               ? brand.description
               : "Browse our unified edit of high-fashion garments from the world's most progressive design houses. Filter, select, and try them on virtually."}
           </p>
+
+          {/* AI Visual Discovery Pill */}
+          <div className="pt-2">
+            <Link
+              to="/search-by-image"
+              className="inline-flex items-center gap-3 px-5 py-2.5 bg-black text-white rounded-full hover:bg-neutral-800 transition-all group shadow-sm text-xs font-semibold tracking-wide"
+            >
+              <div className="w-5 h-5 rounded-full bg-white/15 flex items-center justify-center text-emerald-400 group-hover:scale-110 transition-transform">
+                <Camera size={12} />
+              </div>
+              <span>
+                {language === "en" ? "Search Catalog by Image (AI Vision Match)" : "ابحث في الكتالوج بالصورة (تطابق مرئي ذكي)"}
+              </span>
+              <span className="text-[9px] font-bold uppercase tracking-widest text-emerald-400 bg-emerald-950/60 border border-emerald-800/60 px-2 py-0.5 rounded-full">
+                AI Match
+              </span>
+            </Link>
+          </div>
         </div>
       </section>
 
