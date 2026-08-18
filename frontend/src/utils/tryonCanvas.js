@@ -1,7 +1,8 @@
 /**
- * Client-Side Neural Drape & Fitting Compositor
- * ============================================
- * Blends and drapes the target garment onto the user's uploaded portrait photo.
+ * Client-Side Neural Drape & Fitting Compositor (Enhanced Alignment)
+ * =================================================================
+ * Blends and drapes the target garment onto the user's uploaded portrait photo,
+ * automatically cropping top hangers/labels and positioning the collar cleanly.
  */
 
 export function createVirtualTryOnComposite(portraitSrc, garmentSrc, garmentCategory = "top") {
@@ -54,12 +55,16 @@ export function createVirtualTryOnComposite(portraitSrc, garmentSrc, garmentCate
         const gw = garmentImg.naturalWidth || 500;
         const gh = garmentImg.naturalHeight || 700;
 
+        // Crop top 7% of garment image to remove hangers, tags, or hooks
+        const cropTop = Math.floor(gh * 0.07);
+        const cropH = gh - cropTop;
+
         gCanvas.width = gw;
-        gCanvas.height = gh;
-        gCtx.drawImage(garmentImg, 0, 0, gw, gh);
+        gCanvas.height = cropH;
+        gCtx.drawImage(garmentImg, 0, cropTop, gw, cropH, 0, 0, gw, cropH);
 
         try {
-          const imgData = gCtx.getImageData(0, 0, gw, gh);
+          const imgData = gCtx.getImageData(0, 0, gw, cropH);
           const data = imgData.data;
 
           // Background removal (chroma key for white/light neutral background)
@@ -68,16 +73,16 @@ export function createVirtualTryOnComposite(portraitSrc, garmentSrc, garmentCate
             const g = data[i + 1];
             const b = data[i + 2];
 
-            const isWhite = r > 238 && g > 238 && b > 238;
-            const isLightGray = r > 215 && g > 215 && b > 215 && Math.abs(r - g) < 12 && Math.abs(g - b) < 12;
+            const isWhite = r > 232 && g > 232 && b > 232;
+            const isLightGray = r > 210 && g > 210 && b > 210 && Math.abs(r - g) < 14 && Math.abs(g - b) < 14;
 
             if (isWhite || isLightGray) {
               data[i + 3] = 0; // transparent
             } else {
               // Smooth edge feathering
               const avg = (r + g + b) / 3;
-              if (avg > 195) {
-                const alpha = Math.max(0, 255 - (avg - 195) * 4.5);
+              if (avg > 190) {
+                const alpha = Math.max(0, 255 - (avg - 190) * 4.5);
                 data[i + 3] = Math.min(data[i + 3], alpha);
               }
             }
@@ -92,28 +97,28 @@ export function createVirtualTryOnComposite(portraitSrc, garmentSrc, garmentCate
         const categoryLower = (garmentCategory || "").toLowerCase();
 
         if (categoryLower.includes("bottom") || categoryLower.includes("pant") || categoryLower.includes("skirt")) {
-          targetW = pw * 0.48;
-          targetH = ph * 0.45;
-          targetX = (pw - targetW) / 2;
-          targetY = ph * 0.48;
-        } else if (categoryLower.includes("dress") || categoryLower.includes("gown") || categoryLower.includes("maxi")) {
-          targetW = pw * 0.54;
-          targetH = ph * 0.65;
-          targetX = (pw - targetW) / 2;
-          targetY = ph * 0.22;
-        } else {
-          // Top garment (blazer, shirt, hoodie, dress)
-          targetW = pw * 0.56;
+          targetW = pw * 0.46;
           targetH = ph * 0.46;
           targetX = (pw - targetW) / 2;
-          targetY = ph * 0.23;
+          targetY = ph * 0.49;
+        } else if (categoryLower.includes("dress") || categoryLower.includes("gown") || categoryLower.includes("maxi")) {
+          targetW = pw * 0.52;
+          targetH = ph * 0.64;
+          targetX = (pw - targetW) / 2;
+          targetY = ph * 0.27;
+        } else {
+          // Top garment (blazer, shirt, hoodie, jacket)
+          targetW = pw * 0.52;
+          targetH = ph * 0.48;
+          targetX = (pw - targetW) / 2;
+          targetY = ph * 0.28;
         }
 
         // 4. Draw garment with realistic drop shadow onto user portrait
         ctx.save();
-        ctx.shadowColor = "rgba(0, 0, 0, 0.28)";
-        ctx.shadowBlur = 10;
-        ctx.shadowOffsetY = 4;
+        ctx.shadowColor = "rgba(0, 0, 0, 0.24)";
+        ctx.shadowBlur = 8;
+        ctx.shadowOffsetY = 3;
 
         ctx.drawImage(gCanvas, targetX, targetY, targetW, targetH);
         ctx.restore();
