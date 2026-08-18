@@ -25,8 +25,7 @@ import {
   Download, ChevronRight, ImageIcon, CheckCircle2,
   Camera, XCircle, Clock
 } from "lucide-react";
-import { submitTryOn, waitForTryOnResult, pollTryOnStatus, getTryOnResult, DEMO_FALLBACK_RESULT } from "../../api/tryon";
-import { getProductTryOnModelUrl } from "../../utils/fallbackData";
+import { submitTryOn, waitForTryOnResult, pollTryOnStatus, getTryOnResult } from "../../api/tryon";
 import { useUserStore } from "../../store/useUserStore";
 
 const PRESET_MODELS = [
@@ -530,7 +529,9 @@ export default function TryOnModal({ isOpen, onClose, product }) {
     startProgressSimulation();
 
     try {
-      const extraPayload = {};
+      const extraPayload = {
+        garment_image_url: product?.main_image_url,
+      };
       if (user) {
         if (user.height) extraPayload.height = user.height;
         if (user.weight) extraPayload.weight = user.weight;
@@ -547,21 +548,17 @@ export default function TryOnModal({ isOpen, onClose, product }) {
 
       const jobId = dispatch.job_id || dispatch.session_id;
 
-      const resolveResultImage = (resUrl) => {
-        if (!resUrl || resUrl === DEMO_FALLBACK_RESULT) {
-          return getProductTryOnModelUrl(product);
-        }
-        return resUrl;
-      };
-
       if (dispatch.status === "completed" || dispatch.progress === 100) {
         // Cache hit / sync completion
         const resultRes = await getTryOnResult(jobId);
         if (cancelRef.current) return;
-        const compResult = resolveResultImage(resultRes.result_image_url);
-        stopProgress(100);
-        setResult(compResult);
-        setStage(STAGES.result);
+        if (resultRes && resultRes.result_image_url) {
+          stopProgress(100);
+          setResult(resultRes.result_image_url);
+          setStage(STAGES.result);
+        } else {
+          throw new Error("Virtual try-on result was empty.");
+        }
       } else {
         // Async mode — poll with real status + progress updates
         const resultUrl = await waitForTryOnResult(
@@ -580,18 +577,16 @@ export default function TryOnModal({ isOpen, onClose, product }) {
           pollingOptionsRef.current
         );
         if (cancelRef.current) return;
-        const compResult = resolveResultImage(resultUrl);
         stopProgress(100);
-        setResult(compResult);
+        setResult(resultUrl);
         setStage(STAGES.result);
       }
     } catch (err) {
       if (cancelRef.current) return;
-      console.warn("Try-on API offline or timed out, displaying fashion model result fallback:", err);
-      const fallbackResult = getProductTryOnModelUrl(product);
-      stopProgress(100);
-      setResult(fallbackResult);
-      setStage(STAGES.result);
+      console.error("[VirtualTryOn Modal] Generation failed:", err);
+      stopProgress(0);
+      setError("Unable to generate the virtual try-on result. Please try again.");
+      setStage(STAGES.idle);
     }
   };
 

@@ -1,55 +1,56 @@
 /**
- * TryOn API — Centralized virtual try-on API functions (Optimized + Bulletproof Fallback)
- * ======================================================================================
- * Centralized API calls for the optimized async pipeline:
- *   submitTryOn()         — POST /ai/try-on (multipart, guest-friendly, caching, model variant)
+ * TryOn API — Centralized virtual try-on API functions (Strict AI Pipeline)
+ * =========================================================================
+ * Centralized API calls for the async try-on pipeline:
+ *   submitTryOn()         — POST /ai/try-on (multipart, portrait, product_id, garment_image_url)
  *   pollTryOnStatus()     — GET /ai/try-on/status/:id
  *   getTryOnResult()      — GET /ai/try-on/result/:id
- *   waitForTryOnResult()  — Promise-based polling helper with progress callbacks
+ *   waitForTryOnResult()  — Promise-based polling helper with progress callbacks & strict error rejection
  */
 
 import api from "./client";
 
-export const DEMO_FALLBACK_RESULT = "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=700&q=90";
-
 /**
- * Submit a try-on request via the optimized multipart endpoint.
+ * Submit a try-on request via the multipart endpoint.
  *
  * @param {File}   userImageFile  - The user's portrait photo file
  * @param {string} productId      - Product UUID to try on
  * @param {string} modelVariant   - AI model variant: fast | balanced | quality
+ * @param {object} extraData      - Additional garment metadata (garment_image_url, etc.)
  * @returns {Promise<{ job_id: string, status: string, progress: number }>}
  */
 export async function submitTryOn(userImageFile, productId, modelVariant = "balanced", extraData = {}) {
-  try {
-    const formData = new FormData();
-    formData.append("user_image", userImageFile);
-    formData.append("product_id", productId);
-    formData.append("model_variant", modelVariant);
+  const garmentUrl = extraData.garment_image_url || extraData.product_image || "";
+  
+  // Debug logging without printing huge Base64 strings
+  console.log("[VirtualTryOn] Portrait ready:", userImageFile?.name || "portrait", userImageFile?.size ? `(${(userImageFile.size / 1024).toFixed(1)} KB)` : "");
+  console.log("[VirtualTryOn] Product image:", garmentUrl || "(Resolved on backend via product ID)");
+  console.log("[VirtualTryOn] Product ID:", productId);
+  console.log("[VirtualTryOn] Sending try-on request...");
 
-    if (extraData.product_ids) {
-      formData.append("product_ids", JSON.stringify(extraData.product_ids));
-    }
-    if (extraData.avatar) formData.append("avatar", extraData.avatar);
-    if (extraData.height) formData.append("height", extraData.height);
-    if (extraData.weight) formData.append("weight", extraData.weight);
-    if (extraData.body_bust) formData.append("body_bust", extraData.body_bust);
-    if (extraData.body_waist) formData.append("body_waist", extraData.body_waist);
-    if (extraData.body_hips) formData.append("body_hips", extraData.body_hips);
+  const formData = new FormData();
+  formData.append("user_image", userImageFile);
+  formData.append("product_id", productId);
+  formData.append("model_variant", modelVariant);
 
-    const res = await api.post("/ai/try-on", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-      timeout: 15000, // 15s timeout for HTTP submission
-    });
-    return res.data;
-  } catch (err) {
-    console.warn("[TryOn API] Backend endpoint unreachable or sleeping, activating guest fallback job:", err);
-    return {
-      job_id: `fallback-${Date.now()}`,
-      status: "completed",
-      progress: 100,
-    };
+  if (garmentUrl) {
+    formData.append("garment_image_url", garmentUrl);
   }
+  if (extraData.product_ids) {
+    formData.append("product_ids", JSON.stringify(extraData.product_ids));
+  }
+  if (extraData.avatar) formData.append("avatar", extraData.avatar);
+  if (extraData.height) formData.append("height", extraData.height);
+  if (extraData.weight) formData.append("weight", extraData.weight);
+  if (extraData.body_bust) formData.append("body_bust", extraData.body_bust);
+  if (extraData.body_waist) formData.append("body_waist", extraData.body_waist);
+  if (extraData.body_hips) formData.append("body_hips", extraData.body_hips);
+
+  const res = await api.post("/ai/try-on", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+    timeout: 30000,
+  });
+  return res.data;
 }
 
 /**
@@ -59,16 +60,8 @@ export async function submitTryOn(userImageFile, productId, modelVariant = "bala
  * @returns {Promise<{ job_id: string, status: string, progress: number }>}
  */
 export async function pollTryOnStatus(jobId) {
-  if (jobId && String(jobId).startsWith("fallback-")) {
-    return { job_id: jobId, status: "completed", progress: 100 };
-  }
-  try {
-    const res = await api.get(`/ai/try-on/status/${jobId}`);
-    return res.data;
-  } catch (err) {
-    console.warn("[TryOn API] Status polling failed, completing with fallback:", err);
-    return { job_id: jobId, status: "completed", progress: 100 };
-  }
+  const res = await api.get(`/ai/try-on/status/${jobId}`);
+  return res.data;
 }
 
 /**
@@ -78,26 +71,8 @@ export async function pollTryOnStatus(jobId) {
  * @returns {Promise<{ job_id: string, status: string, result_image_url: string, inference_time_ms: number }>}
  */
 export async function getTryOnResult(jobId) {
-  if (jobId && String(jobId).startsWith("fallback-")) {
-    return {
-      job_id: jobId,
-      status: "completed",
-      result_image_url: DEMO_FALLBACK_RESULT,
-      inference_time_ms: 1200,
-    };
-  }
-  try {
-    const res = await api.get(`/ai/try-on/result/${jobId}`);
-    return res.data;
-  } catch (err) {
-    console.warn("[TryOn API] Result fetch failed, using fallback image:", err);
-    return {
-      job_id: jobId,
-      status: "completed",
-      result_image_url: DEMO_FALLBACK_RESULT,
-      inference_time_ms: 1200,
-    };
-  }
+  const res = await api.get(`/ai/try-on/result/${jobId}`);
+  return res.data;
 }
 
 /**
@@ -114,25 +89,11 @@ export async function getUserSessions() {
   }
 }
 
-// Legacy exports
-export const generateTryOn = async (payload) => {
-  try {
-    const res = await api.post("/tryon/generate", payload);
-    return res.data;
-  } catch (err) {
-    return {
-      id: `fallback-${Date.now()}`,
-      status: "completed",
-      result_image_url: DEMO_FALLBACK_RESULT,
-    };
-  }
-};
-
 export const getMySessions = getUserSessions;
 
 /**
  * Wait for a try-on session to complete by polling every `intervalMs`.
- * Resolves with the result_image_url on completion.
+ * Resolves with the result_image_url on completion, or rejects with an Error on failure/timeout.
  *
  * @param {string}   jobId          - Job UUID to poll
  * @param {Function} onProgress     - Callback called with progress percentage: (pct, status) => {}
@@ -144,22 +105,16 @@ export function waitForTryOnResult(
   jobId,
   onProgress = () => {},
   intervalMs = 1000,
-  timeoutMs = 30_000,
+  timeoutMs = 60_000,
   options = {}
 ) {
-  return new Promise((resolve) => {
-    if (jobId && String(jobId).startsWith("fallback-")) {
-      onProgress(100, "completed");
-      resolve(DEMO_FALLBACK_RESULT);
-      return;
-    }
-
+  return new Promise((resolve, reject) => {
     const start = Date.now();
 
     const interval = setInterval(async () => {
       if (options.cancelled) {
         clearInterval(interval);
-        resolve(DEMO_FALLBACK_RESULT);
+        reject(new Error("Try-on cancelled by user."));
         return;
       }
 
@@ -167,27 +122,34 @@ export function waitForTryOnResult(
         const data = await pollTryOnStatus(jobId);
         if (options.cancelled) {
           clearInterval(interval);
-          resolve(DEMO_FALLBACK_RESULT);
+          reject(new Error("Try-on cancelled by user."));
           return;
         }
 
-        onProgress(data.progress || 100, data.status || "completed");
+        onProgress(data.progress || 0, data.status || "processing");
 
         if (data.status === "completed" || (data.progress && data.progress >= 100)) {
           clearInterval(interval);
           try {
             const resultData = await getTryOnResult(jobId);
-            resolve(resultData.result_image_url || DEMO_FALLBACK_RESULT);
+            if (resultData && resultData.result_image_url) {
+              resolve(resultData.result_image_url);
+            } else {
+              reject(new Error("Virtual try-on output was empty. Please try again."));
+            }
           } catch (err) {
-            resolve(DEMO_FALLBACK_RESULT);
+            reject(err);
           }
-        } else if (data.status === "failed" || Date.now() - start > timeoutMs) {
+        } else if (data.status === "failed") {
           clearInterval(interval);
-          resolve(DEMO_FALLBACK_RESULT);
+          reject(new Error("Unable to generate the virtual try-on result. Please try again."));
+        } else if (Date.now() - start > timeoutMs) {
+          clearInterval(interval);
+          reject(new Error("Virtual try-on request timed out. Please try again."));
         }
       } catch (err) {
         clearInterval(interval);
-        resolve(DEMO_FALLBACK_RESULT);
+        reject(err);
       }
     }, intervalMs);
   });

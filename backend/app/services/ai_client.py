@@ -36,18 +36,6 @@ logger = logging.getLogger(__name__)
 MAX_IMAGE_BYTES = 10 * 1024 * 1024  # 10 MB hard cap
 ALLOWED_MIME_TYPES = {"image/jpeg", "image/png", "image/webp"}
 
-# Curated high-quality fashion model images for realistic demo responses
-_DEMO_RESULTS = [
-    "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=700&q=90",
-    "https://images.unsplash.com/photo-1539008835657-9e8e9680c956?w=700&q=90",
-    "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=700&q=90",
-    "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=700&q=90",
-    "https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?w=700&q=90",
-    "https://images.unsplash.com/photo-1581044777550-4cfa60707c03?w=700&q=90",
-    "https://images.unsplash.com/photo-1485968579580-b6d095142e6e?w=700&q=90",
-    "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=700&q=90",
-]
-
 
 # ---------------------------------------------------------------------------
 # Image Validation
@@ -110,7 +98,10 @@ def validate_image_bytes(contents: bytes, filename: str = "upload") -> None:
 # ---------------------------------------------------------------------------
 
 def _load_image(path_or_url: str, fallback_type: str = "portrait") -> Image.Image:
-    """Load an image from a local path, URL, or base64 data URI, with fallback."""
+    """Load an image from a local path, URL, or base64 data URI."""
+    if not path_or_url:
+        raise ValueError(f"Missing {fallback_type} image path or URL")
+
     try:
         # Resolve base64 data URI
         if path_or_url.startswith("data:image/"):
@@ -122,27 +113,35 @@ def _load_image(path_or_url: str, fallback_type: str = "portrait") -> Image.Imag
             logger.info(f"[AI Pipeline] Resolving local path: {path_or_url}")
             return Image.open(path_or_url)
 
-        # Build absolute paths relative to this file (backend/app/services/ai_client.py)
+        # Build absolute paths relative to backend directory
         base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
-        if "/uploads/" in path_or_url:
-            parts = path_or_url.split("/uploads/")
-            local_path = os.path.join(base_dir, "uploads", parts[-1])
-            if os.path.exists(local_path):
-                logger.info(f"[AI Pipeline] Resolving local path: {local_path}")
-                return Image.open(local_path)
-                
-        if "/outputs/" in path_or_url:
-            parts = path_or_url.split("/outputs/")
-            local_path = os.path.join(base_dir, "outputs", parts[-1])
-            if os.path.exists(local_path):
-                logger.info(f"[AI Pipeline] Resolving local path: {local_path}")
-                return Image.open(local_path)
+        if "/uploads/" in path_or_url or path_or_url.startswith("uploads/") or path_or_url.startswith("/uploads/"):
+            filename = path_or_url.split("uploads/")[-1].lstrip("/")
+            candidates = [
+                os.path.join(base_dir, "uploads", filename),
+                os.path.join(base_dir, "..", "frontend", "public", "uploads", filename),
+                os.path.join(base_dir, "static", "uploads", filename),
+            ]
+            for cand in candidates:
+                if os.path.exists(cand):
+                    logger.info(f"[AI Pipeline] Resolving local upload: {cand}")
+                    return Image.open(cand)
+            # If running on cloud without local file, download from public CDN URL
+            cdn_url = f"https://maraya-web.vercel.app/uploads/{filename}"
+            try:
+                with httpx.Client(timeout=15) as client:
+                    r = client.get(cdn_url)
+                    if r.status_code == 200:
+                        return Image.open(io.BytesIO(r.content))
+            except Exception as cdn_err:
+                logger.warning(f"[AI Pipeline] CDN fallback fetch failed for {cdn_url}: {cdn_err}")
 
-        if path_or_url.startswith("uploads/"):
-            local_path = os.path.join(base_dir, path_or_url)
+        if "/outputs/" in path_or_url:
+            filename = path_or_url.split("outputs/")[-1].lstrip("/")
+            local_path = os.path.join(base_dir, "outputs", filename)
             if os.path.exists(local_path):
-                logger.info(f"[AI Pipeline] Resolving local path: {local_path}")
+                logger.info(f"[AI Pipeline] Resolving local output path: {local_path}")
                 return Image.open(local_path)
 
         # Download external URL
@@ -150,13 +149,13 @@ def _load_image(path_or_url: str, fallback_type: str = "portrait") -> Image.Imag
         headers = {
             "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
         }
-        with httpx.Client(timeout=15, headers=headers) as client:
+        with httpx.Client(timeout=25, headers=headers) as client:
             r = client.get(path_or_url)
             r.raise_for_status()
             return Image.open(io.BytesIO(r.content))
     except Exception as err:
         logger.error(f"[AI Pipeline] Failed to load image {path_or_url}: {err}")
-        raise ValueError(f"Failed to load image ({fallback_type}) from path or URL {path_or_url}: {err}")
+        raise ValueError(f"Failed to load image ({fallback_type}) from path or URL '{path_or_url}': {err}")
 
 
 # ---------------------------------------------------------------------------
@@ -1381,21 +1380,16 @@ async def _call_nano_banana_2(
     garment_region = "lower body (legs/pants area)" if garment_type == "bottom" else ("full body" if garment_type == "dress" else "upper body (chest/torso)")
 
     prompt = (
-        f"VIRTUAL TRY-ON TASK. "
-        f"You are given two reference images: "
-        f"[IMAGE 1] is a full-body fashion photo of a person standing upright. "
-        f"[IMAGE 2] is the clothing item to dress the person in. "
-        f"\n\nYour task: Generate a COMPLETE FULL-BODY photorealistic fashion photo of the EXACT SAME PERSON from Image 1 "
-        f"now wearing the clothing item from Image 2 on their {garment_region}. "
-        f"The garment is: {description}. "
-        f"\n\nCRITICAL OUTPUT REQUIREMENTS (must follow all): "
-        f"1. OUTPUT MUST SHOW THE ENTIRE BODY - head, torso, legs, AND feet all visible from top to bottom. Do NOT crop. Do NOT zoom in. "
-        f"2. The person's face, hair, skin tone, and body proportions must be IDENTICAL to Image 1. "
-        f"3. Same upright standing pose as Image 1. "
-        f"4. The garment from Image 2 must be worn realistically with a natural fit. "
-        f"5. Same studio lighting and clean grey/white background as Image 1. "
-        f"6. Photorealistic 4K fashion photography quality. "
-        f"7. Wide enough framing so both feet and the full head are always visible with some space around them. "
+        f"HIGH-PRECISION PHOTOREALISTIC VIRTUAL TRY-ON TASK.\n\n"
+        f"INPUT REFERENCES:\n"
+        f"- [IMAGE 1]: The user's portrait photo. You MUST PRESERVE the exact person from this image: their face, facial features, eyes, nose, lips, hair, skin tone, body shape, and pose.\n"
+        f"- [IMAGE 2]: The exact garment ({description}). You MUST PRESERVE its exact color, shade, fabric texture, cut, pattern, neckline, drape, and design details.\n\n"
+        f"TASK INSTRUCTIONS:\n"
+        f"Generate a single photorealistic studio image showing the EXACT SAME PERSON from [IMAGE 1] wearing the EXACT CLOTHING ITEM from [IMAGE 2] on their {garment_region}.\n\n"
+        f"STRICT RULES:\n"
+        f"1. DO NOT change the person's identity, facial features, or hair. It must remain unmistakably the same individual.\n"
+        f"2. DO NOT change the garment color, design, or texture. It must match [IMAGE 2] precisely.\n"
+        f"3. Output a high-resolution, full-body/upper-body fashion photograph with crisp details and clean studio lighting."
     )
     if avatar or height or weight or body_bust or body_waist or body_hips:
         profile_desc = []
@@ -1411,7 +1405,7 @@ async def _call_nano_banana_2(
             profile_desc.append(f"waist size {body_waist} cm")
         if body_hips:
             profile_desc.append(f"hips size {body_hips} cm")
-        prompt += f"The person has {', '.join(profile_desc)}. "
+        prompt += f" The person has {', '.join(profile_desc)}."
 
 
 

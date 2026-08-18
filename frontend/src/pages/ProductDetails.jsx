@@ -7,8 +7,7 @@ import { useWishlistStore } from "../store/useWishlistStore";
 import UploadBox from "../components/tryon/UploadBox";
 import TryOnModal from "../components/tryon/TryOnModal";
 import api from "../api/client";
-import { submitTryOn, waitForTryOnResult, getTryOnResult, DEMO_FALLBACK_RESULT } from "../api/tryon";
-import { getProductTryOnModelUrl } from "../utils/fallbackData";
+import { submitTryOn, waitForTryOnResult, getTryOnResult } from "../api/tryon";
 import {
   ShoppingBag, Sparkles, ArrowLeft, Check, Heart, ChevronDown, ChevronUp,
   Loader2, Download, AlertCircle, RotateCcw, Wind, HelpCircle as HelpIcon, User
@@ -578,7 +577,7 @@ export default function ProductDetails() {
   // Generate Try-On logic
   const handleTryOnGenerate = async () => {
     if (!userFile) return;
-    console.log("[Try-On PDP] Request initiated for product ID:", product.id);
+
     pollingOptionsRef.current.cancelled = true;
     pollingOptionsRef.current = { cancelled: false };
 
@@ -587,14 +586,13 @@ export default function ProductDetails() {
     setTryonResult(null);
     setTryonProgress(0);
     setTryonDelayed(false);
-    setLoadingPhase("Preparing silhouette...");
+    setLoadingPhase(language === "en" ? "Generating your virtual try-on..." : "جاري توليد القياس الافتراضي...");
 
     const currentInstanceId = Math.random().toString(36).substring(7);
     activeTryonInstanceRef.current = currentInstanceId;
 
     let delayTimer = setTimeout(() => {
       if (activeTryonInstanceRef.current === currentInstanceId) {
-        console.warn("[Try-On PDP] Generation has taken longer than 35 seconds.");
         setTryonDelayed(true);
       }
     }, 35000);
@@ -602,72 +600,66 @@ export default function ProductDetails() {
     let activeJobId = null;
 
     try {
-      // Use the unified multipart submit endpoint
-      const dispatch = await submitTryOn(userFile, product.id, "balanced");
+      // Use the unified multipart submit endpoint with explicit garment_image_url
+      const dispatch = await submitTryOn(userFile, product.id, "balanced", {
+        garment_image_url: product.main_image_url,
+      });
       activeJobId = dispatch.job_id || dispatch.session_id;
-      console.log("[Try-On PDP] Job submitted successfully. Job ID:", activeJobId, "Initial status:", dispatch.status);
 
       if (activeTryonInstanceRef.current !== currentInstanceId) {
-        console.log("[Try-On PDP] Stale request instance detected, ignoring response.");
         clearTimeout(delayTimer);
         return;
       }
 
-      const resolveResultUrl = (url) => {
-        if (!url || url === DEMO_FALLBACK_RESULT) {
-          return getProductTryOnModelUrl(product);
-        }
-        return url;
-      };
-
       if (dispatch.status === "completed" || dispatch.progress === 100) {
-        console.log("[Try-On PDP] Cache hit! Retrieving final result for Job ID:", activeJobId);
-        setTryonProgress(100);
-        setLoadingPhase("Complete!");
         const finalResult = await getTryOnResult(activeJobId);
         if (activeTryonInstanceRef.current === currentInstanceId) {
-          const compResult = resolveResultUrl(finalResult.result_image_url);
-          setTryonResult(compResult);
-          console.log("[Try-On PDP] Synthesis completed successfully (Cache hit). Result URL:", finalResult.result_image_url);
+          if (finalResult && finalResult.result_image_url) {
+            setTryonResult(finalResult.result_image_url);
+            setLoadingPhase(language === "en" ? "Generated successfully" : "تم التوليد بنجاح");
+            setTryonProgress(100);
+          } else {
+            throw new Error("Virtual try-on output was empty.");
+          }
         }
       } else {
-        console.log("[Try-On PDP] Starting status polling for Job ID:", activeJobId);
-        // Poll with 30 second timeout as requested (30,000ms)
         const resultUrl = await waitForTryOnResult(
           activeJobId,
           (pct, status) => {
             if (activeTryonInstanceRef.current !== currentInstanceId) return;
-            console.log(`[Try-On PDP] Polling update for Job ID ${activeJobId}: progress=${pct}%, status=${status}`);
             setTryonProgress(pct);
             if (pct <= 20) {
-              setLoadingPhase("Preparing silhouette...");
+              setLoadingPhase(language === "en" ? "Preparing silhouette..." : "تحضير الصورة الشخصية...");
             } else if (pct <= 45) {
-              setLoadingPhase("Analyzing body contours...");
+              setLoadingPhase(language === "en" ? "Analyzing body contours..." : "تحليل ملامح الجسم...");
             } else if (pct <= 65) {
-              setLoadingPhase("Extracting garment lines...");
+              setLoadingPhase(language === "en" ? "Extracting garment lines..." : "استخراج تفاصيل القطعة...");
             } else if (pct <= 85) {
-              setLoadingPhase("Neural drape rendering...");
+              setLoadingPhase(language === "en" ? "Neural drape rendering..." : "تطبيق وتفصيل الملابس...");
             } else {
-              setLoadingPhase("Almost ready...");
+              setLoadingPhase(language === "en" ? "Finalizing fit..." : "اللمسات الأخيرة...");
             }
           },
           1000,
-          60000, // 60 seconds timeout
+          60000,
           pollingOptionsRef.current
         );
 
         if (activeTryonInstanceRef.current === currentInstanceId) {
-          const compResult = resolveResultUrl(resultUrl);
-          setTryonResult(compResult);
-          console.log("[Try-On PDP] Synthesis completed successfully. Result URL:", resultUrl);
+          setTryonResult(resultUrl);
+          setLoadingPhase(language === "en" ? "Generated successfully" : "تم التوليد بنجاح");
+          setTryonProgress(100);
         }
       }
     } catch (err) {
       if (activeTryonInstanceRef.current === currentInstanceId) {
-        console.warn("[Try-On PDP] API offline or timed out, activating fashion model result fallback:", err);
-        const fallbackRes = getProductTryOnModelUrl(product);
-        setTryonResult(fallbackRes);
-        setTryonProgress(100);
+        console.error("[VirtualTryOn] Generation failed:", err);
+        setTryonError(
+          language === "en"
+            ? "Unable to generate the virtual try-on result. Please try again."
+            : "تعذر توليد نتيجة القياس الافتراضي. يرجى المحاولة مرة أخرى."
+        );
+        setTryonResult(null);
       }
     } finally {
       if (activeTryonInstanceRef.current === currentInstanceId) {
