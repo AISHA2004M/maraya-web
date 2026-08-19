@@ -1,209 +1,4788 @@
 export const FALLBACK_PRODUCTS = [
-  // ─── CUSTOM ADDED PIECES ──────────────────────────────────────────────────
   {
-    id: "eb838ca7-45be-4986-a77b-96e87e2245ee",
-    name: "Zara Draped Asymmetric Midi Dress",
-    description: "An elegant sleeveless draped midi dress in deep chocolate brown, featuring an asymmetric hem and defined waistband.",
-    price: 145000,
-    currency: "IQD",
-    brand_id: 1,
-    brand: { id: 1, name: "Zara", slug: "zara" },
-    category_id: 2,
-    category: { id: 2, name: "Dresses" },
-    gender: "women",
-    main_image_url: "/uploads/eb838ca7-45be-4986-a77b-96e87e2245ee.jpg",
-    fabric_type: "Satin Crepe",
-    editorial_tags: "Evening Elegance, Draped",
-    mood_aesthetic: "Stealth Wealth",
-    occasion: "Cocktail Party",
-    stock_quantity: 75,
-    sizes: [
-      { size: "XS", stock: 15 },
-      { size: "S", stock: 15 },
-      { size: "M", stock: 15 },
-      { size: "L", stock: 15 },
-      { size: "XL", stock: 15 }
+    "id": "eb838ca7-45be-4986-a77b-96e87e2245ee",
+    "name": "Zara Draped Asymmetric Midi Dress",
+    "description": "An elegant sleeveless draped midi dress in deep chocolate brown, featuring an asymmetric hem and defined waistband.",
+    "price": 145000,
+    "currency": "IQD",
+    "brand_id": 1,
+    "brand": {
+      "id": 1,
+      "name": "Zara",
+      "slug": "zara"
+    },
+    "category_id": 2,
+    "category": {
+      "id": 2,
+      "name": "Dresses"
+    },
+    "gender": "women",
+    "main_image_url": "/uploads/eb838ca7-45be-4986-a77b-96e87e2245ee.jpg",
+    "fabric_type": "Satin Crepe",
+    "editorial_tags": "Evening Elegance, Draped",
+    "mood_aesthetic": "Stealth Wealth",
+    "occasion": "Cocktail Party",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
     ]
   },
   {
-    id: "8750612d-0446-4251-9d9c-c299d1d1eb75",
-    name: "Gucci Red Velvet Double-Breasted Blazer",
-    description: "A luxurious double-breasted blazer in vibrant red velvet, featuring peak lapels, flap pockets, and structured shoulders. Made in Italy.",
-    price: 2450000,
-    currency: "IQD",
-    brand_id: 4,
-    brand: { id: 4, name: "Gucci", slug: "gucci" },
-    category_id: 5,
-    category: { id: 5, name: "Outerwear" },
-    gender: "unisex",
-    main_image_url: "/uploads/8750612d-0446-4251-9d9c-c299d1d1eb75.jpg",
-    fabric_type: "Premium Velvet",
-    editorial_tags: "Gala Nights, Velvet Luxe",
-    mood_aesthetic: "Avant-Garde",
-    occasion: "Formal, Gala",
-    stock_quantity: 75,
-    sizes: [
-      { size: "XS", stock: 15 },
-      { size: "S", stock: 15 },
-      { size: "M", stock: 15 },
-      { size: "L", stock: 15 },
-      { size: "XL", stock: 15 }
+    "id": "f02a279c-3ec8-436d-b2aa-4293840dca09",
+    "name": "Zara Oversized Sky Blue Poplin Shirt",
+    "description": "A relaxed, oversized poplin shirt in a fresh sky blue tone. Timeless and versatile for any occasion.",
+    "price": 85000,
+    "currency": "IQD",
+    "brand_id": 1,
+    "brand": {
+      "id": 1,
+      "name": "Zara",
+      "slug": "zara"
+    },
+    "category_id": 3,
+    "category": {
+      "id": 3,
+      "name": "Tops"
+    },
+    "gender": "unisex",
+    "main_image_url": "/uploads/f02a279c-3ec8-436d-b2aa-4293840dca09.png",
+    "fabric_type": "100% Poplin Cotton",
+    "editorial_tags": "Minimalist Core, Summer Essential",
+    "mood_aesthetic": "Cozy Minimalism",
+    "occasion": "Daily Outing",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
     ]
   },
   {
-    id: "f02a279c-3ec8-436d-b2aa-4293840dca09",
-    name: "Zara Oversized Sky Blue Poplin Shirt",
-    description: "A relaxed, oversized poplin shirt in a fresh sky blue tone. Timeless and versatile for any occasion.",
-    price: 85000,
-    currency: "IQD",
-    brand_id: 1,
-    brand: { id: 1, name: "Zara", slug: "zara" },
-    category_id: 3,
-    category: { id: 3, name: "Tops" },
-    gender: "unisex",
-    main_image_url: "/uploads/f02a279c-3ec8-436d-b2aa-4293840dca09.png",
-    fabric_type: "100% Poplin Cotton",
-    editorial_tags: "Minimalist Core, Summer Essential",
-    mood_aesthetic: "Cozy Minimalism",
-    occasion: "Daily Outing",
-    stock_quantity: 75,
-    sizes: [
-      { size: "XS", stock: 15 },
-      { size: "S", stock: 15 },
-      { size: "M", stock: 15 },
-      { size: "L", stock: 15 },
-      { size: "XL", stock: 15 }
+    "id": "313f681a-67d7-4228-bdc1-196160898a39",
+    "name": "Zara Off-White Ruffled Mini Dress",
+    "description": "A delicate white mini dress with layered ruffle details, smocked elastic bodice, and flutter cap sleeves.",
+    "price": 125000,
+    "currency": "IQD",
+    "brand_id": 1,
+    "brand": {
+      "id": 1,
+      "name": "Zara",
+      "slug": "zara"
+    },
+    "category_id": 2,
+    "category": {
+      "id": 2,
+      "name": "Dresses"
+    },
+    "gender": "women",
+    "main_image_url": "/uploads/313f681a-67d7-4228-bdc1-196160898a39.jpg",
+    "fabric_type": "Cotton Voile",
+    "editorial_tags": "Summer Atelier, Resort Wear",
+    "mood_aesthetic": "Cozy Minimalism",
+    "occasion": "Brunch & Daywear",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
     ]
   },
   {
-    id: "3c6b5f9b-11d8-49c7-a66c-b683dbe92593",
-    name: "H&M Botanical Print Maxi Dress",
-    description: "A flowing long-sleeve maxi dress in a beautiful blue and white botanical print, with a gathered waist and v-neckline.",
-    price: 110000,
-    currency: "IQD",
-    brand_id: 3,
-    brand: { id: 3, name: "H&M", slug: "hm" },
-    category_id: 2,
-    category: { id: 2, name: "Dresses" },
-    gender: "women",
-    main_image_url: "/uploads/3c6b5f9b-11d8-49c7-a66c-b683dbe92593.jpg",
-    fabric_type: "Viscose Blend",
-    editorial_tags: "Spring Garden, Botanical",
-    mood_aesthetic: "Minimalist Core",
-    occasion: "Daily Outing",
-    stock_quantity: 75,
-    sizes: [
-      { size: "XS", stock: 15 },
-      { size: "S", stock: 15 },
-      { size: "M", stock: 15 },
-      { size: "L", stock: 15 },
-      { size: "XL", stock: 15 }
+    "id": "zara-04",
+    "name": "Zara Structured Double-Breasted Trench Coat",
+    "description": "Classic structured trench in camel gabardine with tortoiseshell buttons and waist belt.",
+    "price": 220000,
+    "currency": "IQD",
+    "brand_id": 1,
+    "brand": {
+      "id": 1,
+      "name": "Zara",
+      "slug": "zara"
+    },
+    "category_id": 5,
+    "category": {
+      "id": 5,
+      "name": "Outerwear"
+    },
+    "gender": "women",
+    "main_image_url": "https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Water-Repellent Cotton",
+    "editorial_tags": "City Tailoring, Rainwear",
+    "mood_aesthetic": "Stealth Wealth",
+    "occasion": "Workwear & Transit",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
     ]
   },
   {
-    id: "313f681a-541d-4ad6-835a-cde83b8ba99d",
-    name: "Zara Off-White Ruffled One-Shoulder Mini Dress",
-    description: "An elegant one-shoulder mini dress with cascading ruffle detail in off-white. Perfect for parties.",
-    price: 165000,
-    currency: "IQD",
-    brand_id: 1,
-    brand: { id: 1, name: "Zara", slug: "zara" },
-    category_id: 2,
-    category: { id: 2, name: "Dresses" },
-    gender: "women",
-    main_image_url: "/uploads/313f681a-541d-4ad6-835a-cde83b8ba99d.jpg",
-    fabric_type: "Poly Chiffon",
-    editorial_tags: "Party Glam, Statement Ruffle",
-    mood_aesthetic: "Evening Elegance",
-    occasion: "Cocktail Party",
-    stock_quantity: 75,
-    sizes: [
-      { size: "XS", stock: 15 },
-      { size: "S", stock: 15 },
-      { size: "M", stock: 15 },
-      { size: "L", stock: 15 },
-      { size: "XL", stock: 15 }
+    "id": "zara-05",
+    "name": "Zara Pleated Wide-Leg Linen Trousers",
+    "description": "High-waisted trousers with deep front pleats and fluid wide silhouette.",
+    "price": 95000,
+    "currency": "IQD",
+    "brand_id": 1,
+    "brand": {
+      "id": 1,
+      "name": "Zara",
+      "slug": "zara"
+    },
+    "category_id": 4,
+    "category": {
+      "id": 4,
+      "name": "Bottoms"
+    },
+    "gender": "women",
+    "main_image_url": "https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "100% European Linen",
+    "editorial_tags": "Minimalist Core, Daily Foundations",
+    "mood_aesthetic": "Minimalist Core",
+    "occasion": "Daily Outing",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
     ]
   },
-
-  // ─── ZARA ───────────────────────────────────────────────────────────────────
-  { id: 1,  name: "Linen Halter Jumpsuit",           description: "Elegant white linen sleeveless halter jumpsuit, perfect for summer days.",             price: 89.99,  brand_id: 1, brand: { id: 1, name: "Zara", slug: "zara" }, category: { id: 2, name: "Dresses"   }, gender: "women",  main_image_url: "https://images.unsplash.com/photo-1566206091558-7f218b696731?auto=format&fit=crop&w=400&q=75",  fabric_type: "Linen Blend",       editorial_tags: "Summer Atelier, Minimalist Core",       mood_aesthetic: "Minimalist Core",   occasion: "Daily Outing",    stock_quantity: 50  },
-  { id: 3,  name: "Slim Fit Chinos",                 description: "Tailored slim-fit chino trousers in khaki.",                                           price: 59.99,  brand_id: 1, brand: { id: 1, name: "Zara", slug: "zara" }, category: { id: 4, name: "Bottoms"    }, gender: "men",    main_image_url: "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?auto=format&fit=crop&w=400&q=75",  fabric_type: "Stretch Cotton",    editorial_tags: "Minimalist Core, Everyday Luxury",      mood_aesthetic: "Stealth Wealth",    occasion: "Smart Casual",    stock_quantity: 80  },
-  { id: 8,  name: "Checked Wool Suit",               description: "A tailored three-piece suit featuring a classic blue check pattern.",                  price: 185.00, brand_id: 1, brand: { id: 1, name: "Zara", slug: "zara" }, category: { id: 5, name: "Outerwear" }, gender: "men",    main_image_url: "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=400&q=75",  fabric_type: "Wool Blend",        editorial_tags: "Classic Checked, Tailored",             mood_aesthetic: "Stealth Wealth",    occasion: "Formal",          stock_quantity: 30  },
-  { id: 9,  name: "Structured Blazer",               description: "Sharp-shouldered blazer in ivory with a clean minimalist silhouette.",                 price: 129.99, brand_id: 1, brand: { id: 1, name: "Zara", slug: "zara" }, category: { id: 5, name: "Outerwear" }, gender: "women",  main_image_url: "https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?auto=format&fit=crop&w=400&q=75",  fabric_type: "Poly Crepe",        editorial_tags: "Power Dressing, Minimalist Core",       mood_aesthetic: "Stealth Wealth",    occasion: "Business Formal", stock_quantity: 40  },
-  { id: 10, name: "Satin Midi Skirt",                description: "Floor-grazing satin skirt in dusty rose with a subtle sheen.",                        price: 74.99,  brand_id: 1, brand: { id: 1, name: "Zara", slug: "zara" }, category: { id: 4, name: "Bottoms"    }, gender: "women",  main_image_url: "https://images.unsplash.com/photo-1583496661160-fb5886a0aaaa?auto=format&fit=crop&w=400&q=75",  fabric_type: "Satin",             editorial_tags: "Evening Elegance, Statement Look",      mood_aesthetic: "Stealth Wealth",    occasion: "Cocktail Party",  stock_quantity: 45  },
-  { id: 11, name: "Relaxed Linen Shirt",             description: "Breathable oversized linen shirt, perfect for layering.",                             price: 49.99,  brand_id: 1, brand: { id: 1, name: "Zara", slug: "zara" }, category: { id: 3, name: "Tops"       }, gender: "unisex", main_image_url: "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?auto=format&fit=crop&w=400&q=75",  fabric_type: "100% Linen",        editorial_tags: "Summer Casual, Vacation Essentials",   mood_aesthetic: "Cozy Minimalism",   occasion: "Daily Outing",    stock_quantity: 90  },
-  { id: 12, name: "Wide Leg Trousers",               description: "High-waisted wide-leg trousers in camel tailored fabric.",                            price: 89.99,  brand_id: 1, brand: { id: 1, name: "Zara", slug: "zara" }, category: { id: 4, name: "Bottoms"    }, gender: "women",  main_image_url: "https://images.unsplash.com/photo-1614251055880-ee96e4803393?auto=format&fit=crop&w=400&q=75",  fabric_type: "Tailored Crepe",    editorial_tags: "Power Dressing, Elegant Edit",         mood_aesthetic: "Stealth Wealth",    occasion: "Smart Casual",    stock_quantity: 60  },
-  { id: 13, name: "Knit Cardigan",                   description: "Soft chunky knit cardigan in warm oatmeal tones.",                                    price: 69.99,  brand_id: 1, brand: { id: 1, name: "Zara", slug: "zara" }, category: { id: 5, name: "Outerwear" }, gender: "women",  main_image_url: "https://images.unsplash.com/photo-1614252369475-531eba835eb1?auto=format&fit=crop&w=400&q=75",  fabric_type: "Wool Knit",         editorial_tags: "Winter Warmth, Cozy Capsule",          mood_aesthetic: "Cozy Minimalism",   occasion: "Daily Outing",    stock_quantity: 55  },
-
-  // ─── NIKE ───────────────────────────────────────────────────────────────────
-  { id: 4,  name: "Air Max Sneakers",                description: "Iconic Nike Air Max for street and sport.",                                           price: 139.99, brand_id: 2, brand: { id: 2, name: "Nike", slug: "nike" }, category: { id: 1, name: "Clothing"   }, gender: "unisex", main_image_url: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=400&q=75",  fabric_type: "Mesh/Synthetic",    editorial_tags: "Cyber Streetwear, Avant-Garde",        mood_aesthetic: "Avant-Garde",       occasion: "Active Urban",    stock_quantity: 60  },
-  { id: 14, name: "Tech Fleece Hoodie",              description: "Lightweight tech fleece pullover hoodie for performance and style.",                   price: 109.99, brand_id: 2, brand: { id: 2, name: "Nike", slug: "nike" }, category: { id: 5, name: "Outerwear" }, gender: "unisex", main_image_url: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=400&q=75",  fabric_type: "Tech Fleece",       editorial_tags: "Streetwear, Athletic Luxe",             mood_aesthetic: "Avant-Garde",       occasion: "Active Urban",    stock_quantity: 80  },
-  { id: 15, name: "Dri-FIT Training Shirt",          description: "Sweat-wicking performance training shirt for intense workouts.",                       price: 44.99,  brand_id: 2, brand: { id: 2, name: "Nike", slug: "nike" }, category: { id: 3, name: "Tops"       }, gender: "men",    main_image_url: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=400&q=75",  fabric_type: "Dri-FIT Polyester", editorial_tags: "Performance, Training Essentials",     mood_aesthetic: "Avant-Garde",       occasion: "Active Urban",    stock_quantity: 120 },
-  { id: 16, name: "Windrunner Jacket",               description: "Iconic Nike Windrunner with bold color-block design and lightweight woven fabric.",    price: 119.99, brand_id: 2, brand: { id: 2, name: "Nike", slug: "nike" }, category: { id: 5, name: "Outerwear" }, gender: "men",    main_image_url: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=400&q=75",  fabric_type: "Ripstop Nylon",     editorial_tags: "Sporty Luxe, Streetwear",              mood_aesthetic: "Avant-Garde",       occasion: "Active Urban",    stock_quantity: 50  },
-  { id: 17, name: "Yoga Flow Leggings",              description: "High-waist yoga leggings with four-way stretch for full range of motion.",            price: 79.99,  brand_id: 2, brand: { id: 2, name: "Nike", slug: "nike" }, category: { id: 4, name: "Bottoms"    }, gender: "women",  main_image_url: "https://images.unsplash.com/photo-1506629082955-511b1aa562c8?auto=format&fit=crop&w=400&q=75",  fabric_type: "Power Stretch",     editorial_tags: "Activewear, Performance Wear",         mood_aesthetic: "Avant-Garde",       occasion: "Active Urban",    stock_quantity: 100 },
-  { id: 18, name: "Jordan Graphic Tee",              description: "Classic Jordan brand graphic tee with oversized logo.",                               price: 54.99,  brand_id: 2, brand: { id: 2, name: "Nike", slug: "nike" }, category: { id: 3, name: "Tops"       }, gender: "unisex", main_image_url: "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?auto=format&fit=crop&w=400&q=75",  fabric_type: "Heavyweight Cotton", editorial_tags: "Streetwear, Archive Edit",             mood_aesthetic: "Avant-Garde",       occasion: "Active Urban",    stock_quantity: 70  },
-  { id: 19, name: "Running Shorts",                  description: "Lightweight 5-inch running shorts with inner liner and zip pocket.",                   price: 39.99,  brand_id: 2, brand: { id: 2, name: "Nike", slug: "nike" }, category: { id: 4, name: "Bottoms"    }, gender: "men",    main_image_url: "https://images.unsplash.com/photo-1519058082700-08a0b56da9b4?auto=format&fit=crop&w=400&q=75",  fabric_type: "Dri-FIT",           editorial_tags: "Running, Performance",                  mood_aesthetic: "Avant-Garde",       occasion: "Active Urban",    stock_quantity: 90  },
-
-  // ─── H&M ────────────────────────────────────────────────────────────────────
-  { id: 2,  name: "Classic White Tee",               description: "Essential cotton crew-neck tee in crisp white.",                                       price: 29.99,  brand_id: 3, brand: { id: 3, name: "H&M", slug: "hm"   }, category: { id: 3, name: "Tops"       }, gender: "unisex", main_image_url: "https://images.unsplash.com/photo-1581655353564-df123a1eb820?auto=format&fit=crop&w=400&q=75",  fabric_type: "100% Cotton",       editorial_tags: "Minimalist Core, Daily Foundations",   mood_aesthetic: "Cozy Minimalism",   occasion: "Daily Outing",    stock_quantity: 200 },
-  { id: 7,  name: "Denim Jacket",                    description: "Classic washed denim jacket, a wardrobe staple.",                                       price: 79.99,  brand_id: 3, brand: { id: 3, name: "H&M", slug: "hm"   }, category: { id: 5, name: "Outerwear" }, gender: "unisex", main_image_url: "https://images.unsplash.com/photo-1576995853123-5a10305d93c0?auto=format&fit=crop&w=400&q=75",  fabric_type: "Denim",             editorial_tags: "Minimalist Core, Wardrobe Staples",    mood_aesthetic: "Cozy Minimalism",   occasion: "Daily Outing",    stock_quantity: 70  },
-  { id: 20, name: "Floral Wrap Dress",               description: "Lightweight floral wrap dress with v-neckline, perfect for warm weather.",             price: 49.99,  brand_id: 3, brand: { id: 3, name: "H&M", slug: "hm"   }, category: { id: 2, name: "Dresses"   }, gender: "women",  main_image_url: "https://images.unsplash.com/photo-1612336307429-8a898d10e223?auto=format&fit=crop&w=400&q=75",  fabric_type: "Woven Viscose",     editorial_tags: "Spring Garden, Feminine",               mood_aesthetic: "Minimalist Core",   occasion: "Daily Outing",    stock_quantity: 85  },
-  { id: 21, name: "Oversized Blazer",                description: "Relaxed-fit oversized blazer in a warm beige tone.",                                  price: 89.99,  brand_id: 3, brand: { id: 3, name: "H&M", slug: "hm"   }, category: { id: 5, name: "Outerwear" }, gender: "women",  main_image_url: "https://images.unsplash.com/photo-1551803091-e20673f15770?auto=format&fit=crop&w=400&q=75",  fabric_type: "Woven Mix",         editorial_tags: "Office Chic, Power Dressing",          mood_aesthetic: "Stealth Wealth",    occasion: "Smart Casual",    stock_quantity: 55  },
-  { id: 22, name: "Ribbed Knit Sweater",             description: "Slim-fit ribbed knit turtleneck sweater in camel.",                                   price: 39.99,  brand_id: 3, brand: { id: 3, name: "H&M", slug: "hm"   }, category: { id: 3, name: "Tops"       }, gender: "women",  main_image_url: "https://images.unsplash.com/photo-1434389677669-e08b4cac3105?auto=format&fit=crop&w=400&q=75",  fabric_type: "Fine Rib Knit",     editorial_tags: "Autumn Layers, Cozy Chic",             mood_aesthetic: "Cozy Minimalism",   occasion: "Daily Outing",    stock_quantity: 110 },
-  { id: 23, name: "Slim Straight Jeans",             description: "Classic straight-cut jeans in mid-blue wash.",                                         price: 59.99,  brand_id: 3, brand: { id: 3, name: "H&M", slug: "hm"   }, category: { id: 4, name: "Bottoms"    }, gender: "unisex", main_image_url: "https://images.unsplash.com/photo-1542272604-787c3835535d?auto=format&fit=crop&w=400&q=75",  fabric_type: "Stretch Denim",     editorial_tags: "Denim Edit, Everyday Wear",            mood_aesthetic: "Cozy Minimalism",   occasion: "Daily Outing",    stock_quantity: 130 },
-  { id: 24, name: "Lace Trim Camisole",              description: "Delicate satin camisole with lace trim in ivory.",                                     price: 24.99,  brand_id: 3, brand: { id: 3, name: "H&M", slug: "hm"   }, category: { id: 3, name: "Tops"       }, gender: "women",  main_image_url: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=400&q=75",  fabric_type: "Satin/Lace",        editorial_tags: "Lingerie Inspired, Feminine",          mood_aesthetic: "Stealth Wealth",    occasion: "Evening Outing",  stock_quantity: 75  },
-
-  // ─── GUCCI ──────────────────────────────────────────────────────────────────
-  { id: 5,  name: "Leather Biker Jacket",            description: "Premium leather motorcycle jacket with silver hardware.",                               price: 299.99, brand_id: 4, brand: { id: 4, name: "Gucci", slug: "gucci" }, category: { id: 5, name: "Outerwear" }, gender: "unisex", main_image_url: "https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=400&q=75",  fabric_type: "Genuine Leather",   editorial_tags: "After Hours, Rock Couture",            mood_aesthetic: "Avant-Garde",       occasion: "Club & Concert",  stock_quantity: 25  },
-  { id: 6,  name: "Mini Silk Slip Dress",            description: "Luxurious silk-satin slip dress in champagne.",                                        price: 199.99, brand_id: 4, brand: { id: 4, name: "Gucci", slug: "gucci" }, category: { id: 2, name: "Dresses"   }, gender: "women",  main_image_url: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=400&q=75",  fabric_type: "Silk",              editorial_tags: "Evening Elegance, After Hours",        mood_aesthetic: "Stealth Wealth",    occasion: "Cocktail Party",  stock_quantity: 30  },
-  { id: 25, name: "GG Monogram Cardigan",            description: "Fine wool cardigan with iconic GG jacquard monogram pattern.",                        price: 450.00, brand_id: 4, brand: { id: 4, name: "Gucci", slug: "gucci" }, category: { id: 3, name: "Tops"       }, gender: "women",  main_image_url: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=400&q=75",  fabric_type: "Fine Wool",         editorial_tags: "Luxury Statement, Heritage Pattern",   mood_aesthetic: "Stealth Wealth",    occasion: "Smart Casual",    stock_quantity: 15  },
-  { id: 26, name: "Silk Floral Blouse",              description: "Signature botanical floral print silk blouse with relaxed collar.",                    price: 380.00, brand_id: 4, brand: { id: 4, name: "Gucci", slug: "gucci" }, category: { id: 3, name: "Tops"       }, gender: "women",  main_image_url: "https://images.unsplash.com/photo-1469334031218-e382a71b716b?auto=format&fit=crop&w=400&q=75",  fabric_type: "100% Silk",         editorial_tags: "Flora Print, Evening Garden",          mood_aesthetic: "Stealth Wealth",    occasion: "Cocktail Party",  stock_quantity: 20  },
-  { id: 27, name: "Tailored Trench Coat",            description: "Classic double-breasted trench coat in a warm camel tone with signature details.",     price: 520.00, brand_id: 4, brand: { id: 4, name: "Gucci", slug: "gucci" }, category: { id: 5, name: "Outerwear" }, gender: "unisex", main_image_url: "https://images.unsplash.com/photo-1539533018447-63fcce2678e3?auto=format&fit=crop&w=400&q=75",  fabric_type: "Gabardine",         editorial_tags: "Heritage Luxe, Statement Outerwear",   mood_aesthetic: "Stealth Wealth",    occasion: "Business Formal", stock_quantity: 12  },
-  { id: 28, name: "Velvet Blazer",                   description: "Opulent deep burgundy velvet blazer with jewel-tone lining.",                         price: 420.00, brand_id: 4, brand: { id: 4, name: "Gucci", slug: "gucci" }, category: { id: 5, name: "Outerwear" }, gender: "men",    main_image_url: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=400&q=75",  fabric_type: "Velvet",            editorial_tags: "Gala Nights, Rock Couture",            mood_aesthetic: "Avant-Garde",       occasion: "Club & Concert",  stock_quantity: 18  },
-  { id: 29, name: "Pleated Silk Trousers",           description: "Wide-leg pleated trousers in ivory silk for a polished evening look.",                 price: 340.00, brand_id: 4, brand: { id: 4, name: "Gucci", slug: "gucci" }, category: { id: 4, name: "Bottoms"    }, gender: "women",  main_image_url: "https://images.unsplash.com/photo-1434389677669-e08b4cac3105?auto=format&fit=crop&w=400&q=75",  fabric_type: "Heavy Silk",        editorial_tags: "Evening Elegance, Palazzo Style",     mood_aesthetic: "Stealth Wealth",    occasion: "Cocktail Party",  stock_quantity: 22  },
-  { id: 30, name: "Embroidered Maxi Dress",          description: "Flowing chiffon maxi dress with hand-embroidered floral detailing.",                   price: 580.00, brand_id: 4, brand: { id: 4, name: "Gucci", slug: "gucci" }, category: { id: 2, name: "Dresses"   }, gender: "women",  main_image_url: "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=400&q=75",  fabric_type: "Silk Chiffon",      editorial_tags: "Garden Party, High Fashion",           mood_aesthetic: "Stealth Wealth",    occasion: "Formal",          stock_quantity: 10  },
+  {
+    "id": "zara-06",
+    "name": "Zara Tailored Wool-Blend Blazer in Charcoal",
+    "description": "Sharp single-breasted blazer with structured shoulders and horn buttons.",
+    "price": 185000,
+    "currency": "IQD",
+    "brand_id": 1,
+    "brand": {
+      "id": 1,
+      "name": "Zara",
+      "slug": "zara"
+    },
+    "category_id": 5,
+    "category": {
+      "id": 5,
+      "name": "Outerwear"
+    },
+    "gender": "unisex",
+    "main_image_url": "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Wool Blend",
+    "editorial_tags": "City Tailoring, Power Dressing",
+    "mood_aesthetic": "Stealth Wealth",
+    "occasion": "Business & Formal",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "zara-07",
+    "name": "Zara Minimalist Satin Slip Dress in Olive",
+    "description": "Fluid bias-cut slip dress in muted olive green with delicate spaghetti straps.",
+    "price": 110000,
+    "currency": "IQD",
+    "brand_id": 1,
+    "brand": {
+      "id": 1,
+      "name": "Zara",
+      "slug": "zara"
+    },
+    "category_id": 2,
+    "category": {
+      "id": 2,
+      "name": "Dresses"
+    },
+    "gender": "women",
+    "main_image_url": "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Hammered Satin",
+    "editorial_tags": "Evening Elegance, Modern Slip",
+    "mood_aesthetic": "Stealth Wealth",
+    "occasion": "Evening Out",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "zara-08",
+    "name": "Zara Ribbed Cashmere-Blend Knit Top",
+    "description": "Fine-gauge knit top with mock neck and elongated cuffs.",
+    "price": 75000,
+    "currency": "IQD",
+    "brand_id": 1,
+    "brand": {
+      "id": 1,
+      "name": "Zara",
+      "slug": "zara"
+    },
+    "category_id": 3,
+    "category": {
+      "id": 3,
+      "name": "Tops"
+    },
+    "gender": "women",
+    "main_image_url": "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Cashmere Blend",
+    "editorial_tags": "Daily Foundations, Soft Luxe",
+    "mood_aesthetic": "Cozy Minimalism",
+    "occasion": "Casual Chic",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "zara-09",
+    "name": "Zara High-Rise Straight Raw Denim",
+    "description": "Authentic rigid cotton denim in indigo wash with classic five-pocket styling.",
+    "price": 90000,
+    "currency": "IQD",
+    "brand_id": 1,
+    "brand": {
+      "id": 1,
+      "name": "Zara",
+      "slug": "zara"
+    },
+    "category_id": 4,
+    "category": {
+      "id": 4,
+      "name": "Bottoms"
+    },
+    "gender": "unisex",
+    "main_image_url": "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "100% Rigid Denim",
+    "editorial_tags": "Daily Essentials, Raw Edge",
+    "mood_aesthetic": "Street Couture",
+    "occasion": "Daily Outing",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "zara-10",
+    "name": "Zara Cropped Faux-Leather Biker Jacket",
+    "description": "Matte black leatherette jacket with silver hardware and asymmetric zip.",
+    "price": 165000,
+    "currency": "IQD",
+    "brand_id": 1,
+    "brand": {
+      "id": 1,
+      "name": "Zara",
+      "slug": "zara"
+    },
+    "category_id": 5,
+    "category": {
+      "id": 5,
+      "name": "Outerwear"
+    },
+    "gender": "women",
+    "main_image_url": "https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Premium Faux Leather",
+    "editorial_tags": "Urban Edge, Statement Outerwear",
+    "mood_aesthetic": "Street Couture",
+    "occasion": "Night Out",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "zara-11",
+    "name": "Zara Tiered Poplin Midi Skirt",
+    "description": "Voluminous tiered skirt with gathered waistband and crisp handfeel.",
+    "price": 80000,
+    "currency": "IQD",
+    "brand_id": 1,
+    "brand": {
+      "id": 1,
+      "name": "Zara",
+      "slug": "zara"
+    },
+    "category_id": 4,
+    "category": {
+      "id": 4,
+      "name": "Bottoms"
+    },
+    "gender": "women",
+    "main_image_url": "https://images.unsplash.com/photo-1583496661160-fb5886a0aaaa?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Crisp Poplin",
+    "editorial_tags": "Summer Atelier, Modern Silhouette",
+    "mood_aesthetic": "Minimalist Core",
+    "occasion": "Brunch & Daywear",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "zara-12",
+    "name": "Zara Asymmetric Knit Halter Top in Sand",
+    "description": "Sculptural knitted halterneck top with diagonal hemline.",
+    "price": 65000,
+    "currency": "IQD",
+    "brand_id": 1,
+    "brand": {
+      "id": 1,
+      "name": "Zara",
+      "slug": "zara"
+    },
+    "category_id": 3,
+    "category": {
+      "id": 3,
+      "name": "Tops"
+    },
+    "gender": "women",
+    "main_image_url": "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Ribbed Viscose",
+    "editorial_tags": "Summer Atelier, Sculptural",
+    "mood_aesthetic": "Avant-Garde",
+    "occasion": "Evening Out",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "zara-13",
+    "name": "Zara Relaxed Linen Blend Suit Blazer in Cream",
+    "description": "Unlined lightweight blazer for breezy Mediterranean summer layering.",
+    "price": 170000,
+    "currency": "IQD",
+    "brand_id": 1,
+    "brand": {
+      "id": 1,
+      "name": "Zara",
+      "slug": "zara"
+    },
+    "category_id": 5,
+    "category": {
+      "id": 5,
+      "name": "Outerwear"
+    },
+    "gender": "women",
+    "main_image_url": "https://images.unsplash.com/photo-1485968579580-b6d095142e6e?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Linen & Lyocell",
+    "editorial_tags": "Summer Atelier, Effortless Tailoring",
+    "mood_aesthetic": "Stealth Wealth",
+    "occasion": "Resort & Travel",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "zara-14",
+    "name": "Zara Chunky Lug-Sole Leather Chelsea Boots",
+    "description": "Smooth black calfskin leather boots with elastic side panels and durable cleated sole.",
+    "price": 195000,
+    "currency": "IQD",
+    "brand_id": 1,
+    "brand": {
+      "id": 1,
+      "name": "Zara",
+      "slug": "zara"
+    },
+    "category_id": 1,
+    "category": {
+      "id": 1,
+      "name": "Shoes"
+    },
+    "gender": "unisex",
+    "main_image_url": "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "100% Calfskin Leather",
+    "editorial_tags": "Urban Edge, Footwear Edit",
+    "mood_aesthetic": "Street Couture",
+    "occasion": "Daily & Streetwear",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "zara-15",
+    "name": "Zara Pleated Wrap Midi Dress in Navy",
+    "description": "Sophisticated wrap dress with sunray pleats and adjustable side tie closure.",
+    "price": 135000,
+    "currency": "IQD",
+    "brand_id": 1,
+    "brand": {
+      "id": 1,
+      "name": "Zara",
+      "slug": "zara"
+    },
+    "category_id": 2,
+    "category": {
+      "id": 2,
+      "name": "Dresses"
+    },
+    "gender": "women",
+    "main_image_url": "https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Georgette Crepe",
+    "editorial_tags": "Evening Elegance, City Tailoring",
+    "mood_aesthetic": "Stealth Wealth",
+    "occasion": "Formal Dinner",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "zara-16",
+    "name": "Zara Boxy Heavyweight Cotton Tee in Ecru",
+    "description": "280gsm dense cotton tee with dropped shoulders and thick rib collar.",
+    "price": 45000,
+    "currency": "IQD",
+    "brand_id": 1,
+    "brand": {
+      "id": 1,
+      "name": "Zara",
+      "slug": "zara"
+    },
+    "category_id": 3,
+    "category": {
+      "id": 3,
+      "name": "Tops"
+    },
+    "gender": "unisex",
+    "main_image_url": "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Organic Heavy Cotton",
+    "editorial_tags": "Daily Foundations, Essential Base",
+    "mood_aesthetic": "Minimalist Core",
+    "occasion": "Daily Outing",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "zara-17",
+    "name": "Zara Tailored Bermuda Shorts in Olive",
+    "description": "Longline knee-length tailored shorts with front pleats and belt loops.",
+    "price": 70000,
+    "currency": "IQD",
+    "brand_id": 1,
+    "brand": {
+      "id": 1,
+      "name": "Zara",
+      "slug": "zara"
+    },
+    "category_id": 4,
+    "category": {
+      "id": 4,
+      "name": "Bottoms"
+    },
+    "gender": "unisex",
+    "main_image_url": "https://images.unsplash.com/photo-1562157873-818bc0726f68?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Cotton Blend",
+    "editorial_tags": "Summer Atelier, Modern Silhouette",
+    "mood_aesthetic": "Minimalist Core",
+    "occasion": "Casual Outing",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "zara-18",
+    "name": "Zara Draped One-Shoulder Evening Top in Emerald",
+    "description": "Sculpted asymmetric top in jewel emerald satin with gathered shoulder.",
+    "price": 85000,
+    "currency": "IQD",
+    "brand_id": 1,
+    "brand": {
+      "id": 1,
+      "name": "Zara",
+      "slug": "zara"
+    },
+    "category_id": 3,
+    "category": {
+      "id": 3,
+      "name": "Tops"
+    },
+    "gender": "women",
+    "main_image_url": "https://images.unsplash.com/photo-1518049362265-d5b2a6467637?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Silk Satin Touch",
+    "editorial_tags": "Gala Nights, Draped Luxury",
+    "mood_aesthetic": "Avant-Garde",
+    "occasion": "Party & Cocktail",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "zara-19",
+    "name": "Zara Minimalist Leather Strappy Heeled Sandals",
+    "description": "Barely-there tubular leather straps with modern architectural block heel.",
+    "price": 130000,
+    "currency": "IQD",
+    "brand_id": 1,
+    "brand": {
+      "id": 1,
+      "name": "Zara",
+      "slug": "zara"
+    },
+    "category_id": 1,
+    "category": {
+      "id": 1,
+      "name": "Shoes"
+    },
+    "gender": "women",
+    "main_image_url": "https://images.unsplash.com/photo-1535043934128-cf0b28d52f95?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Goat Leather",
+    "editorial_tags": "Footwear Edit, Evening Elegance",
+    "mood_aesthetic": "Stealth Wealth",
+    "occasion": "Formal & Events",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "zara-20",
+    "name": "Zara Heavyweight Oversized Wool Overcoat",
+    "description": "Dramatic maxi coat in brushed midnight black wool with notched lapels.",
+    "price": 280000,
+    "currency": "IQD",
+    "brand_id": 1,
+    "brand": {
+      "id": 1,
+      "name": "Zara",
+      "slug": "zara"
+    },
+    "category_id": 5,
+    "category": {
+      "id": 5,
+      "name": "Outerwear"
+    },
+    "gender": "unisex",
+    "main_image_url": "https://images.unsplash.com/photo-1539533018447-63fcce667823?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "80% Recycled Wool",
+    "editorial_tags": "Winter Tailoring, Statement Coat",
+    "mood_aesthetic": "Stealth Wealth",
+    "occasion": "Cold Weather Luxury",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "zara-21",
+    "name": "Zara Satin Column Maxi Skirt in Champagne",
+    "description": "High-waisted liquid satin maxi skirt that skims the silhouette effortlessly.",
+    "price": 105000,
+    "currency": "IQD",
+    "brand_id": 1,
+    "brand": {
+      "id": 1,
+      "name": "Zara",
+      "slug": "zara"
+    },
+    "category_id": 4,
+    "category": {
+      "id": 4,
+      "name": "Bottoms"
+    },
+    "gender": "women",
+    "main_image_url": "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Heavy Satin",
+    "editorial_tags": "Evening Elegance, Liquid Satin",
+    "mood_aesthetic": "Stealth Wealth",
+    "occasion": "Cocktail & Gala",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "zara-22",
+    "name": "Zara Striped Poplin Shirt Dress",
+    "description": "Classic blue and white fine pinstripe shirt dress with removable waist belt.",
+    "price": 115000,
+    "currency": "IQD",
+    "brand_id": 1,
+    "brand": {
+      "id": 1,
+      "name": "Zara",
+      "slug": "zara"
+    },
+    "category_id": 2,
+    "category": {
+      "id": 2,
+      "name": "Dresses"
+    },
+    "gender": "women",
+    "main_image_url": "https://images.unsplash.com/photo-1502716119720-b23a93e5fe1b?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Crisp Poplin",
+    "editorial_tags": "Summer Atelier, Everyday Chic",
+    "mood_aesthetic": "Cozy Minimalism",
+    "occasion": "Work & Weekend",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "zara-23",
+    "name": "Zara Open-Knit Crochet Polo Shirt in Beige",
+    "description": "Breezy textured crochet polo shirt for effortless warm-weather tailoring.",
+    "price": 80000,
+    "currency": "IQD",
+    "brand_id": 1,
+    "brand": {
+      "id": 1,
+      "name": "Zara",
+      "slug": "zara"
+    },
+    "category_id": 3,
+    "category": {
+      "id": 3,
+      "name": "Tops"
+    },
+    "gender": "unisex",
+    "main_image_url": "https://images.unsplash.com/photo-1618244972963-dbee1a7edc95?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Cotton Crochet",
+    "editorial_tags": "Resort Wear, Textured Knit",
+    "mood_aesthetic": "Cozy Minimalism",
+    "occasion": "Vacation & Brunch",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "zara-24",
+    "name": "Zara Leather Crossbody Saddle Bag",
+    "description": "Structured leather shoulder bag with tonal topstitching and magnetic flap.",
+    "price": 150000,
+    "currency": "IQD",
+    "brand_id": 1,
+    "brand": {
+      "id": 1,
+      "name": "Zara",
+      "slug": "zara"
+    },
+    "category_id": 5,
+    "category": {
+      "id": 5,
+      "name": "Outerwear"
+    },
+    "gender": "women",
+    "main_image_url": "https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Full-Grain Leather",
+    "editorial_tags": "Leather Goods, Atelier Accessories",
+    "mood_aesthetic": "Stealth Wealth",
+    "occasion": "Everyday Luxury",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "zara-25",
+    "name": "Zara High-Waisted Tailored Cigarette Trousers",
+    "description": "Ankle-grazing slim tailored trousers with clean waistband and pressed creases.",
+    "price": 90000,
+    "currency": "IQD",
+    "brand_id": 1,
+    "brand": {
+      "id": 1,
+      "name": "Zara",
+      "slug": "zara"
+    },
+    "category_id": 4,
+    "category": {
+      "id": 4,
+      "name": "Bottoms"
+    },
+    "gender": "women",
+    "main_image_url": "https://images.unsplash.com/photo-1551854838-212c50b4c184?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Stretch Crepe",
+    "editorial_tags": "Daily Foundations, Power Dressing",
+    "mood_aesthetic": "Stealth Wealth",
+    "occasion": "Office & Evening",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "8750612d-0446-4251-9d9c-c299d1d1eb75",
+    "name": "Gucci Red Velvet Double-Breasted Blazer",
+    "description": "A luxurious double-breasted blazer in vibrant red velvet, featuring peak lapels, flap pockets, and structured shoulders. Made in Italy.",
+    "price": 2450000,
+    "currency": "IQD",
+    "brand_id": 4,
+    "brand": {
+      "id": 4,
+      "name": "Gucci",
+      "slug": "gucci"
+    },
+    "category_id": 5,
+    "category": {
+      "id": 5,
+      "name": "Outerwear"
+    },
+    "gender": "unisex",
+    "main_image_url": "/uploads/8750612d-0446-4251-9d9c-c299d1d1eb75.jpg",
+    "fabric_type": "Premium Velvet",
+    "editorial_tags": "Gala Nights, Velvet Luxe",
+    "mood_aesthetic": "Avant-Garde",
+    "occasion": "Formal, Gala",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "gucci-02",
+    "name": "Gucci Flora Silk Chiffon Maxi Gown",
+    "description": "Floor-length silk chiffon gown printed with iconic floral motifs and pleated skirt.",
+    "price": 3850000,
+    "currency": "IQD",
+    "brand_id": 4,
+    "brand": {
+      "id": 4,
+      "name": "Gucci",
+      "slug": "gucci"
+    },
+    "category_id": 2,
+    "category": {
+      "id": 2,
+      "name": "Dresses"
+    },
+    "gender": "women",
+    "main_image_url": "https://images.unsplash.com/photo-1566174053879-31528523f8ae?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "100% Silk Chiffon",
+    "editorial_tags": "Eclectic Heritage, Red Carpet",
+    "mood_aesthetic": "Avant-Garde",
+    "occasion": "Gala & Black Tie",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "gucci-03",
+    "name": "Gucci GG Supreme Wool Jacquard Cardigan",
+    "description": "Oversized knit cardigan featuring allover GG jacquard pattern and mother-of-pearl buttons.",
+    "price": 1950000,
+    "currency": "IQD",
+    "brand_id": 4,
+    "brand": {
+      "id": 4,
+      "name": "Gucci",
+      "slug": "gucci"
+    },
+    "category_id": 3,
+    "category": {
+      "id": 3,
+      "name": "Tops"
+    },
+    "gender": "unisex",
+    "main_image_url": "https://images.unsplash.com/photo-1434389677669-e08b4cac3105?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "100% Virgin Wool",
+    "editorial_tags": "Eclectic Heritage, Monogram Luxe",
+    "mood_aesthetic": "Street Couture",
+    "occasion": "Luxe Leisure",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "gucci-04",
+    "name": "Gucci Horsebit 1953 Leather Loafers in Black",
+    "description": "Timeless calfskin loafers adorned with the signature gold-tone Horsebit hardware.",
+    "price": 1150000,
+    "currency": "IQD",
+    "brand_id": 4,
+    "brand": {
+      "id": 4,
+      "name": "Gucci",
+      "slug": "gucci"
+    },
+    "category_id": 1,
+    "category": {
+      "id": 1,
+      "name": "Shoes"
+    },
+    "gender": "unisex",
+    "main_image_url": "https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Full-Grain Calfskin",
+    "editorial_tags": "Italian Craftsmanship, Heritage Footwear",
+    "mood_aesthetic": "Stealth Wealth",
+    "occasion": "Business & Formal",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "gucci-05",
+    "name": "Gucci Tailored Houndstooth Tweed Coat",
+    "description": "Bespoke outerwear crafted from heavyweight Italian wool tweed with contrast velvet collar.",
+    "price": 3400000,
+    "currency": "IQD",
+    "brand_id": 4,
+    "brand": {
+      "id": 4,
+      "name": "Gucci",
+      "slug": "gucci"
+    },
+    "category_id": 5,
+    "category": {
+      "id": 5,
+      "name": "Outerwear"
+    },
+    "gender": "women",
+    "main_image_url": "https://images.unsplash.com/photo-1548624313-039e248b8b0e?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Houndstooth Tweed",
+    "editorial_tags": "Winter Luxury, Haute Tailoring",
+    "mood_aesthetic": "Avant-Garde",
+    "occasion": "Winter Gala & Travel",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "gucci-06",
+    "name": "Gucci Web Stripe Silk Twill Bowling Shirt",
+    "description": "Camp collar silk bowling shirt with green and red Web stripe trim and chest pocket.",
+    "price": 1200000,
+    "currency": "IQD",
+    "brand_id": 4,
+    "brand": {
+      "id": 4,
+      "name": "Gucci",
+      "slug": "gucci"
+    },
+    "category_id": 3,
+    "category": {
+      "id": 3,
+      "name": "Tops"
+    },
+    "gender": "unisex",
+    "main_image_url": "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "100% Silk Twill",
+    "editorial_tags": "Resort Luxury, Web Signature",
+    "mood_aesthetic": "Street Couture",
+    "occasion": "Cocktail & Travel",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "gucci-07",
+    "name": "Gucci High-Rise Flared Wool Gabardine Pants",
+    "description": "70s-inspired flared trousers with pressed creases and gold Horsebit belt loop detail.",
+    "price": 1350000,
+    "currency": "IQD",
+    "brand_id": 4,
+    "brand": {
+      "id": 4,
+      "name": "Gucci",
+      "slug": "gucci"
+    },
+    "category_id": 4,
+    "category": {
+      "id": 4,
+      "name": "Bottoms"
+    },
+    "gender": "women",
+    "main_image_url": "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Wool Gabardine",
+    "editorial_tags": "Eclectic Heritage, Runway Tailoring",
+    "mood_aesthetic": "Avant-Garde",
+    "occasion": "Statement Evening",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "gucci-08",
+    "name": "Gucci Dionysus Embroidered Evening Bag",
+    "description": "Structured GG supreme canvas bag with textured tiger head closure and crystal embroidery.",
+    "price": 3100000,
+    "currency": "IQD",
+    "brand_id": 4,
+    "brand": {
+      "id": 4,
+      "name": "Gucci",
+      "slug": "gucci"
+    },
+    "category_id": 5,
+    "category": {
+      "id": 5,
+      "name": "Outerwear"
+    },
+    "gender": "women",
+    "main_image_url": "https://images.unsplash.com/photo-1566150905458-1bf1fc113f0d?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "GG Canvas & Suede",
+    "editorial_tags": "Iconic Handbag, Haute Accessories",
+    "mood_aesthetic": "Avant-Garde",
+    "occasion": "Gala & Evening",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "gucci-09",
+    "name": "Gucci Emerald Silk Satin Slip Dress",
+    "description": "Fluid floor-skimming slip dress in rich emerald green with delicate lace trims.",
+    "price": 2250000,
+    "currency": "IQD",
+    "brand_id": 4,
+    "brand": {
+      "id": 4,
+      "name": "Gucci",
+      "slug": "gucci"
+    },
+    "category_id": 2,
+    "category": {
+      "id": 2,
+      "name": "Dresses"
+    },
+    "gender": "women",
+    "main_image_url": "https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Silk Satin",
+    "editorial_tags": "Evening Elegance, Jewel Tone",
+    "mood_aesthetic": "Avant-Garde",
+    "occasion": "Evening Gala",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "gucci-10",
+    "name": "Gucci Ace Embroidered Bee Leather Sneakers",
+    "description": "Low-top white calfskin sneakers with metallic green and red heel tabs and gold bee embroidery.",
+    "price": 980000,
+    "currency": "IQD",
+    "brand_id": 4,
+    "brand": {
+      "id": 4,
+      "name": "Gucci",
+      "slug": "gucci"
+    },
+    "category_id": 1,
+    "category": {
+      "id": 1,
+      "name": "Shoes"
+    },
+    "gender": "unisex",
+    "main_image_url": "https://images.unsplash.com/photo-1560769629-975ec94e6a86?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Calfskin & Webbing",
+    "editorial_tags": "Iconic Sneakers, Street Luxury",
+    "mood_aesthetic": "Street Couture",
+    "occasion": "Casual Chic",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "gucci-11",
+    "name": "Gucci Monogram Silk Organza Blouse in Ivory",
+    "description": "Sheer silk organza pussy-bow blouse with tonal jacquard GG monogram weave.",
+    "price": 1600000,
+    "currency": "IQD",
+    "brand_id": 4,
+    "brand": {
+      "id": 4,
+      "name": "Gucci",
+      "slug": "gucci"
+    },
+    "category_id": 3,
+    "category": {
+      "id": 3,
+      "name": "Tops"
+    },
+    "gender": "women",
+    "main_image_url": "https://images.unsplash.com/photo-1508427953056-b00b8d78ebf5?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Silk Organza",
+    "editorial_tags": "Eclectic Heritage, Romantic Luxe",
+    "mood_aesthetic": "Avant-Garde",
+    "occasion": "Cocktail & Society",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "gucci-12",
+    "name": "Gucci Pleated Metallic Lam\u00e9 Midi Skirt",
+    "description": "Shimmering sunray pleated skirt in radiant champagne gold lam\u00e9.",
+    "price": 1900000,
+    "currency": "IQD",
+    "brand_id": 4,
+    "brand": {
+      "id": 4,
+      "name": "Gucci",
+      "slug": "gucci"
+    },
+    "category_id": 4,
+    "category": {
+      "id": 4,
+      "name": "Bottoms"
+    },
+    "gender": "women",
+    "main_image_url": "https://images.unsplash.com/photo-1577900232427-18219b9166a0?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Metallic Lam\u00e9",
+    "editorial_tags": "Runway Showstopper, Liquid Gold",
+    "mood_aesthetic": "Avant-Garde",
+    "occasion": "Party & Gala",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "gucci-13",
+    "name": "Gucci Double-G Buckle Reversible Leather Belt",
+    "description": "Smooth Italian black leather belt with signature antique brass GG buckle.",
+    "price": 650000,
+    "currency": "IQD",
+    "brand_id": 4,
+    "brand": {
+      "id": 4,
+      "name": "Gucci",
+      "slug": "gucci"
+    },
+    "category_id": 5,
+    "category": {
+      "id": 5,
+      "name": "Outerwear"
+    },
+    "gender": "unisex",
+    "main_image_url": "https://images.unsplash.com/photo-1624222247344-550fb60583dc?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Italian Leather",
+    "editorial_tags": "Heritage Hardware, Signature Belt",
+    "mood_aesthetic": "Stealth Wealth",
+    "occasion": "Everyday Luxury",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "gucci-14",
+    "name": "Gucci Embroidered Sequin Velvet Gown",
+    "description": "Dramatic column gown in midnight navy velvet encrusted with midnight star sequins.",
+    "price": 4600000,
+    "currency": "IQD",
+    "brand_id": 4,
+    "brand": {
+      "id": 4,
+      "name": "Gucci",
+      "slug": "gucci"
+    },
+    "category_id": 2,
+    "category": {
+      "id": 2,
+      "name": "Dresses"
+    },
+    "gender": "women",
+    "main_image_url": "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Velvet & Micro-Sequins",
+    "editorial_tags": "Red Carpet, High Glamour",
+    "mood_aesthetic": "Avant-Garde",
+    "occasion": "Gala & Opera",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "gucci-15",
+    "name": "Gucci Cashmere Cable-Knit Turtleneck in Camel",
+    "description": "Ultra-soft chunky cable knit sweater with ribbed high collar and relaxed fit.",
+    "price": 1800000,
+    "currency": "IQD",
+    "brand_id": 4,
+    "brand": {
+      "id": 4,
+      "name": "Gucci",
+      "slug": "gucci"
+    },
+    "category_id": 3,
+    "category": {
+      "id": 3,
+      "name": "Tops"
+    },
+    "gender": "unisex",
+    "main_image_url": "https://images.unsplash.com/photo-1584273143981-41c073dfe8f8?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "100% Cashmere",
+    "editorial_tags": "Alpine Luxe, Cashmere Heritage",
+    "mood_aesthetic": "Stealth Wealth",
+    "occasion": "Winter Escape",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "gucci-16",
+    "name": "Gucci Princetown Shearling-Lined Mules",
+    "description": "Backless leather slippers lined with plush natural lambswool and Horsebit detail.",
+    "price": 1280000,
+    "currency": "IQD",
+    "brand_id": 4,
+    "brand": {
+      "id": 4,
+      "name": "Gucci",
+      "slug": "gucci"
+    },
+    "category_id": 1,
+    "category": {
+      "id": 1,
+      "name": "Shoes"
+    },
+    "gender": "unisex",
+    "main_image_url": "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Calfskin & Lambswool",
+    "editorial_tags": "Cult Favorite, Luxury Lounging",
+    "mood_aesthetic": "Avant-Garde",
+    "occasion": "Resort & Lounge",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "gucci-17",
+    "name": "Gucci Tailored Double-Breasted Wool Coat in Crimson",
+    "description": "Statement red wool overcoat with sharp peak lapels and horn crest buttons.",
+    "price": 3650000,
+    "currency": "IQD",
+    "brand_id": 4,
+    "brand": {
+      "id": 4,
+      "name": "Gucci",
+      "slug": "gucci"
+    },
+    "category_id": 5,
+    "category": {
+      "id": 5,
+      "name": "Outerwear"
+    },
+    "gender": "women",
+    "main_image_url": "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Melton Wool",
+    "editorial_tags": "Power Outerwear, Statement Red",
+    "mood_aesthetic": "Avant-Garde",
+    "occasion": "Winter Gala",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "gucci-18",
+    "name": "Gucci Monogram Jacquard Wide-Leg Trousers",
+    "description": "Tailored silk-wool blend trousers woven with subtle GG shadow monogram pattern.",
+    "price": 1550000,
+    "currency": "IQD",
+    "brand_id": 4,
+    "brand": {
+      "id": 4,
+      "name": "Gucci",
+      "slug": "gucci"
+    },
+    "category_id": 4,
+    "category": {
+      "id": 4,
+      "name": "Bottoms"
+    },
+    "gender": "unisex",
+    "main_image_url": "https://images.unsplash.com/photo-1475180098004-ca77a66827be?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Silk Wool Jacquard",
+    "editorial_tags": "Monogram Tailoring, Atelier Fit",
+    "mood_aesthetic": "Street Couture",
+    "occasion": "Evening & Cocktail",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "gucci-19",
+    "name": "Gucci Ruffled Floral Silk Georgette Dress",
+    "description": "Romantic tiered dress in botanical floral print with velvet ribbon neckline.",
+    "price": 2950000,
+    "currency": "IQD",
+    "brand_id": 4,
+    "brand": {
+      "id": 4,
+      "name": "Gucci",
+      "slug": "gucci"
+    },
+    "category_id": 2,
+    "category": {
+      "id": 2,
+      "name": "Dresses"
+    },
+    "gender": "women",
+    "main_image_url": "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "100% Silk Georgette",
+    "editorial_tags": "Eclectic Heritage, Romanticism",
+    "mood_aesthetic": "Avant-Garde",
+    "occasion": "Garden Party & Wedding",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "gucci-20",
+    "name": "Gucci Embroidered Tiger Polo Shirt",
+    "description": "Fine stretch cotton pique polo with collar embroidery and mother-of-pearl buttons.",
+    "price": 890000,
+    "currency": "IQD",
+    "brand_id": 4,
+    "brand": {
+      "id": 4,
+      "name": "Gucci",
+      "slug": "gucci"
+    },
+    "category_id": 3,
+    "category": {
+      "id": 3,
+      "name": "Tops"
+    },
+    "gender": "unisex",
+    "main_image_url": "https://images.unsplash.com/photo-1581655353564-df123a1eb820?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Stretch Cotton Pique",
+    "editorial_tags": "Iconic Motifs, Street Luxe",
+    "mood_aesthetic": "Street Couture",
+    "occasion": "Casual Weekend",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "gucci-21",
+    "name": "Gucci Leather Biker Jacket with Web Trim",
+    "description": "Supple Italian nappa leather motorcycle jacket with green-red-green web detail on back.",
+    "price": 4200000,
+    "currency": "IQD",
+    "brand_id": 4,
+    "brand": {
+      "id": 4,
+      "name": "Gucci",
+      "slug": "gucci"
+    },
+    "category_id": 5,
+    "category": {
+      "id": 5,
+      "name": "Outerwear"
+    },
+    "gender": "unisex",
+    "main_image_url": "https://images.unsplash.com/photo-1520975916090-3105956dac38?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "100% Lamb Nappa",
+    "editorial_tags": "Rebel Luxury, Leather Masterpiece",
+    "mood_aesthetic": "Street Couture",
+    "occasion": "Statement Outing",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "gucci-22",
+    "name": "Gucci Silk Twill Foulard Scarf with Flora Print",
+    "description": "Square silk twill scarf hand-rolled at the edges with Vittorio Accornero floral bouquet.",
+    "price": 580000,
+    "currency": "IQD",
+    "brand_id": 4,
+    "brand": {
+      "id": 4,
+      "name": "Gucci",
+      "slug": "gucci"
+    },
+    "category_id": 5,
+    "category": {
+      "id": 5,
+      "name": "Outerwear"
+    },
+    "gender": "unisex",
+    "main_image_url": "https://images.unsplash.com/photo-1601924994987-69e26d50dc26?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "100% Silk Twill",
+    "editorial_tags": "Heritage Silk, Collector Piece",
+    "mood_aesthetic": "Stealth Wealth",
+    "occasion": "Accessory Elegance",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "gucci-23",
+    "name": "Gucci Crystal-Embellished Platform Sandals",
+    "description": "Satin block-heel platform sandals with pav\u00e9 crystal ankle strap and open toe.",
+    "price": 1450000,
+    "currency": "IQD",
+    "brand_id": 4,
+    "brand": {
+      "id": 4,
+      "name": "Gucci",
+      "slug": "gucci"
+    },
+    "category_id": 1,
+    "category": {
+      "id": 1,
+      "name": "Shoes"
+    },
+    "gender": "women",
+    "main_image_url": "https://images.unsplash.com/photo-1566958769312-82acf75689e2?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Silk Satin & Crystals",
+    "editorial_tags": "Disco Glamour, High Fashion",
+    "mood_aesthetic": "Avant-Garde",
+    "occasion": "Nightclub & Red Carpet",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "gucci-24",
+    "name": "Gucci Wool Pleated Kilt Skirt in Red Tartan",
+    "description": "Mid-length pleated wool kilt featuring Italian heritage tartan and leather buckle fastening.",
+    "price": 1650000,
+    "currency": "IQD",
+    "brand_id": 4,
+    "brand": {
+      "id": 4,
+      "name": "Gucci",
+      "slug": "gucci"
+    },
+    "category_id": 4,
+    "category": {
+      "id": 4,
+      "name": "Bottoms"
+    },
+    "gender": "women",
+    "main_image_url": "https://images.unsplash.com/photo-1508746829417-e6f548d8d6ed?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Virgin Wool Tartan",
+    "editorial_tags": "Punk Heritage, Runway Essential",
+    "mood_aesthetic": "Avant-Garde",
+    "occasion": "Art Gallery & Events",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "gucci-25",
+    "name": "Gucci Tailored Tuxedo Jacket with Silk Satin Lapels",
+    "description": "Masterpiece black grain de poudre wool tuxedo jacket with glossy silk shawl collar.",
+    "price": 3900000,
+    "currency": "IQD",
+    "brand_id": 4,
+    "brand": {
+      "id": 4,
+      "name": "Gucci",
+      "slug": "gucci"
+    },
+    "category_id": 5,
+    "category": {
+      "id": 5,
+      "name": "Outerwear"
+    },
+    "gender": "unisex",
+    "main_image_url": "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Grain de Poudre & Satin",
+    "editorial_tags": "Black Tie Royalty, Bespoke Tailoring",
+    "mood_aesthetic": "Stealth Wealth",
+    "occasion": "Gala & Black Tie",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "3c6b5f9b-11d8-49c7-a66c-b683dbe92593",
+    "name": "H&M Botanical Print Maxi Dress",
+    "description": "A flowing long-sleeve maxi dress in a beautiful blue and white botanical print, with a gathered waist and v-neckline.",
+    "price": 110000,
+    "currency": "IQD",
+    "brand_id": 3,
+    "brand": {
+      "id": 3,
+      "name": "H&M",
+      "slug": "hm"
+    },
+    "category_id": 2,
+    "category": {
+      "id": 2,
+      "name": "Dresses"
+    },
+    "gender": "women",
+    "main_image_url": "/uploads/3c6b5f9b-11d8-49c7-a66c-b683dbe92593.jpg",
+    "fabric_type": "Viscose Blend",
+    "editorial_tags": "Spring Garden, Botanical",
+    "mood_aesthetic": "Minimalist Core",
+    "occasion": "Daily Outing",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "hm-02",
+    "name": "H&M Relaxed Linen-Blend Shirt in Sand",
+    "description": "Airy woven linen-cotton shirt with chest pocket and curved hem.",
+    "price": 55000,
+    "currency": "IQD",
+    "brand_id": 3,
+    "brand": {
+      "id": 3,
+      "name": "H&M",
+      "slug": "hm"
+    },
+    "category_id": 3,
+    "category": {
+      "id": 3,
+      "name": "Tops"
+    },
+    "gender": "unisex",
+    "main_image_url": "https://images.unsplash.com/photo-1598033129183-c4f50c736f10?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Linen & Cotton",
+    "editorial_tags": "Essential Simplicity, Everyday Luxury",
+    "mood_aesthetic": "Cozy Minimalism",
+    "occasion": "Casual Summer",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "hm-03",
+    "name": "H&M Chunky Ribbed Cardigan in Oat",
+    "description": "Heavy knit cardigan with horn-effect buttons and raglan sleeves.",
+    "price": 75000,
+    "currency": "IQD",
+    "brand_id": 3,
+    "brand": {
+      "id": 3,
+      "name": "H&M",
+      "slug": "hm"
+    },
+    "category_id": 3,
+    "category": {
+      "id": 3,
+      "name": "Tops"
+    },
+    "gender": "women",
+    "main_image_url": "https://images.unsplash.com/photo-1576566588028-4147f3842f27?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Soft Acrylic Blend",
+    "editorial_tags": "Knitwear Edit, Cozy Layering",
+    "mood_aesthetic": "Cozy Minimalism",
+    "occasion": "Weekend Relaxation",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "hm-04",
+    "name": "H&M Straight Regular Jeans in Vintage Light Blue",
+    "description": "Timeless 5-pocket straight leg jeans in soft washed denim.",
+    "price": 65000,
+    "currency": "IQD",
+    "brand_id": 3,
+    "brand": {
+      "id": 3,
+      "name": "H&M",
+      "slug": "hm"
+    },
+    "category_id": 4,
+    "category": {
+      "id": 4,
+      "name": "Bottoms"
+    },
+    "gender": "unisex",
+    "main_image_url": "https://images.unsplash.com/photo-1582552938357-32b906df40cb?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "100% Cotton Denim",
+    "editorial_tags": "Daily Foundations, Vintage Wash",
+    "mood_aesthetic": "Minimalist Core",
+    "occasion": "Everyday Casual",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "hm-05",
+    "name": "H&M Double-Breasted Trench Coat in Beige",
+    "description": "Mid-length trench coat with storm flaps, lapels, and removable tie belt.",
+    "price": 135000,
+    "currency": "IQD",
+    "brand_id": 3,
+    "brand": {
+      "id": 3,
+      "name": "H&M",
+      "slug": "hm"
+    },
+    "category_id": 5,
+    "category": {
+      "id": 5,
+      "name": "Outerwear"
+    },
+    "gender": "women",
+    "main_image_url": "https://images.unsplash.com/photo-1525450824786-227cbef70703?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Cotton Twill",
+    "editorial_tags": "Timeless Outerwear, City Chic",
+    "mood_aesthetic": "Stealth Wealth",
+    "occasion": "Work & Commute",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "hm-06",
+    "name": "H&M Ribbed Sleeveless Bodycon Midi Dress",
+    "description": "Stretchy ribbed knit dress that contours the body with a side leg slit.",
+    "price": 60000,
+    "currency": "IQD",
+    "brand_id": 3,
+    "brand": {
+      "id": 3,
+      "name": "H&M",
+      "slug": "hm"
+    },
+    "category_id": 2,
+    "category": {
+      "id": 2,
+      "name": "Dresses"
+    },
+    "gender": "women",
+    "main_image_url": "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Viscose Rib Knit",
+    "editorial_tags": "Essential Capsule, Sleek Bodycon",
+    "mood_aesthetic": "Minimalist Core",
+    "occasion": "Day to Night",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "hm-07",
+    "name": "H&M Relaxed Pull-On Linen Trousers",
+    "description": "Elastic drawstring waist trousers in lightweight breathable pure linen.",
+    "price": 70000,
+    "currency": "IQD",
+    "brand_id": 3,
+    "brand": {
+      "id": 3,
+      "name": "H&M",
+      "slug": "hm"
+    },
+    "category_id": 4,
+    "category": {
+      "id": 4,
+      "name": "Bottoms"
+    },
+    "gender": "unisex",
+    "main_image_url": "https://images.unsplash.com/photo-1473496169904-658ba7c44d8a?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "100% Linen",
+    "editorial_tags": "Summer Casual, Resort Linen",
+    "mood_aesthetic": "Cozy Minimalism",
+    "occasion": "Vacation & Beach",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "hm-08",
+    "name": "H&M Oversized Poplin Shirt in Optic White",
+    "description": "Crisp cotton poplin shirt with pointed collar, chest pocket, and mother-of-pearl buttons.",
+    "price": 50000,
+    "currency": "IQD",
+    "brand_id": 3,
+    "brand": {
+      "id": 3,
+      "name": "H&M",
+      "slug": "hm"
+    },
+    "category_id": 3,
+    "category": {
+      "id": 3,
+      "name": "Tops"
+    },
+    "gender": "unisex",
+    "main_image_url": "https://images.unsplash.com/photo-150334394128-c104d54dba01?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "100% Cotton Poplin",
+    "editorial_tags": "Daily Foundations, White Shirt Classic",
+    "mood_aesthetic": "Minimalist Core",
+    "occasion": "Work & Weekend",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "hm-09",
+    "name": "H&M Quilted Puffer Jacket in Olive Green",
+    "description": "Lightweight insulated puffer jacket with stand-up collar and zip pockets.",
+    "price": 115000,
+    "currency": "IQD",
+    "brand_id": 3,
+    "brand": {
+      "id": 3,
+      "name": "H&M",
+      "slug": "hm"
+    },
+    "category_id": 5,
+    "category": {
+      "id": 5,
+      "name": "Outerwear"
+    },
+    "gender": "unisex",
+    "main_image_url": "https://images.unsplash.com/photo-1544022613-e87ca75a784a?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Recycled Polyester",
+    "editorial_tags": "Cold Season, Urban Explorer",
+    "mood_aesthetic": "Minimalist Core",
+    "occasion": "Outdoor & City",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "hm-10",
+    "name": "H&M Leather Slide Sandals in Cognac",
+    "description": "Criss-cross wide leather straps with molded footbed and rubber sole.",
+    "price": 65000,
+    "currency": "IQD",
+    "brand_id": 3,
+    "brand": {
+      "id": 3,
+      "name": "H&M",
+      "slug": "hm"
+    },
+    "category_id": 1,
+    "category": {
+      "id": 1,
+      "name": "Shoes"
+    },
+    "gender": "women",
+    "main_image_url": "https://images.unsplash.com/photo-1603808033192-082d6919d3e1?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "100% Leather",
+    "editorial_tags": "Summer Footwear, Easy Slip-On",
+    "mood_aesthetic": "Cozy Minimalism",
+    "occasion": "Casual Summer",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "hm-11",
+    "name": "H&M Tiered Chiffon Floral Midi Dress",
+    "description": "Gentle floral print dress with smocked cuffs and tiered ruffled skirt.",
+    "price": 85000,
+    "currency": "IQD",
+    "brand_id": 3,
+    "brand": {
+      "id": 3,
+      "name": "H&M",
+      "slug": "hm"
+    },
+    "category_id": 2,
+    "category": {
+      "id": 2,
+      "name": "Dresses"
+    },
+    "gender": "women",
+    "main_image_url": "https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Recycled Chiffon",
+    "editorial_tags": "Spring Romance, Feminine Floral",
+    "mood_aesthetic": "Cozy Minimalism",
+    "occasion": "Brunch & Garden Party",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "hm-12",
+    "name": "H&M Fine-Knit Crewneck Sweater in Heather Grey",
+    "description": "Super-soft lightweight knit sweater with ribbed neckline, cuffs, and hem.",
+    "price": 48000,
+    "currency": "IQD",
+    "brand_id": 3,
+    "brand": {
+      "id": 3,
+      "name": "H&M",
+      "slug": "hm"
+    },
+    "category_id": 3,
+    "category": {
+      "id": 3,
+      "name": "Tops"
+    },
+    "gender": "unisex",
+    "main_image_url": "https://images.unsplash.com/photo-1618354691373-d851c5c3a990?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Fine Gauge Cotton Knit",
+    "editorial_tags": "Daily Foundations, Soft Layer",
+    "mood_aesthetic": "Minimalist Core",
+    "occasion": "Casual Daily",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "hm-13",
+    "name": "H&M Pleated High-Waist Shorts in Khaki",
+    "description": "Smart tailored shorts with side slant pockets and back welt pockets.",
+    "price": 52000,
+    "currency": "IQD",
+    "brand_id": 3,
+    "brand": {
+      "id": 3,
+      "name": "H&M",
+      "slug": "hm"
+    },
+    "category_id": 4,
+    "category": {
+      "id": 4,
+      "name": "Bottoms"
+    },
+    "gender": "women",
+    "main_image_url": "https://images.unsplash.com/photo-1591195853828-11db59a44f6b?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Cotton Lyocell",
+    "editorial_tags": "Warm Weather Tailoring",
+    "mood_aesthetic": "Minimalist Core",
+    "occasion": "City Walk",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "hm-14",
+    "name": "H&M Oversized Denim Trucker Jacket",
+    "description": "Vintage medium-blue washed denim jacket with metal shank buttons and chest flap pockets.",
+    "price": 95000,
+    "currency": "IQD",
+    "brand_id": 3,
+    "brand": {
+      "id": 3,
+      "name": "H&M",
+      "slug": "hm"
+    },
+    "category_id": 5,
+    "category": {
+      "id": 5,
+      "name": "Outerwear"
+    },
+    "gender": "unisex",
+    "main_image_url": "https://images.unsplash.com/photo-1576995853123-5a10305d93c0?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "100% Rigid Denim",
+    "editorial_tags": "Classic Denim, Essential Layer",
+    "mood_aesthetic": "Street Couture",
+    "occasion": "Casual Outing",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "hm-15",
+    "name": "H&M Satin Wrap Midi Dress in Dusty Pink",
+    "description": "Silky wrap dress with shawl lapel collar and fluid drape skirt.",
+    "price": 90000,
+    "currency": "IQD",
+    "brand_id": 3,
+    "brand": {
+      "id": 3,
+      "name": "H&M",
+      "slug": "hm"
+    },
+    "category_id": 2,
+    "category": {
+      "id": 2,
+      "name": "Dresses"
+    },
+    "gender": "women",
+    "main_image_url": "https://images.unsplash.com/photo-1518895949257-7621c3c786d7?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Silky Viscose Satin",
+    "editorial_tags": "Evening Simplicity, Soft Drape",
+    "mood_aesthetic": "Stealth Wealth",
+    "occasion": "Dinner & Events",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "hm-16",
+    "name": "H&M Waffle-Knit Long Sleeve Henley Top",
+    "description": "Textured waffle thermal knit with 3-button placket and banded cuffs.",
+    "price": 45000,
+    "currency": "IQD",
+    "brand_id": 3,
+    "brand": {
+      "id": 3,
+      "name": "H&M",
+      "slug": "hm"
+    },
+    "category_id": 3,
+    "category": {
+      "id": 3,
+      "name": "Tops"
+    },
+    "gender": "unisex",
+    "main_image_url": "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Cotton Waffle Knit",
+    "editorial_tags": "Textured Basics, Lounge Comfort",
+    "mood_aesthetic": "Cozy Minimalism",
+    "occasion": "Home & Weekend",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "hm-17",
+    "name": "H&M Cargo Joggers with Pockets in Olive",
+    "description": "Cotton twill cargo pants with elastic cuffs and multiple utility pockets.",
+    "price": 68000,
+    "currency": "IQD",
+    "brand_id": 3,
+    "brand": {
+      "id": 3,
+      "name": "H&M",
+      "slug": "hm"
+    },
+    "category_id": 4,
+    "category": {
+      "id": 4,
+      "name": "Bottoms"
+    },
+    "gender": "unisex",
+    "main_image_url": "https://images.unsplash.com/photo-1517445312882-bc9910d016b7?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Stretch Cotton Twill",
+    "editorial_tags": "Utility Wear, Street Casual",
+    "mood_aesthetic": "Street Couture",
+    "occasion": "Street & Travel",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "hm-18",
+    "name": "H&M Wool-Blend Boucl\u00e9 Blazer in Ivory",
+    "description": "Textured boucl\u00e9 jacket with golden crest buttons and patch pockets.",
+    "price": 140000,
+    "currency": "IQD",
+    "brand_id": 3,
+    "brand": {
+      "id": 3,
+      "name": "H&M",
+      "slug": "hm"
+    },
+    "category_id": 5,
+    "category": {
+      "id": 5,
+      "name": "Outerwear"
+    },
+    "gender": "women",
+    "main_image_url": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Wool Boucl\u00e9 Blend",
+    "editorial_tags": "Parisian Chic, Modern Tweed",
+    "mood_aesthetic": "Stealth Wealth",
+    "occasion": "Smart Casual & Office",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "hm-19",
+    "name": "H&M Canvas Minimalist Low-Top Sneakers",
+    "description": "Clean off-white canvas sneakers with vulcanized rubber sole and flat laces.",
+    "price": 55000,
+    "currency": "IQD",
+    "brand_id": 3,
+    "brand": {
+      "id": 3,
+      "name": "H&M",
+      "slug": "hm"
+    },
+    "category_id": 1,
+    "category": {
+      "id": 1,
+      "name": "Shoes"
+    },
+    "gender": "unisex",
+    "main_image_url": "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Heavy Organic Canvas",
+    "editorial_tags": "Essential Sneakers, Everyday Canvas",
+    "mood_aesthetic": "Minimalist Core",
+    "occasion": "Daily Streetwear",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "hm-20",
+    "name": "H&M Cotton Poplin Puff Sleeve Mini Dress",
+    "description": "Babydoll mini dress in black poplin with dramatic puff shoulders and square neckline.",
+    "price": 72000,
+    "currency": "IQD",
+    "brand_id": 3,
+    "brand": {
+      "id": 3,
+      "name": "H&M",
+      "slug": "hm"
+    },
+    "category_id": 2,
+    "category": {
+      "id": 2,
+      "name": "Dresses"
+    },
+    "gender": "women",
+    "main_image_url": "https://images.unsplash.com/photo-1572804013427-4d7ca7268217?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "100% Cotton Poplin",
+    "editorial_tags": "Summer Statement, Puff Volume",
+    "mood_aesthetic": "Avant-Garde",
+    "occasion": "Party & Outing",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "hm-21",
+    "name": "H&M Striped Breton Boatneck Long Sleeve Tee",
+    "description": "French navy and cream horizontal striped cotton tee with classic boatneck.",
+    "price": 42000,
+    "currency": "IQD",
+    "brand_id": 3,
+    "brand": {
+      "id": 3,
+      "name": "H&M",
+      "slug": "hm"
+    },
+    "category_id": 3,
+    "category": {
+      "id": 3,
+      "name": "Tops"
+    },
+    "gender": "unisex",
+    "main_image_url": "https://images.unsplash.com/photo-1527719327859-c6ce80353573?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "100% Heavy Cotton",
+    "editorial_tags": "Breton Stripe, Riviera Classic",
+    "mood_aesthetic": "Minimalist Core",
+    "occasion": "Casual Weekend",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "hm-22",
+    "name": "H&M Pleated A-Line Midi Skirt in Black",
+    "description": "Fluid accordion pleated skirt with elasticated waist that moves gracefully.",
+    "price": 65000,
+    "currency": "IQD",
+    "brand_id": 3,
+    "brand": {
+      "id": 3,
+      "name": "H&M",
+      "slug": "hm"
+    },
+    "category_id": 4,
+    "category": {
+      "id": 4,
+      "name": "Bottoms"
+    },
+    "gender": "women",
+    "main_image_url": "https://images.unsplash.com/photo-1582142407894-ec85a1260a46?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Pleated Chiffon",
+    "editorial_tags": "Essential Silhouette, Fluid Pleats",
+    "mood_aesthetic": "Minimalist Core",
+    "occasion": "Work & Dinner",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "hm-23",
+    "name": "H&M Faux Fur Teddy Zip Jacket in Cream",
+    "description": "Plush shearling-effect fleece jacket with full front zip and contrast collar.",
+    "price": 98000,
+    "currency": "IQD",
+    "brand_id": 3,
+    "brand": {
+      "id": 3,
+      "name": "H&M",
+      "slug": "hm"
+    },
+    "category_id": 5,
+    "category": {
+      "id": 5,
+      "name": "Outerwear"
+    },
+    "gender": "women",
+    "main_image_url": "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Sherpa Fleece",
+    "editorial_tags": "Cozy Winter, Plush Texture",
+    "mood_aesthetic": "Cozy Minimalism",
+    "occasion": "Winter Weekend",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "hm-24",
+    "name": "H&M Suede Ankle Chelsea Boots in Tan",
+    "description": "Soft brushed suede boots with pull tabs and low stacked block heel.",
+    "price": 110000,
+    "currency": "IQD",
+    "brand_id": 3,
+    "brand": {
+      "id": 3,
+      "name": "H&M",
+      "slug": "hm"
+    },
+    "category_id": 1,
+    "category": {
+      "id": 1,
+      "name": "Shoes"
+    },
+    "gender": "women",
+    "main_image_url": "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Real Suede Leather",
+    "editorial_tags": "Autumn Boot, Suede Staple",
+    "mood_aesthetic": "Cozy Minimalism",
+    "occasion": "Autumn & Winter",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "hm-25",
+    "name": "H&M Linen Kimono Robe Dress in Terracotta",
+    "description": "Wrap robe dress with wide kimono sleeves and self-fabric sash belt.",
+    "price": 85000,
+    "currency": "IQD",
+    "brand_id": 3,
+    "brand": {
+      "id": 3,
+      "name": "H&M",
+      "slug": "hm"
+    },
+    "category_id": 2,
+    "category": {
+      "id": 2,
+      "name": "Dresses"
+    },
+    "gender": "women",
+    "main_image_url": "https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "100% Washed Linen",
+    "editorial_tags": "Loungewear Luxury, Earthy Linen",
+    "mood_aesthetic": "Cozy Minimalism",
+    "occasion": "Resort & Lounge",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "nike-01",
+    "name": "Nike Tech Fleece Windrunner Full-Zip Hoodie in Black",
+    "description": "Engineered thermal fleece hoodie with chevron chest lines, taped zip sleeve pocket, and articulated fit.",
+    "price": 165000,
+    "currency": "IQD",
+    "brand_id": 2,
+    "brand": {
+      "id": 2,
+      "name": "Nike",
+      "slug": "nike"
+    },
+    "category_id": 5,
+    "category": {
+      "id": 5,
+      "name": "Outerwear"
+    },
+    "gender": "unisex",
+    "main_image_url": "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Nike Tech Fleece",
+    "editorial_tags": "Performance Engineering, Techwear Staple",
+    "mood_aesthetic": "Street Couture",
+    "occasion": "Athleisure & Street",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "nike-02",
+    "name": "Nike Air Force 1 07 Triple White Sneakers",
+    "description": "The iconic basketball silhouette in pristine white leather with Nike Air cushioning and pivot-circle outsole.",
+    "price": 155000,
+    "currency": "IQD",
+    "brand_id": 2,
+    "brand": {
+      "id": 2,
+      "name": "Nike",
+      "slug": "nike"
+    },
+    "category_id": 1,
+    "category": {
+      "id": 1,
+      "name": "Shoes"
+    },
+    "gender": "unisex",
+    "main_image_url": "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Full-Grain Leather",
+    "editorial_tags": "Iconic Footwear, Triple White Classic",
+    "mood_aesthetic": "Street Couture",
+    "occasion": "Daily Streetwear",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "nike-03",
+    "name": "Nike Tech Fleece Slim-Fit Joggers in Grey Heather",
+    "description": "Tapered fleece joggers with elongated bonded zipper pocket and ribbed ankle cuffs.",
+    "price": 140000,
+    "currency": "IQD",
+    "brand_id": 2,
+    "brand": {
+      "id": 2,
+      "name": "Nike",
+      "slug": "nike"
+    },
+    "category_id": 4,
+    "category": {
+      "id": 4,
+      "name": "Bottoms"
+    },
+    "gender": "unisex",
+    "main_image_url": "https://images.unsplash.com/photo-1552902865-b72c031ac5ea?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Nike Tech Fleece",
+    "editorial_tags": "Performance Engineering, Street Comfort",
+    "mood_aesthetic": "Street Couture",
+    "occasion": "Activewear & Street",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "nike-04",
+    "name": "Nike Dri-FIT One High-Waisted 7/8 Leggings in Black",
+    "description": "Buttery-soft compressive moisture-wicking tights with seamless sides and drop-in pockets.",
+    "price": 85000,
+    "currency": "IQD",
+    "brand_id": 2,
+    "brand": {
+      "id": 2,
+      "name": "Nike",
+      "slug": "nike"
+    },
+    "category_id": 4,
+    "category": {
+      "id": 4,
+      "name": "Bottoms"
+    },
+    "gender": "women",
+    "main_image_url": "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Nike Dri-FIT Luxe",
+    "editorial_tags": "Activewear Innovation, Studio Yoga",
+    "mood_aesthetic": "Minimalist Core",
+    "occasion": "Gym, Yoga & Studio",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "nike-05",
+    "name": "Nike Sportswear Club Fleece Crewneck Sweatshirt",
+    "description": "Classic brushed-back fleece pullover with embroidered Futura logo on chest.",
+    "price": 75000,
+    "currency": "IQD",
+    "brand_id": 2,
+    "brand": {
+      "id": 2,
+      "name": "Nike",
+      "slug": "nike"
+    },
+    "category_id": 3,
+    "category": {
+      "id": 3,
+      "name": "Tops"
+    },
+    "gender": "unisex",
+    "main_image_url": "https://images.unsplash.com/photo-1578587018452-892bacefd3f2?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "80% Cotton / 20% Polyester",
+    "editorial_tags": "Essential Heritage, Everyday Crew",
+    "mood_aesthetic": "Minimalist Core",
+    "occasion": "Casual Daily",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "nike-06",
+    "name": "Nike Air Zoom Pegasus 40 Road Running Shoes",
+    "description": "Responsive daily trainer with dual Zoom Air units and engineered breathable mesh upper.",
+    "price": 175000,
+    "currency": "IQD",
+    "brand_id": 2,
+    "brand": {
+      "id": 2,
+      "name": "Nike",
+      "slug": "nike"
+    },
+    "category_id": 1,
+    "category": {
+      "id": 1,
+      "name": "Shoes"
+    },
+    "gender": "unisex",
+    "main_image_url": "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Engineered Mesh & React Foam",
+    "editorial_tags": "Performance Engineering, Marathon Ready",
+    "mood_aesthetic": "Street Couture",
+    "occasion": "Running & Training",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "nike-07",
+    "name": "Nike Repel Windrunner Running Jacket in White/Black",
+    "description": "Water-repellent lightweight windbreaker with 26-degree chevron and back ventilation flap.",
+    "price": 130000,
+    "currency": "IQD",
+    "brand_id": 2,
+    "brand": {
+      "id": 2,
+      "name": "Nike",
+      "slug": "nike"
+    },
+    "category_id": 5,
+    "category": {
+      "id": 5,
+      "name": "Outerwear"
+    },
+    "gender": "unisex",
+    "main_image_url": "https://images.unsplash.com/photo-1548883354-7622d03aca27?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Nike Repel Woven Poly",
+    "editorial_tags": "Performance Innovation, Rain Run",
+    "mood_aesthetic": "Street Couture",
+    "occasion": "Outdoor Training & Run",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "nike-08",
+    "name": "Nike Pro Dri-FIT Compression Sleeveless Tank",
+    "description": "Body-hugging base layer tank with zoned mesh panels for maximum heat dissipation.",
+    "price": 45000,
+    "currency": "IQD",
+    "brand_id": 2,
+    "brand": {
+      "id": 2,
+      "name": "Nike",
+      "slug": "nike"
+    },
+    "category_id": 3,
+    "category": {
+      "id": 3,
+      "name": "Tops"
+    },
+    "gender": "unisex",
+    "main_image_url": "https://images.unsplash.com/photo-1581655353564-df123a1eb820?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Nike Pro Compression",
+    "editorial_tags": "Athlete Base Layer, High Heat Control",
+    "mood_aesthetic": "Minimalist Core",
+    "occasion": "Heavy Training & Gym",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "nike-09",
+    "name": "Nike Sportswear Woven Track Pants in Midnight Navy",
+    "description": "Crisp crinkle woven pants with zip ankles and heritage embroidered logo.",
+    "price": 90000,
+    "currency": "IQD",
+    "brand_id": 2,
+    "brand": {
+      "id": 2,
+      "name": "Nike",
+      "slug": "nike"
+    },
+    "category_id": 4,
+    "category": {
+      "id": 4,
+      "name": "Bottoms"
+    },
+    "gender": "unisex",
+    "main_image_url": "https://images.unsplash.com/photo-1517445312882-bc9910d016b7?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Crinkle Woven Nylon",
+    "editorial_tags": "Retro Track, 90s Streetwear",
+    "mood_aesthetic": "Street Couture",
+    "occasion": "Street & Travel",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "nike-10",
+    "name": "Nike Therma-FIT Hooded Down Puffer Jacket",
+    "description": "Heavyweight insulated duck down jacket with heat-regulating Therma-FIT technology.",
+    "price": 260000,
+    "currency": "IQD",
+    "brand_id": 2,
+    "brand": {
+      "id": 2,
+      "name": "Nike",
+      "slug": "nike"
+    },
+    "category_id": 5,
+    "category": {
+      "id": 5,
+      "name": "Outerwear"
+    },
+    "gender": "unisex",
+    "main_image_url": "https://images.unsplash.com/photo-1544022613-e87ca75a784a?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Therma-FIT & 550 Down",
+    "editorial_tags": "Winter Defense, Cold Shield",
+    "mood_aesthetic": "Street Couture",
+    "occasion": "Sub-Zero Winter",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "nike-11",
+    "name": "Nike Dunk Low Retro Panda Black/White",
+    "description": "The iconic 80s hardwood classic with crisp leather overlays and contrast black Swoosh.",
+    "price": 160000,
+    "currency": "IQD",
+    "brand_id": 2,
+    "brand": {
+      "id": 2,
+      "name": "Nike",
+      "slug": "nike"
+    },
+    "category_id": 1,
+    "category": {
+      "id": 1,
+      "name": "Shoes"
+    },
+    "gender": "unisex",
+    "main_image_url": "https://images.unsplash.com/photo-1552346154-21d32810aba3?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Smooth Leather",
+    "editorial_tags": "Iconic Footwear, Dunk Collector",
+    "mood_aesthetic": "Street Couture",
+    "occasion": "Streetwear Icon",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "nike-12",
+    "name": "Nike Swoosh Medium-Support Padded Sports Bra",
+    "description": "Removable 1-piece pad sports bra with wide straps and classic racerback design.",
+    "price": 52000,
+    "currency": "IQD",
+    "brand_id": 2,
+    "brand": {
+      "id": 2,
+      "name": "Nike",
+      "slug": "nike"
+    },
+    "category_id": 3,
+    "category": {
+      "id": 3,
+      "name": "Tops"
+    },
+    "gender": "women",
+    "main_image_url": "https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Dri-FIT Interlock",
+    "editorial_tags": "Gym Essential, High Support",
+    "mood_aesthetic": "Minimalist Core",
+    "occasion": "Training & Cardio",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "nike-13",
+    "name": "Nike Club Fleece Cargo Shorts in Khaki",
+    "description": "Brushed fleece relaxed shorts with dual side cargo utility pockets.",
+    "price": 65000,
+    "currency": "IQD",
+    "brand_id": 2,
+    "brand": {
+      "id": 2,
+      "name": "Nike",
+      "slug": "nike"
+    },
+    "category_id": 4,
+    "category": {
+      "id": 4,
+      "name": "Bottoms"
+    },
+    "gender": "unisex",
+    "main_image_url": "https://images.unsplash.com/photo-1562157873-818bc0726f68?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Soft Club Fleece",
+    "editorial_tags": "Summer Athleisure, Utility Short",
+    "mood_aesthetic": "Street Couture",
+    "occasion": "Casual Daily",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "nike-14",
+    "name": "Nike ACG Storm-FIT Mountain Parka",
+    "description": "All Conditions Gear waterproof alpine jacket with taped seams and oversized storm hood.",
+    "price": 310000,
+    "currency": "IQD",
+    "brand_id": 2,
+    "brand": {
+      "id": 2,
+      "name": "Nike",
+      "slug": "nike"
+    },
+    "category_id": 5,
+    "category": {
+      "id": 5,
+      "name": "Outerwear"
+    },
+    "gender": "unisex",
+    "main_image_url": "https://images.unsplash.com/photo-1508873696983-2df5293cb32f?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Storm-FIT 3-Layer GORE-TEX",
+    "editorial_tags": "All Conditions Gear, Extreme Weather",
+    "mood_aesthetic": "Avant-Garde",
+    "occasion": "Hiking & Expedition",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "nike-15",
+    "name": "Nike Air Max 90 OG Infrared Edition",
+    "description": "Heritage running silhouette featuring visible Max Air heel unit and stitched overlays.",
+    "price": 180000,
+    "currency": "IQD",
+    "brand_id": 2,
+    "brand": {
+      "id": 2,
+      "name": "Nike",
+      "slug": "nike"
+    },
+    "category_id": 1,
+    "category": {
+      "id": 1,
+      "name": "Shoes"
+    },
+    "gender": "unisex",
+    "main_image_url": "https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Mesh, Suede & Leather",
+    "editorial_tags": "Air Max Legend, 90s Heritage",
+    "mood_aesthetic": "Street Couture",
+    "occasion": "Lifestyle & Walking",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "nike-16",
+    "name": "Nike Sportswear Ribbed Long-Sleeve Crop Top",
+    "description": "Form-fitting ribbed stretch knit top with embroidered mini Swoosh at center chest.",
+    "price": 58000,
+    "currency": "IQD",
+    "brand_id": 2,
+    "brand": {
+      "id": 2,
+      "name": "Nike",
+      "slug": "nike"
+    },
+    "category_id": 3,
+    "category": {
+      "id": 3,
+      "name": "Tops"
+    },
+    "gender": "women",
+    "main_image_url": "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Stretch Rib Knit",
+    "editorial_tags": "Studio Style, Minimalist Athleisure",
+    "mood_aesthetic": "Minimalist Core",
+    "occasion": "Studio & Street",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "nike-17",
+    "name": "Nike Stride 5-Inch Dri-FIT Brief-Lined Running Shorts",
+    "description": "Ultra-lightweight stretch running shorts with ergonomic brief liner and zip phone pocket.",
+    "price": 60000,
+    "currency": "IQD",
+    "brand_id": 2,
+    "brand": {
+      "id": 2,
+      "name": "Nike",
+      "slug": "nike"
+    },
+    "category_id": 4,
+    "category": {
+      "id": 4,
+      "name": "Bottoms"
+    },
+    "gender": "unisex",
+    "main_image_url": "https://images.unsplash.com/photo-1539185441755-769473a23570?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Dri-FIT Woven Stretch",
+    "editorial_tags": "Marathon Training, Fast & Light",
+    "mood_aesthetic": "Minimalist Core",
+    "occasion": "Running & Cardio",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "nike-18",
+    "name": "Nike Sportswear Therma-FIT Synthetic Fill Bomber",
+    "description": "Reversible military-style bomber jacket with ribbed collar and heavy metal front zipper.",
+    "price": 195000,
+    "currency": "IQD",
+    "brand_id": 2,
+    "brand": {
+      "id": 2,
+      "name": "Nike",
+      "slug": "nike"
+    },
+    "category_id": 5,
+    "category": {
+      "id": 5,
+      "name": "Outerwear"
+    },
+    "gender": "unisex",
+    "main_image_url": "https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Therma-FIT Woven Shell",
+    "editorial_tags": "Flight Bomber, Street Outerwear",
+    "mood_aesthetic": "Street Couture",
+    "occasion": "Streetwear & Night",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "nike-19",
+    "name": "Nike Metcon 9 Cross-Training Shoes in Black/Gold",
+    "description": "Heavy lifting and CrossFit shoes with larger Hyperlift plate and dual-density foam.",
+    "price": 190000,
+    "currency": "IQD",
+    "brand_id": 2,
+    "brand": {
+      "id": 2,
+      "name": "Nike",
+      "slug": "nike"
+    },
+    "category_id": 1,
+    "category": {
+      "id": 1,
+      "name": "Shoes"
+    },
+    "gender": "unisex",
+    "main_image_url": "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Haptic Print & Hyperlift Plate",
+    "editorial_tags": "Elite Training, Weightlifting Stability",
+    "mood_aesthetic": "Street Couture",
+    "occasion": "Gym & Crossfit",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "nike-20",
+    "name": "Nike Sportswear Modern Tennis Polo in White",
+    "description": "Tailored athletic polo in breathable pique with laser-perforated collar.",
+    "price": 65000,
+    "currency": "IQD",
+    "brand_id": 2,
+    "brand": {
+      "id": 2,
+      "name": "Nike",
+      "slug": "nike"
+    },
+    "category_id": 3,
+    "category": {
+      "id": 3,
+      "name": "Tops"
+    },
+    "gender": "unisex",
+    "main_image_url": "https://images.unsplash.com/photo-1581655353564-df123a1eb820?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Dri-FIT Pique Cotton",
+    "editorial_tags": "Court Heritage, Clean Minimalist",
+    "mood_aesthetic": "Minimalist Core",
+    "occasion": "Tennis & Country Club",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "nike-21",
+    "name": "Nike Zenvy Gentle-Support Biker Shorts 8-Inch",
+    "description": "InfinaSoft fabric high-rise bike shorts that feel weightless and velvety soft.",
+    "price": 72000,
+    "currency": "IQD",
+    "brand_id": 2,
+    "brand": {
+      "id": 2,
+      "name": "Nike",
+      "slug": "nike"
+    },
+    "category_id": 4,
+    "category": {
+      "id": 4,
+      "name": "Bottoms"
+    },
+    "gender": "women",
+    "main_image_url": "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Nike InfinaSoft",
+    "editorial_tags": "Studio Luxe, Second Skin",
+    "mood_aesthetic": "Minimalist Core",
+    "occasion": "Yoga, Pilates & Daily",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "nike-22",
+    "name": "Nike ACG Cinder Cone Windproof Packable Jacket",
+    "description": "Ultra-packable trail running jacket made from 100% recycled nylon with allover summit print.",
+    "price": 145000,
+    "currency": "IQD",
+    "brand_id": 2,
+    "brand": {
+      "id": 2,
+      "name": "Nike",
+      "slug": "nike"
+    },
+    "category_id": 5,
+    "category": {
+      "id": 5,
+      "name": "Outerwear"
+    },
+    "gender": "unisex",
+    "main_image_url": "https://images.unsplash.com/photo-1548883354-7622d03aca27?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Recycled Ripstop Nylon",
+    "editorial_tags": "Trail Running, Ultra Lightweight",
+    "mood_aesthetic": "Avant-Garde",
+    "occasion": "Trail & Travel",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "nike-23",
+    "name": "Nike Everyday Plus Cushioned Tie-Dye Crew Socks 3-Pack",
+    "description": "Dri-FIT cushioned arch band athletic crew socks in custom artisanal dye wash.",
+    "price": 35000,
+    "currency": "IQD",
+    "brand_id": 2,
+    "brand": {
+      "id": 2,
+      "name": "Nike",
+      "slug": "nike"
+    },
+    "category_id": 3,
+    "category": {
+      "id": 3,
+      "name": "Tops"
+    },
+    "gender": "unisex",
+    "main_image_url": "https://images.unsplash.com/photo-1582965372481-620450e7f766?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Dri-FIT Cotton Blend",
+    "editorial_tags": "Streetwear Accessories, Tie Dye",
+    "mood_aesthetic": "Street Couture",
+    "occasion": "Everyday Style",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "nike-24",
+    "name": "Nike Blazer Mid 77 Vintage Suede in Sail/Black",
+    "description": "Old-school basketball high-top with exposed foam tongue and vintage midsole finish.",
+    "price": 140000,
+    "currency": "IQD",
+    "brand_id": 2,
+    "brand": {
+      "id": 2,
+      "name": "Nike",
+      "slug": "nike"
+    },
+    "category_id": 1,
+    "category": {
+      "id": 1,
+      "name": "Shoes"
+    },
+    "gender": "unisex",
+    "main_image_url": "https://images.unsplash.com/photo-1560769629-975ec94e6a86?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Real Suede & Leather",
+    "editorial_tags": "Vintage Basketball, Mid-Top Icon",
+    "mood_aesthetic": "Street Couture",
+    "occasion": "Skate & Streetwear",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  },
+  {
+    "id": "nike-25",
+    "name": "Nike Sportswear Tech Fleece Full Bodysuit",
+    "description": "Sculpted form-fitting one-piece suit with front zip and engineered compression lines.",
+    "price": 175000,
+    "currency": "IQD",
+    "brand_id": 2,
+    "brand": {
+      "id": 2,
+      "name": "Nike",
+      "slug": "nike"
+    },
+    "category_id": 2,
+    "category": {
+      "id": 2,
+      "name": "Dresses"
+    },
+    "gender": "women",
+    "main_image_url": "https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=800&q=80",
+    "fabric_type": "Nike Tech Knit",
+    "editorial_tags": "Runway Athleisure, Sculpt Silhouette",
+    "mood_aesthetic": "Avant-Garde",
+    "occasion": "Statement Athleisure",
+    "stock_quantity": 75,
+    "sizes": [
+      {
+        "size": "XS",
+        "stock": 15
+      },
+      {
+        "size": "S",
+        "stock": 15
+      },
+      {
+        "size": "M",
+        "stock": 15
+      },
+      {
+        "size": "L",
+        "stock": 15
+      },
+      {
+        "size": "XL",
+        "stock": 15
+      }
+    ]
+  }
 ];
 
 export const FALLBACK_BRANDS = [
-  { id: 1, name: "Zara",  slug: "zara"  },
-  { id: 2, name: "Nike",  slug: "nike"  },
-  { id: 3, name: "H&M",   slug: "hm"    },
-  { id: 4, name: "Gucci", slug: "gucci" },
+  {
+    id: 1,
+    name: "Zara",
+    slug: "zara",
+    tagline: "Contemporary Urban Atelier",
+    description: "Modern street tailoring, unstructured coats, and sleek minimal aesthetics designed for the contemporary urban lifestyle.",
+    accent_color: "#faf9f7",
+    font_family: "Hanken Grotesk, sans-serif",
+    hero_image_url: "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1600&q=80",
+    banner_url: "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=800&q=75",
+    seasonal_title: "Autumn Vanguard Edit",
+    seasonal_desc: "Explore fluid draping, structured trench coats, and sharp urban tailoring.",
+    story_title: "Philosophy of Modern Street Tailoring",
+    story_description: "Zara Atelier reinterprets modern silhouettes through precision tailoring, tactile fabrics, and effortless versatility.",
+    story_image_url: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1200&q=80",
+  },
+  {
+    id: 4,
+    name: "Gucci",
+    slug: "gucci",
+    tagline: "Eclectic Italian Heritage",
+    description: "Opulent Italian craftsmanship, bold signature patterns, and timeless luxury tailored for statement elegance.",
+    accent_color: "#fcf8f2",
+    font_family: "Bodoni Moda, serif",
+    hero_image_url: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1600&q=80",
+    banner_url: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=800&q=75",
+    seasonal_title: "The Florentine Gala Collection",
+    seasonal_desc: "Rich velvets, GG monogram jacquards, and red carpet evening silhouettes.",
+    story_title: "Centuries of Tuscan Artistry",
+    story_description: "Rooted in Florence since 1921, Gucci marries eccentric romanticism with master leatherwork and opulent craftsmanship.",
+    story_image_url: "https://images.unsplash.com/photo-1566174053879-31528523f8ae?auto=format&fit=crop&w=1200&q=80",
+  },
+  {
+    id: 3,
+    name: "H&M",
+    slug: "hm",
+    tagline: "Essential Scandinavian Simplicity",
+    description: "Versatile capsule wardrobes, relaxed silhouettes, and effortless everyday luxury.",
+    accent_color: "#f8f9fa",
+    font_family: "Hanken Grotesk, sans-serif",
+    hero_image_url: "https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=1600&q=80",
+    banner_url: "https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=800&q=75",
+    seasonal_title: "Nordic Minimalist Foundations",
+    seasonal_desc: "Airy linen layers, timeless botanical dresses, and sustainable capsule staples.",
+    story_title: "The Beauty of Everyday Ease",
+    story_description: "H&M Studio delivers progressive Scandinavian design with conscious fabrications and relaxed elegance.",
+    story_image_url: "https://images.unsplash.com/photo-1473496169904-658ba7c44d8a?auto=format&fit=crop&w=1200&q=80",
+  },
+  {
+    id: 2,
+    name: "Nike",
+    slug: "nike",
+    tagline: "High-Performance Technical Engineering",
+    description: "High-tech sportswear, activewear innovation, and iconographic athletic footwear.",
+    accent_color: "#f4f4f4",
+    font_family: "Montserrat, sans-serif",
+    hero_image_url: "https://images.unsplash.com/photo-1552346154-21d32810aba3?auto=format&fit=crop&w=1600&q=80",
+    banner_url: "https://images.unsplash.com/photo-1552346154-21d32810aba3?auto=format&fit=crop&w=800&q=75",
+    seasonal_title: "Techwear Performance Lab",
+    seasonal_desc: "Aerodynamic windbreakers, Tech Fleece layers, and iconic Air cushioning.",
+    story_title: "Innovating for Human Potential",
+    story_description: "Nike Activewear pushes the boundary between futuristic sports tech and high-fashion urban street culture.",
+    story_image_url: "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=1200&q=80",
+  },
 ];
 
 export const FALLBACK_CATEGORIES = [
-  { id: 1, name: "Clothing"  },
-  { id: 2, name: "Dresses"   },
-  { id: 3, name: "Tops"      },
-  { id: 4, name: "Bottoms"   },
-  { id: 5, name: "Outerwear" },
+  { id: 1, name: "Shoes", slug: "shoes" },
+  { id: 2, name: "Dresses", slug: "dresses" },
+  { id: 3, name: "Tops", slug: "tops" },
+  { id: 4, name: "Bottoms", slug: "bottoms" },
+  { id: 5, name: "Outerwear", slug: "outerwear" },
+  { id: 6, name: "Activewear", slug: "activewear" },
 ];
 
 export function findFallbackProduct(id) {
-  if (!FALLBACK_PRODUCTS || FALLBACK_PRODUCTS.length === 0) return null;
   if (!id) return FALLBACK_PRODUCTS[0];
-
   const strId = String(id).toLowerCase();
-
-  // 1. Exact ID match
-  let found = FALLBACK_PRODUCTS.find(
-    (p) => String(p.id).toLowerCase() === strId
+  return (
+    FALLBACK_PRODUCTS.find((p) => String(p.id).toLowerCase() === strId) ||
+    FALLBACK_PRODUCTS.find((p) => p.name.toLowerCase().includes(strId)) ||
+    FALLBACK_PRODUCTS[0]
   );
-  if (found) return found;
-
-  // 2. Name or tag substring match
-  found = FALLBACK_PRODUCTS.find(
-    (p) => p.name.toLowerCase().includes(strId) || strId.includes(p.name.toLowerCase())
-  );
-  if (found) return found;
-
-  // 3. Numeric ID index fallback
-  const numId = parseInt(id, 10);
-  if (!isNaN(numId) && numId > 0) {
-    return FALLBACK_PRODUCTS[(numId - 1) % FALLBACK_PRODUCTS.length];
-  }
-
-  // 4. Always return a valid product as ultimate safety net — NEVER fail to render
-  return FALLBACK_PRODUCTS[0];
 }
