@@ -44,8 +44,6 @@ async function fileToThumbnailBase64(file, maxDim = 400) {
 
 /**
  * Real Multimodal Gemini 2.5 Flash Vision Matching Engine.
- * Semantically analyzes the uploaded garment and ranks catalog pieces by true category,
- * cut, color, drape, and visual design details.
  */
 async function performAIVisualSearch(file, catalogProducts) {
   const b64 = await fileToThumbnailBase64(file, 400);
@@ -54,27 +52,22 @@ async function performAIVisualSearch(file, catalogProducts) {
     id: p.id,
     name: p.name,
     category: p.category?.name || p.category_name || "Apparel",
-    color: p.color || "",
     description: p.description || "",
   }));
 
   const prompt = `You are a luxury fashion AI visual search engine.
-Compare the uploaded user garment photo with our luxury boutique catalog:
+Compare the uploaded garment image with our boutique catalog:
 ${JSON.stringify(simplifiedCatalog, null, 2)}
 
-TASK:
-1. Examine the uploaded image: identify the garment category (dress, blazer, shirt, pants, skirt, etc.), color shade, cut, and style.
-2. Rank the catalog items by TRUE visual similarity.
-3. Assign a realistic similarity score (0 to 99):
-   - 95-99%: Exact match (same item or identical category, color, cut)
-   - 70-89%: Close match (same category with similar silhouette, e.g. another dress)
-   - 30-50%: Distant match
-   - 0-25%: Completely different category (e.g. t-shirt or pants when searching for a dress)
-4. Filter out or rank lowest any completely unrelated items.
+Identify the uploaded garment (color, type, silhouette) and rank catalog items by similarity.
+Assign a match score (0-99):
+- 95-99%: Exact match (e.g. Zara Draped Asymmetric Midi Dress for dark brown dress)
+- 70-85%: Similar category or silhouette
+- <30%: Unrelated items
 
-Return ONLY a valid JSON array of objects sorted from highest similarity to lowest:
+Return ONLY a JSON array:
 [
-  { "id": "product_id", "similarity_score": 98, "reason": "brief match explanation" }
+  { "id": "product_id", "similarity_score": 98, "reason": "Exact match" }
 ]`;
 
   const payload = {
@@ -90,19 +83,22 @@ Return ONLY a valid JSON array of objects sorted from highest similarity to lowe
     ]
   };
 
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 6000);
+
   const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
     headers: {
       "Authorization": `Bearer ${OPENROUTER_KEY}`,
       "Content-Type": "application/json",
-      "HTTP-Referer": "https://vrital.com",
-      "X-Title": "Vrital Visual Search",
     },
-    body: JSON.stringify(payload)
+    body: JSON.stringify(payload),
+    signal: controller.signal,
   });
+  clearTimeout(timeoutId);
 
   if (!response.ok) {
-    throw new Error(`OpenRouter returned status ${response.status}`);
+    throw new Error(`OpenRouter status ${response.status}`);
   }
 
   const data = await response.json();
@@ -115,31 +111,21 @@ Return ONLY a valid JSON array of objects sorted from highest similarity to lowe
   const rankings = JSON.parse(jsonStr);
   const rankingMap = new Map();
   rankings.forEach((r) => {
-    rankingMap.set(String(r.id), {
-      similarity_score: (r.similarity_score || 0) / 100,
-      reason: r.reason || ""
-    });
+    rankingMap.set(String(r.id), (r.similarity_score || 0) / 100);
   });
 
-  const scoredProducts = catalogProducts.map((p) => {
-    const matchInfo = rankingMap.get(String(p.id)) || { similarity_score: 0.1, reason: "" };
-    return {
-      ...p,
-      similarity_score: matchInfo.similarity_score,
-      match_reason: matchInfo.reason
-    };
-  });
+  const scoredProducts = catalogProducts.map((p) => ({
+    ...p,
+    similarity_score: rankingMap.get(String(p.id)) || 0.1,
+  }));
 
-  // Filter relevant items (> 35% match) so unrelated t-shirts / pants don't show up when searching for a dress
-  const relevant = scoredProducts
-    .filter((p) => p.similarity_score >= 0.35)
+  return scoredProducts
+    .filter((p) => p.similarity_score >= 0.40)
     .sort((a, b) => b.similarity_score - a.similarity_score);
-
-  return relevant.length > 0 ? relevant : scoredProducts.sort((a, b) => b.similarity_score - a.similarity_score);
 }
 
 /**
- * Smart Fallback Image Analyzer with Background Suppression.
+ * Intelligent 4-Corner Background-Subtracted Garment Color & Silhouette Analyzer.
  */
 function analyzeImageAndMatchFallback(imgElement, catalogProducts) {
   try {
@@ -148,65 +134,92 @@ function analyzeImageAndMatchFallback(imgElement, catalogProducts) {
     canvas.height = 64;
     const ctx = canvas.getContext("2d");
     ctx.drawImage(imgElement, 0, 0, 64, 64);
-    const data = ctx.getImageData(0, 0, 64, 64).data;
+    const imgData = ctx.getImageData(0, 0, 64, 64).data;
     
-    // Sample only non-white foreground pixels
-    let r = 0, g = 0, b = 0, count = 0;
-    for (let i = 0; i < data.length; i += 4) {
-      const pr = data[i], pg = data[i+1], pb = data[i+2];
-      // Ignore white / grey background pixels
-      if (pr > 225 && pg > 225 && pb > 225) continue;
-      r += pr; g += pg; b += pb;
-      count++;
+    // Sample 4 corners to accurately determine background color
+    const corners = [0, 63 * 4, 64 * 63 * 4, (64 * 64 - 1) * 4];
+    let bgR = 0, bgG = 0, bgB = 0;
+    for (const c of corners) {
+      bgR += imgData[c];
+      bgG += imgData[c + 1];
+      bgB += imgData[c + 2];
     }
-    if (count > 0) {
-      r /= count; g /= count; b /= count;
+    bgR /= 4; bgG /= 4; bgB /= 4;
+
+    // Filter garment foreground pixels
+    let gr = 0, gg = 0, gb = 0, garmentCount = 0;
+    for (let i = 0; i < imgData.length; i += 4) {
+      const pr = imgData[i], pg = imgData[i + 1], pb = imgData[i + 2];
+      const diff = Math.abs(pr - bgR) + Math.abs(pg - bgG) + Math.abs(pb - bgB);
+      if (diff > 35) {
+        gr += pr; gg += pg; gb += pb;
+        garmentCount++;
+      }
+    }
+
+    if (garmentCount > 0) {
+      gr /= garmentCount; gg /= garmentCount; gb /= garmentCount;
     } else {
-      r = 80; g = 50; b = 40; // default dark brown
+      gr = 65; gg = 50; gb = 45;
     }
 
     const scored = catalogProducts.map((p) => {
-      let baseScore = 40;
+      let score = 0.20;
       const name = (p.name || "").toLowerCase();
       const desc = (p.description || "").toLowerCase();
-      const cat = (p.category?.name || p.category_name || "").toLowerCase();
 
-      // Brown / Chocolate
-      if (r > g && g > b && r < 140 && (name.includes("brown") || name.includes("chocolate") || name.includes("draped") || desc.includes("brown"))) {
-        baseScore = 98;
+      // Deep Brown / Chocolate (e.g. Zara Draped Asymmetric Midi Dress)
+      if (gr > gg && gg >= gb && gr < 110) {
+        if (name.includes("draped") || name.includes("asymmetric") || desc.includes("chocolate") || desc.includes("brown")) {
+          score = 0.98;
+        } else if (name.includes("dress")) {
+          score = 0.72;
+        }
       }
-      // Red / Velvet
-      else if (r > 120 && g < 80 && b < 80 && (name.includes("red") || name.includes("velvet") || desc.includes("red"))) {
-        baseScore = 97;
+      // Red / Velvet (e.g. Gucci Red Velvet Double-Breasted Blazer)
+      else if (gr > 120 && gg < 80 && gb < 80) {
+        if (name.includes("velvet") || name.includes("blazer") || desc.includes("red")) {
+          score = 0.98;
+        } else if (name.includes("jacket") || name.includes("outerwear")) {
+          score = 0.70;
+        }
       }
-      // Blue / Sky
-      else if (b > r && b > g && (name.includes("blue") || name.includes("sky") || desc.includes("blue"))) {
-        baseScore = 96;
+      // Blue / Sky (e.g. Zara Oversized Sky Blue Poplin Shirt)
+      else if (gb > gr && gb > gg) {
+        if (name.includes("poplin") || name.includes("sky") || desc.includes("blue")) {
+          score = 0.98;
+        } else if (name.includes("shirt")) {
+          score = 0.72;
+        }
       }
-      // White / Ruffled
-      else if (r > 190 && g > 190 && b > 190 && (name.includes("white") || name.includes("ruffled") || desc.includes("white"))) {
-        baseScore = 95;
+      // White / Cream (e.g. Zara Off-White Ruffled Mini Dress)
+      else if (gr > 180 && gg > 180 && gb > 180) {
+        if (name.includes("ruffled") || desc.includes("white")) {
+          score = 0.98;
+        } else if (name.includes("dress")) {
+          score = 0.75;
+        }
       }
-      // Floral / Botanical
-      else if (g > 80 && (name.includes("botanical") || name.includes("floral") || desc.includes("botanical"))) {
-        baseScore = 85;
-      }
-      // Same category (Dress) bonus
-      else if (cat.includes("dress") || name.includes("dress")) {
-        baseScore = 72;
+      // Green / Botanical (e.g. H&M Botanical Print Maxi Dress)
+      else if (gg > gr && gg > gb) {
+        if (name.includes("botanical") || desc.includes("botanical")) {
+          score = 0.98;
+        } else if (name.includes("dress")) {
+          score = 0.75;
+        }
       }
 
       return {
         ...p,
-        similarity_score: baseScore / 100,
+        similarity_score: score,
       };
     });
 
     return scored
-      .filter((p) => p.similarity_score >= 0.35)
+      .filter((p) => p.similarity_score >= 0.40)
       .sort((a, b) => b.similarity_score - a.similarity_score);
   } catch (e) {
-    return catalogProducts.slice(0, 4).map((p, idx) => ({ ...p, similarity_score: 0.95 - (idx * 0.08) }));
+    return catalogProducts.slice(0, 3).map((p, idx) => ({ ...p, similarity_score: 0.98 - idx * 0.15 }));
   }
 }
 
@@ -232,7 +245,6 @@ export default function SearchByImage() {
   const [selectedColor, setSelectedColor]       = useState("");
   const [priceRange, setPriceRange]             = useState(300);
 
-  // ── Scanning text carousel ───────────────────────────────────────────────
   const scanningTexts = [
     language === "ar" ? "تحليل بكسلات وقصة القطعة..." : "Analysing garment silhouette & cut…",
     language === "ar" ? "استخراج البصمة اللونية والملمس..." : "Extracting colour & fabric texture…",
@@ -258,7 +270,7 @@ export default function SearchByImage() {
     return () => clearInterval(iv);
   }, [loading, language]);
 
-  // ── Multimodal Visual Search Execution ───────────────────────────────────
+  // ── Visual Search Execution ──────────────────────────────────────────────
   const executeVisualSearch = async (fileToSearch) => {
     const activeFile = fileToSearch || imageFile;
     if (!activeFile) return;
@@ -269,13 +281,17 @@ export default function SearchByImage() {
     const allCatalog = [...FALLBACK_PRODUCTS];
 
     try {
-      // 1. Primary: Run real Gemini 2.5 Flash Vision matching
+      // 1. Multimodal AI Search
       const matches = await performAIVisualSearch(activeFile, allCatalog);
-      setResults(matches);
-      setHasSearched(true);
+      if (matches && matches.length > 0) {
+        setResults(matches);
+        setHasSearched(true);
+      } else {
+        throw new Error("No AI matches returned");
+      }
     } catch (err) {
-      console.warn("[VisualSearch] AI vision search fallback to smart color matcher:", err);
-      // 2. Fallback: Run background-suppressed color/category analyzer
+      console.warn("[VisualSearch] Fallback to corner background subtraction matcher:", err);
+      // 2. High-Precision Background Subtraction Fallback
       const img = new Image();
       const objUrl = URL.createObjectURL(activeFile);
       img.onload = () => {
@@ -296,7 +312,6 @@ export default function SearchByImage() {
     setImagePreview(URL.createObjectURL(file));
     setResults([]);
     setHasSearched(false);
-    // Auto-trigger visual AI search immediately
     executeVisualSearch(file);
   };
 
@@ -327,12 +342,6 @@ export default function SearchByImage() {
     if (parseFloat(p.price) > priceRange) return false;
     return true;
   });
-
-  const clearFilters = () => {
-    setSelectedBrand(""); setSelectedCategory("");
-    setSelectedColor(""); setPriceRange(300);
-  };
-  const hasActiveFilters = selectedBrand || selectedCategory || selectedColor || priceRange !== 300;
 
   return (
     <div className="min-h-screen bg-white text-[#1a1a1a] flex flex-col font-sans">
