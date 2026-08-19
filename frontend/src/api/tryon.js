@@ -107,8 +107,6 @@ STRICT RULES:
     headers: {
       "Authorization": `Bearer ${OPENROUTER_KEY}`,
       "Content-Type": "application/json",
-      "HTTP-Referer": "https://vrital.com",
-      "X-Title": "Vrital Virtual Try-On",
     },
     body: JSON.stringify(payload)
   });

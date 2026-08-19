@@ -123,7 +123,7 @@ export const router = createBrowserRouter([
   { path: "/brands/:brand_slug",               element: <LazyRoute Page={Home} /> },
   { path: "/brands/:brand_slug/shop",          element: <LazyRoute Page={Shop} /> },
   { path: "/brands/:brand_slug/product/:id",   element: <LazyRoute Page={ProductDetails} /> },
-  { path: "/brands/:brand_slug/tryon",         element: <Navigate to="/" replace /> },
+  { path: "/brands/:brand_slug/tryon",         element: <LazyRoute Page={TryOn} /> },
   { path: "/brands/:brand_slug/cart",          element: <LazyRoute Page={Cart} /> },
   { path: "/brands/:brand_slug/checkout",      element: <ProtectedRoute><LazyRoute Page={Checkout} /></ProtectedRoute> },
   { path: "/brands/:brand_slug/profile",       element: <ProtectedRoute><LazyRoute Page={Profile} /></ProtectedRoute> },
@@ -139,7 +139,7 @@ export const router = createBrowserRouter([
   // Fallback/Legacy routes (for backward compatibility)
   { path: "/shop",       element: <LazyRoute Page={Shop} /> },
   { path: "/product/:id", element: <LazyRoute Page={ProductDetails} /> },
-  { path: "/tryon",      element: <Navigate to="/" replace /> },
+  { path: "/tryon",      element: <LazyRoute Page={TryOn} /> },
   { path: "/cart",       element: <LazyRoute Page={Cart} /> },
   { path: "/checkout",   element: <ProtectedRoute><LazyRoute Page={Checkout} /></ProtectedRoute> },
   { path: "/profile",    element: <ProtectedRoute><LazyRoute Page={Profile} /></ProtectedRoute> },

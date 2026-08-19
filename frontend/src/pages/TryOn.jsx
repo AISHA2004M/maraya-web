@@ -9,6 +9,7 @@ import { Sparkles, Loader2, AlertCircle, ArrowLeft, Trash2, History, User, Downl
 import { useUserStore } from "../store/useUserStore";
 import { useLanguageStore } from "../store/useLanguageStore";
 import { submitTryOn, waitForTryOnResult, getTryOnResult, pollTryOnStatus } from "../api/tryon";
+import { FALLBACK_PRODUCTS } from "../utils/fallbackData";
 
 
 const PRESET_MODELS = [
@@ -119,7 +120,16 @@ export default function TryOn() {
     };
   }, [brand]);
 
-  const brandProducts = products && brand ? products.filter((p) => p.brand_id === brand.id) : (products || []);
+  const allProductsList = [...(products || [])];
+  FALLBACK_PRODUCTS.forEach(fp => {
+    if (!allProductsList.some(p => p.id === fp.id || p.name.toLowerCase() === fp.name.toLowerCase())) {
+      allProductsList.push(fp);
+    }
+  });
+
+  const brandProducts = brand 
+    ? allProductsList.filter((p) => p.brand_id === brand.id || p.brand?.slug === brand.slug || p.brand?.id === brand.id)
+    : allProductsList;
 
   // Multi-garment states
   const [selectedGarments, setSelectedGarments] = useState([]);
@@ -127,10 +137,8 @@ export default function TryOn() {
 
   // Keep selectedGarments in sync with collageItems
   useEffect(() => {
-    if (products) {
-      const gList = collageItems.map(item => products.find(p => p.id === item.id)).filter(Boolean);
-      setSelectedGarments(gList);
-    }
+    const gList = collageItems.map(item => allProductsList.find(p => p.id === item.id)).filter(Boolean);
+    setSelectedGarments(gList);
   }, [collageItems, products]);
 
   // Pre-populate if arriving from product details
@@ -413,6 +421,8 @@ export default function TryOn() {
       // Dispatch async try-on job — returns 202 immediately
       const extraPayload = {
         product_ids: selectedGarments.map((g) => g.id),
+        garment_image_url: selectedGarments[0]?.main_image_url || selectedGarments[0]?.image_url || "",
+        description: selectedGarments[0]?.name || "luxury apparel piece",
         avatar,
         height,
         weight,
