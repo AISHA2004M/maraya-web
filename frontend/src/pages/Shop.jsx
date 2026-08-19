@@ -147,6 +147,11 @@ export default function Shop() {
     }
   });
 
+  const fallbackBrand = brand_slug
+    ? FALLBACK_BRANDS.find((b) => b.slug.toLowerCase() === brand_slug.toLowerCase())
+    : null;
+  const activeBrand = brand || fallbackBrand;
+
   const activeBrands = (brands && brands.length > 0) ? brands : FALLBACK_BRANDS;
   const activeCategories = (categories && categories.length > 0) ? categories : FALLBACK_CATEGORIES;
 
@@ -157,10 +162,10 @@ export default function Shop() {
       (product.description || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
       (product.fabric_type || "").toLowerCase().includes(searchQuery.toLowerCase());
 
-    const matchesBrand = brand
-      ? product.brand?.slug?.toLowerCase() === brand.slug?.toLowerCase() ||
-        product.brand?.id === brand.id ||
-        product.brand_id === brand.id
+    const matchesBrand = activeBrand
+      ? product.brand?.slug?.toLowerCase() === activeBrand.slug?.toLowerCase() ||
+        product.brand?.id === activeBrand.id ||
+        product.brand_id === activeBrand.id
       : (selectedBrands.length === 0 ||
          selectedBrands.includes(product.brand?.id) ||
          selectedBrands.includes(product.brand_id) ||
