@@ -2,7 +2,7 @@ import axios from "axios";
 import { useUserStore } from "../store/useUserStore";
 
 const baseURL = import.meta.env.VITE_API_URL || 
-  (import.meta.env.PROD ? "https://vrital-api-1yxc.onrender.com" : "http://127.0.0.1:8000");
+  (import.meta.env.PROD ? "https://vrital-api.onrender.com" : "http://127.0.0.1:8000");
 
 const api = axios.create({
   baseURL: `${baseURL.replace(/\/$/, "")}/api/v1`,

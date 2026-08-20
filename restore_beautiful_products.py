@@ -4,7 +4,7 @@ import sqlite3
 import uuid
 
 # Production API Configuration
-API_BASE_URL = "https://vrital-api-1yxc.onrender.com/api/v1"
+API_BASE_URL = "https://vrital-api.onrender.com/api/v1"
 LOGIN_URL = f"{API_BASE_URL}/auth/login"
 CREATE_PRODUCT_URL = f"{API_BASE_URL}/products"
 

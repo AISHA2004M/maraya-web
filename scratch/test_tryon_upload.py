@@ -1,6 +1,6 @@
 import requests
 
-url = "https://vrital-api-1yxc.onrender.com/api/v1/ai/try-on"
+url = "https://vrital-api.onrender.com/api/v1/ai/try-on"
 image_path = "/Users/yahyamohnd/.gemini/antigravity-ide/brain/6a3ed855-789d-4173-ad1d-88f286880e81/after_brand_selection_1781549117488.png"
 product_id = "38aa01af-654f-42e3-8245-de460f6ba34b"
 

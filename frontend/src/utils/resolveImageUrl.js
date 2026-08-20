@@ -16,7 +16,7 @@ export function resolveImageUrl(url) {
   
   // Prepend backend base URL
   const base = import.meta.env.VITE_API_URL || 
-    (import.meta.env.PROD ? "https://vrital-api-1yxc.onrender.com" : "http://127.0.0.1:8000");
+    (import.meta.env.PROD ? "https://vrital-api.onrender.com" : "http://127.0.0.1:8000");
     
   return `${base.replace(/\/$/, "")}/${url.replace(/^\//, "")}`;
 }

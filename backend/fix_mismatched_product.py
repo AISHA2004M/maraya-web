@@ -2,7 +2,7 @@ import urllib.request
 import json
 import sqlite3
 
-API_BASE_URL = "https://vrital-api-1yxc.onrender.com/api/v1"
+API_BASE_URL = "https://vrital-api.onrender.com/api/v1"
 LOGIN_URL = f"{API_BASE_URL}/auth/login"
 EMAIL = "admin@vrital.com"
 PASSWORD = "admin123"

@@ -4,7 +4,7 @@ Run with: python reseed_render.py
 """
 import requests
 
-RENDER_BASE = "https://vrital-api-1yxc.onrender.com/api/v1"
+RENDER_BASE = "https://vrital-api.onrender.com/api/v1"
 ADMIN_EMAIL = "admin@vrital.com"
 ADMIN_PASSWORD = "admin123"
 

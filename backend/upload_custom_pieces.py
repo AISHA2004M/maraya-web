@@ -13,7 +13,7 @@ DB_PATH = os.path.join(BACKEND_DIR, "vrital_dev.db")
 MEDIA_SOURCE_DIR = "/Users/yahyamohnd/.gemini/antigravity-ide/brain/be5a2802-be6c-412e-bf95-8fb26e9fe8d3/.user_uploaded"
 
 # Live API Configuration
-API_BASE_URL = "https://vrital-api-1yxc.onrender.com/api/v1"
+API_BASE_URL = "https://vrital-api.onrender.com/api/v1"
 ADMIN_EMAIL = "admin@vrital.com"
 ADMIN_PASSWORD = "admin123"
 

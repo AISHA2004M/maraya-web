@@ -24,7 +24,7 @@ import "./styles/index.css";
 // The Render free tier sleeps after 15min of inactivity.
 // We fire a lightweight ping immediately on app load so the server wakes
 // up in the background while the user sees the page with fallback data.
-const RENDER_BASE = import.meta.env.VITE_API_URL || "https://vrital-api-1yxc.onrender.com";
+const RENDER_BASE = import.meta.env.VITE_API_URL || "https://vrital-api.onrender.com";
 
 // Ping backend immediately and again after 8s (in case it needs a moment)
 function warmupRenderServer() {
