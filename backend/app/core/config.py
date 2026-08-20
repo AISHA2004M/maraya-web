@@ -1,10 +1,18 @@
 from pydantic_settings import BaseSettings
+from urllib.parse import quote_plus
+from typing import Optional
 
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "Virtual Try-On API"
     API_V1_STR: str = "/api/v1"
-    DATABASE_URL: str
+    # Can be set as full URL or as individual DB_* parts (avoids encoding issues in Render)
+    DATABASE_URL: Optional[str] = None
+    DB_HOST: Optional[str] = None
+    DB_USER: Optional[str] = None
+    DB_PASSWORD: Optional[str] = None
+    DB_NAME: str = "postgres"
+    DB_PORT: int = 6543
     JWT_SECRET: str
     JWT_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 43200
@@ -40,6 +48,20 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+# Build DATABASE_URL from individual DB_* parts if not set directly.
+# This avoids URL-encoding issues with special chars ($ * @) in Render env vars.
+if not settings.DATABASE_URL:
+    if settings.DB_HOST and settings.DB_USER and settings.DB_PASSWORD:
+        _pw = quote_plus(settings.DB_PASSWORD)
+        settings.DATABASE_URL = (
+            f"postgresql://{settings.DB_USER}:{_pw}"
+            f"@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}"
+        )
+    else:
+        raise ValueError(
+            "DATABASE_URL or (DB_HOST + DB_USER + DB_PASSWORD) must be set"
+        )
 
 # Fix Render/PostgreSQL database scheme compatibility for SQLAlchemy
 if settings.DATABASE_URL.startswith("postgres://"):
