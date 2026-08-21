@@ -210,10 +210,24 @@ export default function Products() {
             );
           })}
           {filtered.length === 0 && (
-            <div className="col-span-full text-center text-secondary py-20 bg-white border border-rule rounded-sm shadow-sm">
-              {search ? "No products match your search" : "No products yet — add your first one!"}
+            <div className="col-span-full text-center text-secondary py-16 px-6 bg-white border border-rule rounded-sm shadow-sm">
+              <div className="max-w-md mx-auto space-y-4">
+                <div className="w-12 h-12 rounded-full bg-neutral-100 flex items-center justify-center mx-auto text-primary">
+                  <Sparkles size={22} />
+                </div>
+                <div>
+                  <h3 className="font-bold text-primary text-base">Your Atelier Catalog is Clean</h3>
+                  <p className="text-secondary text-xs mt-1 leading-relaxed">
+                    No products currently in the database. When you add products, their images will upload directly to your isolated Supabase Storage directory (<code className="bg-neutral-100 px-1 py-0.5 rounded text-[11px] font-mono text-primary">{brand_slug || "brand"}/products/</code>).
+                  </p>
+                </div>
+                <Link to={`/partner/${brand_slug}/products/new`} className="btn-admin inline-flex items-center gap-2">
+                  <Plus size={14} /> Add First Product
+                </Link>
+              </div>
             </div>
           )}
+
         </div>
       )}
     </div>
