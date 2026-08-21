@@ -102,12 +102,14 @@ def get_product_by_id(db: Session, product_id: str):
 
 
 def create_product(db: Session, data: ProductCreate) -> Product:
-    # Extract sizes before building Product; sizes live in a separate table
-    sizes_data = data.sizes
+    import uuid
+    sizes_data = getattr(data, "sizes", None)
     product_data = data.model_dump(exclude={"sizes"})
+    if "id" not in product_data or not product_data.get("id"):
+        product_data["id"] = str(uuid.uuid4())
     product = Product(**product_data)
     db.add(product)
-    db.flush()  # assigns product.id without committing
+    db.flush()
 
     if sizes_data:
         for s in sizes_data:
@@ -116,6 +118,7 @@ def create_product(db: Session, data: ProductCreate) -> Product:
     db.commit()
     db.refresh(product)
     return product
+
 
 
 def update_product(db: Session, product_id: str, data: ProductUpdate) -> Optional[Product]:

@@ -75,7 +75,8 @@ class Category(Base):
 class Product(Base):
     __tablename__ = "products"
 
-    id = Column(ID_TYPE, primary_key=True, default=lambda: str(uuid.uuid4()))
+    id = Column(String(255), primary_key=True, default=lambda: str(uuid.uuid4()))
+
     name = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
     price = Column(Numeric(10, 2), nullable=False)
