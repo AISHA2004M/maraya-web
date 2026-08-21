@@ -45,56 +45,26 @@ const FALLBACK_BRANDS = [
 
 export default function Discover() {
   const { language } = useLanguageStore();
-  const [brands, setBrands] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [brands, setBrands] = useState(FALLBACK_BRANDS);
 
   useEffect(() => {
     let mounted = true;
 
-    // Safety timeout: if API is taking long (e.g. Render cold start), show fallback brands after 800ms
-    const safetyTimer = setTimeout(() => {
-      if (mounted && loading) {
-        setBrands(FALLBACK_BRANDS);
-        setLoading(false);
-      }
-    }, 800);
-
     api.get("/products/brands/all")
       .then((res) => {
-        if (mounted) {
-          if (res.data && res.data.length > 0) {
-            setBrands(res.data);
-          } else {
-            setBrands(FALLBACK_BRANDS);
-          }
-          setLoading(false);
+        if (mounted && res.data && res.data.length > 0) {
+          setBrands(res.data);
         }
       })
       .catch((err) => {
         console.error("Failed to load brands", err);
-        if (mounted) {
-          setBrands((prev) => (prev.length > 0 ? prev : FALLBACK_BRANDS));
-          setLoading(false);
-        }
-      })
-      .finally(() => clearTimeout(safetyTimer));
+      });
 
     return () => {
       mounted = false;
-      clearTimeout(safetyTimer);
     };
   }, []);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#faf9f7] flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <div className="w-10 h-10 border-2 border-neutral-200 border-t-black rounded-full animate-spin mx-auto" />
-          <p className="font-display text-xs tracking-widest text-secondary uppercase">Entering Vrital Ateliers...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-[#faf9f7] text-primary flex flex-col transition-colors duration-500">

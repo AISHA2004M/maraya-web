@@ -18,42 +18,40 @@ export default function Home() {
   const { language } = useLanguageStore();
   const { brand_slug } = useParams();
   const navigate = useNavigate();
-  const [brand, setBrand] = useState(null);
-  const [brandLoading, setBrandLoading] = useState(true);
+  const defaultBrandData = {
+    name: brand_slug ? brand_slug.toUpperCase() : "ZARA",
+    hero_title: brand_slug ? brand_slug.toUpperCase() : "ZARA",
+    hero_subtitle: "Modern street tailoring, unstructured coats, and sleek minimal aesthetics designed for the contemporary urban lifestyle.",
+    hero_image_url: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=75&w=1600&fm=webp",
+    story_title: "Philosophy of Modern Street Tailoring",
+    story_description: "Zara Atelier reinterprets modern silhouettes through precision tailoring, tactile fabrics, and effortless versatility.",
+    story_image_url: "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=1000&q=80"
+  };
+
+  const [brand, setBrand] = useState(defaultBrandData);
 
   useEffect(() => {
     if (!brand_slug) {
       navigate("/discover");
       return;
     }
-    setBrandLoading(true);
 
+    let isMounted = true;
     api.get(`/products/brands/slug/${brand_slug}`)
       .then((res) => {
-        setBrand(res.data);
+        if (isMounted && res.data) {
+          setBrand(res.data);
+        }
       })
-      .catch((err) => {
-        console.error("Failed to load brand", err);
-        setBrand({
-          name: brand_slug.toUpperCase(),
-          hero_title: brand_slug.toUpperCase(),
-          hero_subtitle: "Modern street tailoring, unstructured coats, and sleek minimal aesthetics designed for the contemporary urban lifestyle.",
-          hero_image_url: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=75&w=1600&fm=webp",
-          story_title: "Philosophy of Modern Street Tailoring",
-          story_description: "Zara Atelier reinterprets modern silhouettes through precision tailoring, tactile fabrics, and effortless versatility.",
-          story_image_url: "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=1000&q=80"
-        });
-      })
-      .finally(() => setBrandLoading(false));
+      .catch(() => {
+        // Keeps defaultBrandData on error / offline
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, [brand_slug, navigate]);
 
-  if (brandLoading) {
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="w-8 h-8 border border-neutral-200 border-t-black rounded-full animate-spin" />
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-white font-sans text-primary selection:bg-black selection:text-white flex flex-col justify-between">
