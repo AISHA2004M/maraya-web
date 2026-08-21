@@ -32,9 +32,11 @@ const lazyRetry = (componentImport) => {
   });
 };
 
+import Home from "../pages/Home";
+
 // ─── Lazy Page Imports ──────────────────────────────────────────────────────
-const Home          = lazyRetry(() => import("../pages/Home"));
 const Shop          = lazyRetry(() => import("../pages/Shop"));
+
 const ProductDetails = lazyRetry(() => import("../pages/ProductDetails"));
 const TryOn         = lazyRetry(() => import("../pages/TryOn"));
 const Cart          = lazyRetry(() => import("../pages/Cart"));
@@ -120,18 +122,18 @@ function LazyRoute({ Page }) {
 // ─── Router Configuration ─────────────────────────────────────────────────────
 
 export const router = createBrowserRouter([
-  { path: "/",                       element: <Navigate to="/brands/zara" replace /> },
-  { path: "/discover",               element: <LazyRoute Page={Discover} /> },
-
-  { path: "/login",                  element: <LazyRoute Page={Login} /> },
-  { path: "/forgot-password",        element: <LazyRoute Page={ForgotPassword} /> },
-  { path: "/reset-password",         element: <LazyRoute Page={ResetPassword} /> },
-  { path: "/wishlist",               element: <LazyRoute Page={Wishlist} /> },
-  { path: "/track-order",            element: <LazyRoute Page={OrderTracking} /> },
-  { path: "/track-order/:id",        element: <LazyRoute Page={OrderTracking} /> },
+  { path: "/",                                 element: <PageTransition><Home /></PageTransition> },
+  { path: "/discover",                         element: <LazyRoute Page={Discover} /> },
+  { path: "/login",                            element: <LazyRoute Page={Login} /> },
+  { path: "/forgot-password",                  element: <LazyRoute Page={ForgotPassword} /> },
+  { path: "/reset-password",                   element: <LazyRoute Page={ResetPassword} /> },
+  { path: "/wishlist",                         element: <LazyRoute Page={Wishlist} /> },
+  { path: "/track-order",                      element: <LazyRoute Page={OrderTracking} /> },
+  { path: "/track-order/:id",                  element: <LazyRoute Page={OrderTracking} /> },
   
   // Boutique-scoped routes
-  { path: "/brands/:brand_slug",               element: <LazyRoute Page={Home} /> },
+  { path: "/brands/:brand_slug",               element: <PageTransition><Home /></PageTransition> },
+
   { path: "/brands/:brand_slug/shop",          element: <LazyRoute Page={Shop} /> },
   { path: "/brands/:brand_slug/product/:id",   element: <LazyRoute Page={ProductDetails} /> },
   { path: "/brands/:brand_slug/tryon",         element: <LazyRoute Page={TryOn} /> },

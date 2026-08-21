@@ -17,10 +17,12 @@ import { useLanguageStore } from "../store/useLanguageStore";
 export default function Home() {
   const { language } = useLanguageStore();
   const { brand_slug } = useParams();
-  const navigate = useNavigate();
+  const slug = (brand_slug || "zara").toLowerCase();
+
+
   const defaultBrandData = {
-    name: brand_slug ? brand_slug.toUpperCase() : "ZARA",
-    hero_title: brand_slug ? brand_slug.toUpperCase() : "ZARA",
+    name: slug.toUpperCase(),
+    hero_title: slug.toUpperCase(),
     hero_subtitle: "Modern street tailoring, unstructured coats, and sleek minimal aesthetics designed for the contemporary urban lifestyle.",
     hero_image_url: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=75&w=1600&fm=webp",
     story_title: "Philosophy of Modern Street Tailoring",
@@ -31,13 +33,8 @@ export default function Home() {
   const [brand, setBrand] = useState(defaultBrandData);
 
   useEffect(() => {
-    if (!brand_slug) {
-      navigate("/discover");
-      return;
-    }
-
     let isMounted = true;
-    api.get(`/products/brands/slug/${brand_slug}`)
+    api.get(`/products/brands/slug/${slug}`)
       .then((res) => {
         if (isMounted && res.data) {
           setBrand(res.data);
@@ -50,7 +47,8 @@ export default function Home() {
     return () => {
       isMounted = false;
     };
-  }, [brand_slug, navigate]);
+  }, [slug]);
+
 
 
   return (
