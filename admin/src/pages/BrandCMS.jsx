@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../api/client";
-import { Sparkles, Building2, Save, ArrowLeft, Loader2, Image, AlignLeft, Palette, Type } from "lucide-react";
+import { Sparkles, Building2, Save, ArrowLeft, Loader2, Image, AlignLeft, Palette, Type, Upload } from "lucide-react";
+
+
 
 export default function BrandCMS() {
   const { brand_slug } = useParams();
@@ -66,6 +68,27 @@ export default function BrandCMS() {
       });
   }, [brand_slug]);
 
+  const [uploadingField, setUploadingField] = useState(null);
+
+  const handleBrandImageUpload = async (e, field) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingField(field);
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("folder", `${brand_slug || "brand"}/branding`);
+    try {
+      const res = await api.post("/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      setForm((prev) => ({ ...prev, [field]: res.data.url }));
+    } catch (err) {
+      alert("Failed to upload brand image to Supabase Storage.");
+    } finally {
+      setUploadingField(null);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!brand) return;
@@ -128,27 +151,41 @@ export default function BrandCMS() {
               </h2>
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs text-secondary mb-1.5 block">Logo URL</label>
-                  <input
-                    type="text"
-                    className="input-admin"
-                    value={form.logo_url}
-                    onChange={(e) => setForm({ ...form, logo_url: e.target.value })}
-                  />
+                  <label className="text-xs text-secondary mb-1.5 block">Logo (Vector / Image)</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      className="input-admin flex-1"
+                      placeholder="Paste URL or upload..."
+                      value={form.logo_url}
+                      onChange={(e) => setForm({ ...form, logo_url: e.target.value })}
+                    />
+                    <label className="btn-ghost cursor-pointer text-xs flex items-center justify-center shrink-0">
+                      {uploadingField === "logo_url" ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
+                      <input type="file" className="hidden" accept="image/*" onChange={(e) => handleBrandImageUpload(e, "logo_url")} />
+                    </label>
+                  </div>
                   {form.logo_url && (
                     <img src={form.logo_url} alt="Logo preview" className="h-10 mt-2 object-contain bg-[#111111] p-1 border border-outline-variant rounded" />
                   )}
                 </div>
                 <div>
-                  <label className="text-xs text-secondary mb-1.5 block">Banner Banner URL</label>
-                  <input
-                    type="text"
-                    className="input-admin"
-                    value={form.banner_url}
-                    onChange={(e) => setForm({ ...form, banner_url: e.target.value })}
-                  />
+                  <label className="text-xs text-secondary mb-1.5 block">Banner Canvas Image</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      className="input-admin flex-1"
+                      placeholder="Paste URL or upload..."
+                      value={form.banner_url}
+                      onChange={(e) => setForm({ ...form, banner_url: e.target.value })}
+                    />
+                    <label className="btn-ghost cursor-pointer text-xs flex items-center justify-center shrink-0">
+                      {uploadingField === "banner_url" ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
+                      <input type="file" className="hidden" accept="image/*" onChange={(e) => handleBrandImageUpload(e, "banner_url")} />
+                    </label>
+                  </div>
                   {form.banner_url && (
-                    <img src={form.banner_url} alt="Banner preview" className="h-10 mt-2 object-cover border border-outline-variant rounded w-full" />
+                    <img src={form.banner_url} alt="Banner preview" className="h-12 mt-2 object-cover border border-outline-variant rounded w-full" />
                   )}
                 </div>
               </div>
@@ -190,13 +227,20 @@ export default function BrandCMS() {
               </div>
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs text-secondary mb-1.5 block">Hero Image Billboard URL</label>
-                  <input
-                    type="text"
-                    className="input-admin"
-                    value={form.hero_image_url}
-                    onChange={(e) => setForm({ ...form, hero_image_url: e.target.value })}
-                  />
+                  <label className="text-xs text-secondary mb-1.5 block">Hero Billboard Image</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      className="input-admin flex-1"
+                      placeholder="Paste URL or upload..."
+                      value={form.hero_image_url}
+                      onChange={(e) => setForm({ ...form, hero_image_url: e.target.value })}
+                    />
+                    <label className="btn-ghost cursor-pointer text-xs flex items-center justify-center shrink-0">
+                      {uploadingField === "hero_image_url" ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
+                      <input type="file" className="hidden" accept="image/*" onChange={(e) => handleBrandImageUpload(e, "hero_image_url")} />
+                    </label>
+                  </div>
                 </div>
                 <div>
                   <label className="text-xs text-secondary mb-1.5 block">Hero Subtext Description</label>
@@ -230,13 +274,20 @@ export default function BrandCMS() {
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-secondary mb-1.5 block">Story Image URL</label>
-                  <input
-                    type="text"
-                    className="input-admin"
-                    value={form.story_image_url}
-                    onChange={(e) => setForm({ ...form, story_image_url: e.target.value })}
-                  />
+                  <label className="text-xs text-secondary mb-1.5 block">Story Image</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      className="input-admin flex-1"
+                      placeholder="Paste URL or upload..."
+                      value={form.story_image_url}
+                      onChange={(e) => setForm({ ...form, story_image_url: e.target.value })}
+                    />
+                    <label className="btn-ghost cursor-pointer text-xs flex items-center justify-center shrink-0">
+                      {uploadingField === "story_image_url" ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
+                      <input type="file" className="hidden" accept="image/*" onChange={(e) => handleBrandImageUpload(e, "story_image_url")} />
+                    </label>
+                  </div>
                 </div>
               </div>
               <div>
@@ -251,6 +302,7 @@ export default function BrandCMS() {
                 <img src={form.story_image_url} alt="Story preview" className="w-full h-32 object-cover border border-outline-variant rounded" />
               )}
             </div>
+
 
             {/* 4. Seasonal Campaign Narratives */}
             <div className="admin-card space-y-4">
