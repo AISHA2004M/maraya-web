@@ -118,21 +118,15 @@ export default function Home() {
             </h1>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div>
             <Link
               to={`/brands/${brand_slug}/shop`}
               className="btn-black bg-white !text-black hover:bg-neutral-200 py-3.5 px-8 text-[10px] font-bold tracking-widest uppercase rounded-none transition-all shadow-md"
             >
               {language === "ar" ? "تسوق التشكيلة" : "Shop Collection"}
             </Link>
-            <Link
-              to={`/brands/${brand_slug}/tryon`}
-              className="btn-outline !text-white !border-white/50 hover:!border-white hover:!bg-white/10 py-3.5 px-6 text-[10px] font-bold tracking-widest uppercase backdrop-blur-sm flex items-center gap-2 rounded-none transition-all"
-            >
-              <Sparkles size={12} className="text-amber-300" />
-              <span>{language === "ar" ? "غرفة القياس الذكية" : "AI Try-On"}</span>
-            </Link>
           </div>
+
         </div>
       </section>
 
