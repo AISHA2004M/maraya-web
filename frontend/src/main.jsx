@@ -34,12 +34,15 @@ if (SENTRY_DSN && import.meta.env.PROD) {
   });
 }
 
-// ─── PWA Service Worker Registration ──────────────────────────────────────────
-if ("serviceWorker" in navigator && import.meta.env.PROD) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/sw.js").catch(() => {});
+// ─── PWA Service Worker Cache Busting ───────────────────────────────────────
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.getRegistrations().then((registrations) => {
+    for (const registration of registrations) {
+      registration.unregister();
+    }
   });
 }
+
 
 // ─── Render Warmup Ping ────────────────────────────────────────────────────────
 

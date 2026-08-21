@@ -120,8 +120,9 @@ function LazyRoute({ Page }) {
 // ─── Router Configuration ─────────────────────────────────────────────────────
 
 export const router = createBrowserRouter([
-  { path: "/",                       element: <LazyRoute Page={Discover} /> },
+  { path: "/",                       element: <Navigate to="/brands/zara" replace /> },
   { path: "/discover",               element: <LazyRoute Page={Discover} /> },
+
   { path: "/login",                  element: <LazyRoute Page={Login} /> },
   { path: "/forgot-password",        element: <LazyRoute Page={ForgotPassword} /> },
   { path: "/reset-password",         element: <LazyRoute Page={ResetPassword} /> },
