@@ -2,11 +2,13 @@ from fastapi import APIRouter, Depends, HTTPException, File, UploadFile
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from app.core.database import get_db
-from app.api.deps import get_current_partner, get_current_user
+from app.api.deps import get_current_partner, get_current_user, get_current_user_optional
 from app.modules.products import service
 from app.modules.products.schemas import ProductOut, ProductCreate, ProductUpdate, BrandOut, CategoryOut, BrandCMSUpdate, ProductSearchByImageOut
 
 router = APIRouter()
+
+
 
 
 @router.get("/brands/all", response_model=List[BrandOut])
@@ -92,7 +94,8 @@ def list_products(
     brand_id: Optional[int] = None,
     partner_view: Optional[bool] = None,
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user),
+    current_user = Depends(get_current_user_optional),
+
 ):
     if partner_view and current_user and current_user.role == "partner":
         brand_id = current_user.brand_id
