@@ -16,12 +16,13 @@ import io
 import logging
 import mimetypes
 import os
-import shutil
 import uuid
-
+from typing import Optional
 from fastapi import UploadFile
 
+
 from app.core.config import settings
+
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +31,7 @@ UPLOAD_DIR = "uploads"
 
 async def save_file(file: UploadFile, folder: str = "") -> str:
     """
-    Save an uploaded file to Cloudinary, S3, or local disk.
+    Save an uploaded file to Supabase Storage, Cloudinary, S3, or local disk.
     Returns: Public URL string of the saved file.
     """
     ext = os.path.splitext(file.filename or "upload")[1].lower() or ".bin"
@@ -38,11 +39,55 @@ async def save_file(file: UploadFile, folder: str = "") -> str:
     key = f"{folder}/{filename}" if folder else filename
     contents = await file.read()
 
+    # 1. Supabase Storage (Primary)
+    if settings.SUPABASE_URL and settings.SUPABASE_KEY:
+        sb_url = _upload_to_supabase(contents, filename, ext, folder)
+        if sb_url:
+            return sb_url
+
+    # 2. Cloudinary
     if settings.CLOUDINARY_CLOUD_NAME and settings.CLOUDINARY_API_KEY:
         return _upload_to_cloudinary(contents, key, ext, folder)
+
+    # 3. S3
     if settings.USE_S3:
         return _upload_to_s3(contents, key, ext)
+
     return _save_locally(contents, filename)
+
+
+def _upload_to_supabase(contents: bytes, filename: str, ext: str, folder: str = "") -> Optional[str]:
+    """Upload bytes to Supabase Storage bucket and return the public CDN URL."""
+    try:
+        import httpx
+        bucket = settings.SUPABASE_STORAGE_BUCKET or "Maraya-image"
+        storage_path = f"{folder}/{filename}" if folder else filename
+        mime_map = {
+            ".jpg": "image/jpeg",
+            ".jpeg": "image/jpeg",
+            ".png": "image/png",
+            ".webp": "image/webp",
+            ".svg": "image/svg+xml"
+        }
+        content_type = mime_map.get(ext, "application/octet-stream")
+        url = f"{settings.SUPABASE_URL.rstrip('/')}/storage/v1/object/{bucket}/{storage_path}"
+        headers = {
+            "Authorization": f"Bearer {settings.SUPABASE_KEY}",
+            "apikey": settings.SUPABASE_KEY,
+            "Content-Type": content_type,
+        }
+        with httpx.Client(timeout=30.0) as client:
+            res = client.post(url, content=contents, headers=headers)
+            if res.status_code in (200, 201):
+                public_url = f"{settings.SUPABASE_URL.rstrip('/')}/storage/v1/object/public/{bucket}/{storage_path}"
+                logger.info(f"[Upload] Supabase Storage upload succeeded: {public_url}")
+                return public_url
+            else:
+                logger.warning(f"[Upload] Supabase upload returned {res.status_code}: {res.text}")
+    except Exception as e:
+        logger.error(f"[Upload] Supabase upload failed: {e}")
+    return None
+
 
 
 def _upload_to_cloudinary(contents: bytes, key: str, ext: str, folder: str = "") -> str:
@@ -130,8 +175,16 @@ async def save_file_from_bytes(
     filename = f"{uuid.uuid4()}{ext}"
     key = f"{folder}/{filename}" if folder else filename
 
+    # 1. Supabase Storage (Primary)
+    if settings.SUPABASE_URL and settings.SUPABASE_KEY:
+        sb_url = _upload_to_supabase(contents, filename, ext, folder)
+        if sb_url:
+            return sb_url
+
+    # 2. Cloudinary
     if settings.CLOUDINARY_CLOUD_NAME and settings.CLOUDINARY_API_KEY:
         return _upload_to_cloudinary(contents, key, ext, folder)
     if settings.USE_S3:
         return _upload_to_s3(contents, key, ext)
     return _save_locally(contents, filename)
+

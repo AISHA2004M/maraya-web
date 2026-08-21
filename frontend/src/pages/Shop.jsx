@@ -73,7 +73,7 @@ export default function Shop() {
 
   // Load brand details
   useEffect(() => {
-    if (brand_slug) {
+    if (brand_slug && brand_slug !== "undefined" && brand_slug !== "null") {
       setBrandLoading(true);
       api.get(`/products/brands/slug/${brand_slug}`)
         .then((res) => {
@@ -88,6 +88,7 @@ export default function Shop() {
       setBrandLoading(false);
     }
   }, [brand_slug]);
+
 
   // Apply typography and dynamic accents
   useEffect(() => {

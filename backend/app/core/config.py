@@ -37,12 +37,18 @@ class Settings(BaseSettings):
     NANO_BANANA_MODEL: str = "google/gemini-3.1-flash-image"
     OPENROUTER_API_KEY: str = ""
 
+    # Supabase Storage
+    SUPABASE_URL: str = "https://fyxpczacexydrzpqipfy.supabase.co"
+    SUPABASE_KEY: str = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5eHBjemFjZXh5ZHJ6cHFpcGZ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcxNjEyMjQsImV4cCI6MjEwMjczNzIyNH0.s63Bp-gRKzWXtGg2QfUBe-_AV6o3QdHwfBZS47eLJ7s"
+    SUPABASE_STORAGE_BUCKET: str = "Maraya-image"
+
     # Cloudinary (free cloud storage for production images)
     CLOUDINARY_CLOUD_NAME: str = ""
     CLOUDINARY_API_KEY: str = ""
     CLOUDINARY_API_SECRET: str = ""
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
 
 
 

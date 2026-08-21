@@ -33,9 +33,10 @@ export default function BrandCMS() {
   });
 
   useEffect(() => {
-    if (!brand_slug) return;
+    if (!brand_slug || brand_slug === "undefined" || brand_slug === "null") return;
     setLoading(true);
     api.get(`/products/brands/slug/${brand_slug}`)
+
       .then((res) => {
         setBrand(res.data);
         setForm({

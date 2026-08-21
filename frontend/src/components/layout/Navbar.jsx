@@ -28,7 +28,7 @@ export default function Navbar() {
   const [brand, setBrand] = useState(null);
 
   useEffect(() => {
-    if (brand_slug) {
+    if (brand_slug && brand_slug !== "undefined" && brand_slug !== "null") {
       api.get(`/products/brands/slug/${brand_slug}`)
         .then((res) => {
           setBrand(res.data);
@@ -40,6 +40,7 @@ export default function Navbar() {
       setBrand(null);
     }
   }, [brand_slug]);
+
 
   const items = useCartStore((s) => s.items);
   const openDrawer = useCartStore((s) => s.openDrawer);

@@ -75,7 +75,7 @@ export default function TryOn() {
 
   // Load brand details
   useEffect(() => {
-    if (brand_slug) {
+    if (brand_slug && brand_slug !== "undefined" && brand_slug !== "null") {
       setBrandLoading(true);
       api.get(`/products/brands/slug/${brand_slug}`)
         .then((res) => {
@@ -90,6 +90,7 @@ export default function TryOn() {
       setBrandLoading(false);
     }
   }, [brand_slug]);
+
 
   // Apply typography and dynamic accents
   useEffect(() => {
