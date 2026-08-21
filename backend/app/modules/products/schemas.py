@@ -1,10 +1,12 @@
 from typing import Optional, List
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, field_validator, ConfigDict
 import uuid
 from decimal import Decimal
 
 
 class BrandOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     name: str
     slug: str
@@ -27,9 +29,6 @@ class BrandOut(BaseModel):
     seasonal_title: Optional[str] = None
     seasonal_desc: Optional[str] = None
 
-    class Config:
-        from_attributes = True
-
 
 class BrandCMSUpdate(BaseModel):
     description: Optional[str] = None
@@ -51,15 +50,16 @@ class BrandCMSUpdate(BaseModel):
 
 
 class CategoryOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     name: str
     parent_id: Optional[int] = None
 
-    class Config:
-        from_attributes = True
-
 
 class ProductImageOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     image_url: str
     angle: Optional[str] = None
@@ -74,17 +74,13 @@ class ProductImageOut(BaseModel):
             return f"{settings.API_BASE_URL.rstrip('/')}/{v.lstrip('/')}"
         return v
 
-    class Config:
-        from_attributes = True
-
 
 class ProductSizeOut(BaseModel):
     """Serialized size/stock pair returned to the client."""
+    model_config = ConfigDict(from_attributes=True)
+
     size: str
     stock: int
-
-    class Config:
-        from_attributes = True
 
 
 class ProductSizeIn(BaseModel):
@@ -94,6 +90,8 @@ class ProductSizeIn(BaseModel):
 
 
 class ProductOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: uuid.UUID
     name: str
     description: Optional[str] = None
@@ -150,8 +148,6 @@ class ProductOut(BaseModel):
                 resolved.append(part)
         return ",".join(resolved)
 
-    class Config:
-        from_attributes = True
 
 
 class ProductSearchByImageOut(ProductOut):

@@ -20,6 +20,10 @@ import { formatPrice } from "../utils/formatPrice";
 import { resolveImageUrl } from "../utils/resolveImageUrl";
 import { parseAnglesImages } from "../utils/parseAnglesImages";
 import { findFallbackProduct } from "../utils/fallbackData";
+import SEO from "../components/ui/SEO";
+import ReviewsSection from "../components/product/ReviewsSection";
+import WishlistButton from "../components/ui/WishlistButton";
+
 
 function FabricCanvas({ imageUrl, windSpeed, isActive, fabricType }) {
   const canvasRef = useRef(null);
@@ -686,6 +690,21 @@ export default function ProductDetails() {
 
   return (
     <div className="min-h-screen font-sans text-primary transition-colors duration-1000" style={{ backgroundColor: activeBgColor }}>
+      {/* SEO — Dynamic meta tags and JSON-LD structured data */}
+      {product && (
+        <SEO
+          title={product.name}
+          description={product.description || `${product.name} by ${product.brand?.name || "Vrital"} — Shop with AI Virtual Try-On`}
+          image={product.main_image_url}
+          type="product"
+          price={product.price}
+          currency={product.currency || "USD"}
+          availability={product.stock_quantity > 0 ? "in stock" : "out of stock"}
+          brand={product.brand?.name}
+          canonical={`/brands/${brand_slug}/product/${id}`}
+        />
+      )}
+
       {/* AI Virtual Try-On Modal */}
       <TryOnModal
         isOpen={showTryOnModal}
@@ -1441,6 +1460,13 @@ export default function ProductDetails() {
                 </Link>
               ))}
             </div>
+          </section>
+        )}
+
+        {/* Customer Reviews & Ratings */}
+        {product && (
+          <section style={{ borderTop: "1px solid #efefef", marginTop: "3rem", paddingTop: "1rem" }}>
+            <ReviewsSection productId={id} />
           </section>
         )}
       </main>

@@ -5,6 +5,8 @@ import api from "../api/client";
 import Navbar from "../components/layout/Navbar";
 import { Sparkles, Camera } from "lucide-react";
 import { useLanguageStore } from "../store/useLanguageStore";
+import SEO from "../components/ui/SEO";
+
 
 const FALLBACK_BRANDS = [
   {
@@ -96,6 +98,18 @@ export default function Discover() {
 
   return (
     <div className="min-h-screen bg-[#faf9f7] text-primary flex flex-col transition-colors duration-500">
+      <SEO
+        title="Discover Fashion Brands"
+        description="Explore top fashion brands on Vrital. Shop Zara, Gucci, Nike, H&M and more with AI-powered virtual try-on. See how clothes look on you before buying."
+        canonical="/discover"
+        jsonLd={{
+          "@context": "https://schema.org/",
+          "@type": "WebPage",
+          name: "Discover Fashion Brands — Vrital",
+          description: "Browse curated fashion brands and shop with AI Virtual Try-On.",
+          url: "https://vrital.com/discover",
+        }}
+      />
       <Navbar />
 
       {/* Main Container */}

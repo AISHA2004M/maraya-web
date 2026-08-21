@@ -1,11 +1,15 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { ShoppingBag, Search, Menu, X, Sparkles, Sun, Moon, Camera } from "lucide-react";
+import { ShoppingBag, Search, Menu, X, Sparkles, Sun, Moon, Camera, Heart, Truck } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useCartStore } from "../../store/useCartStore";
 import { useUserStore } from "../../store/useUserStore";
+import useWishlistStore from "../../store/useWishlistStore";
+import CartDrawer from "../cart/CartDrawer";
+import AIFashionStylist from "../stylist/AIFashionStylist";
 import { AnimatePresence, motion } from "framer-motion";
 import api from "../../api/client";
 import { useLanguageStore } from "../../store/useLanguageStore";
+import { useCurrencyStore, CURRENCIES } from "../../store/useCurrencyStore";
 
 
 const EDITORIAL_TAGS = ["Stealth Wealth", "Minimal Elegance", "Cozy Minimalism", "Avant-Garde", "Evening Elegance", "Summer Atelier"];
@@ -38,9 +42,14 @@ export default function Navbar() {
   }, [brand_slug]);
 
   const items = useCartStore((s) => s.items);
+  const openDrawer = useCartStore((s) => s.openDrawer);
   const count = items.reduce((sum, i) => sum + i.quantity, 0);
+
+  const wishlistCount = useWishlistStore((s) => s.count);
   const { token, logout, role, brandSlug } = useUserStore();
   const { t, language, setLanguage } = useLanguageStore();
+  const { currentCurrency, setCurrency } = useCurrencyStore();
+
 
   const logoLink = brand_slug ? `/brands/${brand_slug}` : "/discover";
   const brandDisplayName = brand_slug ? brand_slug.toUpperCase() : "VRITAL";
@@ -78,45 +87,31 @@ export default function Navbar() {
 
   // Compute autocomplete results
   const filteredProducts = searchProducts.filter((p) => {
-    const matchesQuery = !searchQuery ? true : (
-      p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (p.brand?.name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (p.editorial_tags || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (p.mood_aesthetic || "").toLowerCase().includes(searchQuery.toLowerCase())
-    );
-    const matchesBrand = !selectedBrand ? true : (p.brand?.name || "").toLowerCase() === selectedBrand.toLowerCase();
-    return matchesQuery && matchesBrand;
+    const query = searchQuery.toLowerCase();
+    const matchName = p.name?.toLowerCase().includes(query);
+    const matchTag = p.editorial_tags?.toLowerCase().includes(query);
+    const matchBrand = selectedBrand ? (p.brand?.name === selectedBrand) : true;
+    return (matchName || matchTag) && matchBrand;
   });
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-white border-b border-rule transition-colors duration-300">
-        <div className="max-w-screen-xl mx-auto px-6 h-14 flex items-center justify-between gap-6">
+      <CartDrawer />
+      <AIFashionStylist />
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-rule">
 
-          {/* Left area: Logo, Directory Link & Desktop Nav */}
-          <div className="flex items-center gap-6 md:gap-8">
-            <button
-              className="md:hidden p-1 text-primary"
-              onClick={() => setMenuOpen(!menuOpen)}
-              aria-label="Menu"
-            >
-              {menuOpen ? <X size={20} /> : <Menu size={20} />}
-            </button>
-
-            {/* Logo / Brand Name (Left-aligned for a clean luxury layout) */}
-            <Link
-              to={logoLink}
-              className="font-display text-xl md:text-2xl tracking-widest2 font-light text-primary flex items-center justify-center mr-2 md:mr-4"
-            >
-              {brand?.logo_url ? (
-                <img
-                  src={brand.logo_url}
-                  alt={brand.name}
-                  className="h-5 md:h-6 w-auto object-contain select-none dark:invert"
-                  style={{ maxHeight: "24px" }}
-                />
-              ) : (
-                brandDisplayName
+        <div className="max-w-[1600px] mx-auto px-6 md:px-12 h-20 flex items-center justify-between">
+          
+          {/* Left Navigation & Brand Mark */}
+          <div className="flex items-center gap-8">
+            <Link to={logoLink} className="flex items-baseline gap-3 group">
+              <span className="font-serif text-2xl font-light tracking-tight text-primary uppercase">
+                {brandDisplayName}
+              </span>
+              {brand_slug && (
+                <span className="hidden sm:inline-block text-[9px] font-mono tracking-widest text-secondary uppercase opacity-60">
+                  / Atelier
+                </span>
               )}
             </Link>
 
@@ -141,8 +136,25 @@ export default function Navbar() {
           </div>
 
           {/* Right Icons */}
-          <div className="flex items-center gap-5 ml-auto md:ml-0 text-primary">
+          <div className="flex items-center gap-4 md:gap-5 ml-auto md:ml-0 text-primary">
             
+            {/* Multi-Currency Switcher */}
+            <select
+              value={currentCurrency}
+              onChange={(e) => {
+                setCurrency(e.target.value);
+                window.dispatchEvent(new Event("storage"));
+              }}
+              aria-label="Currency"
+              className="text-[9px] font-bold uppercase tracking-widest px-2 py-1 border border-neutral-200 hover:border-black rounded-sm bg-transparent text-primary focus:outline-none cursor-pointer hidden md:block"
+            >
+              {Object.keys(CURRENCIES).map((c) => (
+                <option key={c} value={c} className="bg-white text-black text-xs">
+                  {c} ({CURRENCIES[c].symbol})
+                </option>
+              ))}
+            </select>
+
             {/* Language Switcher */}
             <button
               onClick={() => setLanguage(language === "en" ? "ar" : "en")}
@@ -150,6 +162,7 @@ export default function Navbar() {
             >
               {language === "en" ? "العربية" : "English"}
             </button>
+
 
             {/* AI Visual Search Capsule Button */}
             <Link
@@ -170,6 +183,31 @@ export default function Navbar() {
             >
               <Search size={18} strokeWidth={1.5} />
             </button>
+
+            {/* Wishlist Link */}
+            <Link
+              to={brand_slug ? `/brands/${brand_slug}/wishlist` : "/wishlist"}
+              aria-label="Wishlist"
+              className="relative hover:text-secondary transition-colors hidden sm:block"
+              title="Saved Items"
+            >
+              <Heart size={18} strokeWidth={1.5} className={wishlistCount > 0 ? "fill-ink text-ink" : ""} />
+              {wishlistCount > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 bg-rose-600 text-white text-[8px] font-bold rounded-full flex items-center justify-center">
+                  {wishlistCount}
+                </span>
+              )}
+            </Link>
+
+            {/* Order Tracking Quick Link */}
+            <Link
+              to="/track-order"
+              aria-label="Track Order"
+              className="hover:text-secondary transition-colors hidden lg:block"
+              title="Track Order"
+            >
+              <Truck size={18} strokeWidth={1.5} />
+            </Link>
 
             {token ? (
               <div className="flex items-center gap-4">
@@ -213,15 +251,20 @@ export default function Navbar() {
             )}
 
 
-            {/* Cart Icon */}
-            <Link to={brand_slug ? `/brands/${brand_slug}/cart` : "/cart"} id="cart-button" className="relative hover:text-secondary transition-colors">
+            {/* Cart Button (Opens Slide-in Drawer) */}
+            <button
+              onClick={openDrawer}
+              id="cart-button"
+              aria-label="Open Shopping Bag"
+              className="relative hover:text-secondary transition-colors cursor-pointer"
+            >
               <ShoppingBag size={18} strokeWidth={1.5} />
               {count > 0 && (
                 <span className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 bg-ink text-white text-[9px] font-bold rounded-full flex items-center justify-center">
                   {count}
                 </span>
               )}
-            </Link>
+            </button>
           </div>
         </div>
       </header>

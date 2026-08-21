@@ -18,3 +18,25 @@ class TokenResponse(BaseModel):
     token_type: str = "bearer"
     role: str
     brand_slug: Optional[str] = None
+
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str
+
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str
+
+
+class SocialLoginRequest(BaseModel):
+    provider: str  # "google" | "apple"
+    email: EmailStr
+    full_name: Optional[str] = None
+    social_id: Optional[str] = None
+

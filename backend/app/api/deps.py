@@ -29,14 +29,28 @@ def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    # DEV FALLBACK: Fetch or create mock admin user
-    user = db.query(User).filter(User.email == "admin@vrital.com").first()
-    if not user:
-        user = User(id="mock-id", email="admin@vrital.com", role="admin")
-        db.add(user)
-        db.commit()
-        db.refresh(user)
-    return user
+    # Return 401 for unauthenticated requests
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Not authenticated",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+
+def get_current_user_optional(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db: Session = Depends(get_db),
+) -> User | None:
+    if credentials:
+        token = credentials.credentials
+        payload = decode_token(token)
+        if payload:
+            user_id = payload.get("sub")
+            if user_id:
+                return db.query(User).filter(User.id == user_id).first()
+    return None
+
+
 
 
 def get_current_admin(current_user: User = Depends(get_current_user)) -> User:

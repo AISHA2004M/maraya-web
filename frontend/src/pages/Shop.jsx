@@ -9,8 +9,10 @@ import { Search, SlidersHorizontal, X, ArrowUpDown, Sparkles, Camera } from "luc
 import api from "../api/client";
 import { formatPrice } from "../utils/formatPrice";
 import { useLanguageStore } from "../store/useLanguageStore";
+import SEO from "../components/ui/SEO";
 
 import { FALLBACK_PRODUCTS, FALLBACK_BRANDS, FALLBACK_CATEGORIES } from "../utils/fallbackData";
+
 
 export default function Shop() {
   const { language } = useLanguageStore();
@@ -29,11 +31,17 @@ export default function Shop() {
   // Filter States
   const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "");
   const [selectedBrands, setSelectedBrands] = useState([]);
-  const [selectedCategories, setSelectedCategories] = useState([]);
-  const [selectedMoods, setSelectedMoods] = useState([]);
+  const [selectedCategories, setSelectedCategories] = useState(
+    searchParams.get("category") ? [searchParams.get("category")] : []
+  );
+  const [selectedMoods, setSelectedMoods] = useState(
+    searchParams.get("mood") || searchParams.get("tag")
+      ? [searchParams.get("mood") || searchParams.get("tag")]
+      : []
+  );
   const [selectedGender, setSelectedGender] = useState(searchParams.get("gender") || "all");
   const [maxPrice, setMaxPrice] = useState(10000000);
-  const [sortBy, setSortBy] = useState("default");
+  const [sortBy, setSortBy] = useState(searchParams.get("sort") || "default");
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [isEditorialLayout, setIsEditorialLayout] = useState(true);
 
@@ -45,6 +53,24 @@ export default function Shop() {
       setMaxPrice(highest || 10000000);
     }
   }, [products]);
+
+  // Sync URL search params
+  useEffect(() => {
+    if (searchParams.get("tag") || searchParams.get("mood")) {
+      const tagVal = searchParams.get("tag") || searchParams.get("mood");
+      setSelectedMoods([tagVal]);
+    }
+    if (searchParams.get("category")) {
+      setSelectedCategories([searchParams.get("category")]);
+    }
+    if (searchParams.get("sort")) {
+      setSortBy(searchParams.get("sort"));
+    }
+    if (searchParams.get("search") !== null) {
+      setSearchQuery(searchParams.get("search") || "");
+    }
+  }, [searchParams]);
+
 
   // Load brand details
   useEffect(() => {
@@ -181,9 +207,24 @@ export default function Shop() {
 
     const matchesPrice = Number(product.price) <= maxPrice;
 
-    // Mood / Occasion mapping from database
-    const productMood = product.mood_aesthetic || "Minimalist Core";
-    const matchesMood = selectedMoods.length === 0 || selectedMoods.includes(productMood);
+    // Mood / Occasion / Tag mapping from database
+    const productMood = (product.mood_aesthetic || "").toLowerCase();
+    const productTags = (product.editorial_tags || "").toLowerCase();
+    const productOccasion = (product.occasion || "").toLowerCase();
+    const productName = (product.name || "").toLowerCase();
+
+    const matchesMood =
+      selectedMoods.length === 0 ||
+      selectedMoods.some((m) => {
+        const mLower = m.toLowerCase();
+        return (
+          productMood.includes(mLower) ||
+          productTags.includes(mLower) ||
+          productOccasion.includes(mLower) ||
+          productName.includes(mLower)
+        );
+      });
+
 
     const productGender = (product.gender || "").toLowerCase();
     const matchesGender =
@@ -207,7 +248,13 @@ export default function Shop() {
 
   return (
     <div className="min-h-screen bg-surface font-sans text-primary">
+      <SEO
+        title={brand ? `${brand.name} Catalog` : "Shop Luxury Fashion Collection"}
+        description={brand ? brand.description : "Browse designer apparel with AI Virtual Try-On and visual search."}
+        canonical={brand_slug ? `/brands/${brand_slug}/shop` : "/shop"}
+      />
       <Navbar />
+
 
       {/* Header */}
       <section className="bg-white border-b border-rule pt-28 pb-12 px-6 md:px-12">

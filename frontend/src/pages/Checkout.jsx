@@ -41,10 +41,13 @@ export default function Checkout() {
     setLoading(true);
     setError(null);
 
+    const { appliedPromo } = useCartStore.getState();
+
     const orderPayload = {
       full_name: fullName,
       shipping_address: `${address}, ${city}, ${zipCode}`,
       payment_method: paymentMethod,
+      promo_code: appliedPromo?.code || null,
       items: items.map((i) => ({
         product_id: i.id,
         quantity: i.quantity,
@@ -68,36 +71,53 @@ export default function Checkout() {
       <div className="min-h-screen bg-white font-sans text-primary flex flex-col">
         <Navbar />
         <main className="max-w-2xl w-full mx-auto px-6 py-24 flex-1 flex flex-col items-center justify-center text-center fade-up">
-          <div className="w-12 h-12 text-secondary bg-[#fcfcfa] border border-rule flex items-center justify-center rounded-full mb-6">
-            <CheckCircle2 size={24} strokeWidth={1.5} />
+          <div className="w-16 h-16 text-emerald-600 bg-emerald-50 border border-emerald-200 flex items-center justify-center rounded-full mb-6">
+            <CheckCircle2 size={32} strokeWidth={1.5} />
           </div>
           <h1 className="heading-serif text-4xl lg:text-5xl text-primary font-light mb-4">
-            Thank You
+            {language === "ar" ? "شكراً لطلبك" : "Thank You For Your Order"}
           </h1>
-          <p className="text-secondary text-xs font-light max-w-sm mb-10 leading-relaxed uppercase tracking-wider">
-            Your purchase was completed successfully. A configuration summary is sent to{" "}
-            <span className="text-primary font-semibold lowercase">{email}</span>.
+          <p className="text-secondary text-xs font-light max-w-sm mb-10 leading-relaxed tracking-wider">
+            {language === "ar"
+              ? "تم استلام وتأكيد طلبك بنجاح. أرسلنا ملخص الفاتورة ورابط التتبع إلى بريدك."
+              : "Your purchase has been confirmed. A confirmation receipt has been dispatched to your email."}
           </p>
 
-          <div className="w-full bg-[#fcfcfa] border border-rule p-8 rounded-none text-left mb-12 space-y-4 font-light text-xs text-secondary uppercase tracking-wider">
+          <div className="w-full bg-[#fcfcfa] border border-rule p-8 rounded-none text-left mb-8 space-y-4 font-light text-xs text-secondary tracking-wider">
             <div className="flex justify-between">
-              <span>Order Reference:</span>
-              <span className="text-primary font-bold">{orderResult.id}</span>
+              <span className="uppercase">{language === "ar" ? "رقم الطلب:" : "Order Reference:"}</span>
+              <span className="text-primary font-bold font-mono">{orderResult.id}</span>
             </div>
             <div className="flex justify-between">
-              <span>Shipping Status:</span>
-              <span className="text-primary font-bold">
+              <span className="uppercase">{language === "ar" ? "حالة الشحن:" : "Shipping Status:"}</span>
+              <span className="text-primary font-bold uppercase bg-ink text-white px-2 py-0.5 text-[10px] rounded">
                 {orderResult.status}
               </span>
             </div>
             <div className="flex justify-between">
-              <span>Amount Transacted:</span>
+              <span className="uppercase">{language === "ar" ? "رقم التتبع السريع:" : "Carrier Tracking #:"}</span>
+              <span className="text-primary font-bold font-mono">{orderResult.tracking_number || "DHL Express Assigned"}</span>
+            </div>
+            <div className="flex justify-between border-t border-rule pt-3 text-sm">
+              <span className="font-semibold text-primary">{language === "ar" ? "المبلغ الإجمالي:" : "Amount Paid:"}</span>
               <span className="text-primary font-bold">{formatPrice(orderResult.total_amount)}</span>
             </div>
           </div>
-          <Link to={brand_slug ? `/brands/${brand_slug}` : "/"} className="btn-black py-4 px-12 text-[10px] font-bold tracking-widest uppercase rounded-none">
-            <span>Continue to Atelier</span>
-          </Link>
+
+          <div className="flex flex-col sm:flex-row gap-3 w-full max-w-md">
+            <Link
+              to={`/track-order/${orderResult.id}`}
+              className="flex-1 btn-black py-3.5 text-xs font-bold tracking-widest uppercase flex items-center justify-center gap-2"
+            >
+              <span>{language === "ar" ? "تتبع الشحنة مباشرة ←" : "Track Shipment Live →"}</span>
+            </Link>
+            <Link
+              to={brand_slug ? `/brands/${brand_slug}` : "/discover"}
+              className="flex-1 btn-outline py-3.5 text-xs font-bold tracking-widest uppercase flex items-center justify-center"
+            >
+              <span>{language === "ar" ? "العودة للتسوق" : "Continue Shopping"}</span>
+            </Link>
+          </div>
         </main>
         <Footer />
       </div>
@@ -105,6 +125,7 @@ export default function Checkout() {
   }
 
   return (
+
     <div className="min-h-screen bg-white font-sans text-primary">
       <Navbar />
 

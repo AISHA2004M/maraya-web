@@ -1,34 +1,40 @@
 /**
- * Price formatting utilities for Iraqi Dinar (IQD)
- * =================================================
- * Centralizes all currency display logic so every page
- * shows prices consistently in the Iraqi market format.
+ * Dynamic Multi-Currency Price Formatting Engine
+ * ================================================
+ * Converts and formats prices seamlessly across global currencies:
+ * USD ($), EUR (€), GBP (£), SAR (ر.س), AED (د.إ), IQD (د.ع).
  */
+import { useCurrencyStore, CURRENCIES } from "../store/useCurrencyStore";
 
-/**
- * Format a price value as Iraqi Dinar.
- * @param {number|string} price — The raw price value
- * @returns {string} — Formatted price string, e.g. "132,000 د.ع"
- */
-export function formatPrice(price) {
-  const num = Number(price);
-  if (isNaN(num)) return "0 د.ع";
-  return `${num.toLocaleString("en-US", { maximumFractionDigits: 0 })} د.ع`;
+export function formatPrice(priceInUSD) {
+  const num = Number(priceInUSD);
+  if (isNaN(num)) return "$0.00";
+
+  const { currentCurrency } = useCurrencyStore.getState();
+  const curr = CURRENCIES[currentCurrency] || CURRENCIES.USD;
+  const converted = num * curr.rate;
+
+  if (curr.code === "USD") {
+    return `$${converted.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  }
+  if (curr.code === "EUR") {
+    return `€${converted.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  }
+  if (curr.code === "GBP") {
+    return `£${converted.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  }
+
+  return `${converted.toLocaleString("en-US", { maximumFractionDigits: curr.decimals })} ${curr.symbol}`;
 }
 
-/**
- * Format shipping cost for Iraqi market.
- * Free shipping threshold: 150,000 IQD
- * Standard shipping: 5,000 IQD
- */
-export const SHIPPING_THRESHOLD = 150000; // Free shipping above this
-export const SHIPPING_COST = 5000;        // Standard shipping in IQD
+export const SHIPPING_THRESHOLD = 150; // $150 USD baseline
+export const SHIPPING_COST = 15;        // $15 USD baseline
 
-export function getShippingCost(subtotal) {
-  return subtotal >= SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
+export function getShippingCost(subtotalUSD) {
+  return subtotalUSD >= SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
 }
 
-export function formatShipping(subtotal) {
-  const cost = getShippingCost(subtotal);
-  return cost === 0 ? "مجاني" : formatPrice(cost);
+export function formatShipping(subtotalUSD) {
+  const cost = getShippingCost(subtotalUSD);
+  return cost === 0 ? "FREE" : formatPrice(cost);
 }

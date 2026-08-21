@@ -1,32 +1,53 @@
 /**
- * React Query Configuration — Production Cache Tuning
- * ====================================================
- * Optimized staleTime and gcTime for fashion catalog data:
+ * React Entry Point — Enterprise Configuration
+ * =============================================
+ * - React Query: production cache tuning for fashion catalog data
+ * - HelmetProvider: enables dynamic SEO meta tags per-page (like Zara/ASOS)
+ * - Sentry: frontend error tracking (enabled when VITE_SENTRY_DSN is set)
+ * - Render warmup: pings backend to wake Render free tier from sleep
  *
- * staleTime: How long cached data is considered fresh (no refetch)
- * gcTime:    How long unused cache entries are kept in memory
- *
- * Fashion data categories:
- *   - Products: change on admin updates → 10 min stale, 30 min cache
- *   - Brands:   rarely change → 1 hour stale, 2 hour cache
- *   - Categories: almost never change → 2 hour stale, 4 hour cache
- *   - Sessions: user-specific, never stale for too long → 2 min stale
+ * Query Cache Strategy:
+ *   Products:   10 min stale, 60 min in-memory
+ *   Brands:      1 hr stale, 60 min in-memory
+ *   Categories:  2 hr stale, 60 min in-memory
  */
 
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { RouterProvider } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { HelmetProvider } from "react-helmet-async";
 import { router } from "./app/router";
 import "./styles/index.css";
 
+// ─── Sentry Frontend Error Tracking ──────────────────────────────────────────
+const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN;
+if (SENTRY_DSN && import.meta.env.PROD) {
+  import("@sentry/react").then(({ init, browserTracingIntegration }) => {
+    init({
+      dsn: SENTRY_DSN,
+      environment: "production",
+      integrations: [browserTracingIntegration()],
+      tracesSampleRate: 0.1,
+      sendDefaultPii: false,
+    });
+  });
+}
+
+// ─── PWA Service Worker Registration ──────────────────────────────────────────
+if ("serviceWorker" in navigator && import.meta.env.PROD) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js").catch(() => {});
+  });
+}
+
 // ─── Render Warmup Ping ────────────────────────────────────────────────────────
+
 // The Render free tier sleeps after 15min of inactivity.
 // We fire a lightweight ping immediately on app load so the server wakes
 // up in the background while the user sees the page with fallback data.
 const RENDER_BASE = import.meta.env.VITE_API_URL || "https://vrital-api.onrender.com";
 
-// Ping backend immediately and again after 8s (in case it needs a moment)
 function warmupRenderServer() {
   const ping = () =>
     fetch(`${RENDER_BASE}/api/v1/health`, { method: "GET", mode: "cors" }).catch(() => {});
@@ -60,8 +81,10 @@ const queryClient = new QueryClient({
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-    </QueryClientProvider>
+    <HelmetProvider>
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+      </QueryClientProvider>
+    </HelmetProvider>
   </React.StrictMode>
 );

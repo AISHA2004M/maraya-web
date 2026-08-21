@@ -1,0 +1,35 @@
+{
+  "short_name": "Vrital",
+  "name": "Vrital — AI Virtual Try-On Fashion",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "192x192 512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#FAF9F7",
+  "theme_color": "#1A1C1C",
+  "display": "standalone",
+  "orientation": "portrait",
+  "scope": "/",
+  "description": "Luxury fashion marketplace powered by AI virtual try-on and visual discovery.",
+  "shortcuts": [
+    {
+      "name": "AI Virtual Try-On",
+      "url": "/brands/zara/tryon",
+      "description": "Experience couture on your silhouette with AI"
+    },
+    {
+      "name": "Visual Search",
+      "url": "/search-by-image",
+      "description": "Find matching apparel from any photo"
+    },
+    {
+      "name": "My Saved Wishlist",
+      "url": "/wishlist",
+      "description": "View saved pieces"
+    }
+  ]
+}

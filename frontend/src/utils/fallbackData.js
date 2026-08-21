@@ -17,7 +17,7 @@ export const FALLBACK_PRODUCTS = [
       "name": "Dresses"
     },
     "gender": "women",
-    "main_image_url": "/uploads/eb838ca7-45be-4986-a77b-96e87e2245ee.jpg",
+    "main_image_url": "https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=900&q=85",
     "fabric_type": "Satin Crepe",
     "editorial_tags": "Evening Elegance, Draped",
     "mood_aesthetic": "Stealth Wealth",
@@ -64,7 +64,7 @@ export const FALLBACK_PRODUCTS = [
       "name": "Tops"
     },
     "gender": "unisex",
-    "main_image_url": "/uploads/f02a279c-3ec8-436d-b2aa-4293840dca09.png",
+    "main_image_url": "https://images.unsplash.com/photo-1598554747436-c9293d6a588f?auto=format&fit=crop&w=900&q=85",
     "fabric_type": "100% Poplin Cotton",
     "editorial_tags": "Minimalist Core, Summer Essential",
     "mood_aesthetic": "Cozy Minimalism",
@@ -111,7 +111,7 @@ export const FALLBACK_PRODUCTS = [
       "name": "Dresses"
     },
     "gender": "women",
-    "main_image_url": "/uploads/313f681a-67d7-4228-bdc1-196160898a39.jpg",
+    "main_image_url": "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=900&q=85",
     "fabric_type": "Cotton Voile",
     "editorial_tags": "Summer Atelier, Resort Wear",
     "mood_aesthetic": "Cozy Minimalism",
@@ -158,7 +158,7 @@ export const FALLBACK_PRODUCTS = [
       "name": "Outerwear"
     },
     "gender": "women",
-    "main_image_url": "https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&w=900&q=85",
+    "main_image_url": "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=900&q=85",
     "fabric_type": "Water-Repellent Cotton",
     "editorial_tags": "City Tailoring, Rainwear",
     "mood_aesthetic": "Stealth Wealth",
@@ -205,12 +205,13 @@ export const FALLBACK_PRODUCTS = [
       "name": "Bottoms"
     },
     "gender": "women",
-    "main_image_url": "https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=900&q=85",
+    "main_image_url": "https://images.unsplash.com/photo-1509551388413-e18d0ac5d495?auto=format&fit=crop&w=900&q=85",
     "fabric_type": "100% European Linen",
     "editorial_tags": "Minimalist Core, Daily Foundations",
     "mood_aesthetic": "Minimalist Core",
     "occasion": "Daily Outing",
     "stock_quantity": 75,
+
     "sizes": [
       {
         "size": "XS",

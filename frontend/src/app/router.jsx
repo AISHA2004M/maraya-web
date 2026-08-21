@@ -45,6 +45,11 @@ const Profile       = lazyRetry(() => import("../pages/Profile"));
 const Discover      = lazyRetry(() => import("../pages/Discover"));
 const SearchByImage = lazyRetry(() => import("../pages/SearchByImage"));
 const PartnerLogin  = lazyRetry(() => import("../pages/PartnerLogin"));
+const Wishlist      = lazyRetry(() => import("../pages/Wishlist"));
+const OrderTracking = lazyRetry(() => import("../pages/OrderTracking"));
+const ForgotPassword = lazyRetry(() => import("../pages/ForgotPassword"));
+const ResetPassword = lazyRetry(() => import("../pages/ResetPassword"));
+
 
 // ─── Fallback UI ─────────────────────────────────────────────────────────────
 // Lightweight skeleton shown while lazy chunks are downloading.
@@ -118,6 +123,11 @@ export const router = createBrowserRouter([
   { path: "/",                       element: <LazyRoute Page={Discover} /> },
   { path: "/discover",               element: <LazyRoute Page={Discover} /> },
   { path: "/login",                  element: <LazyRoute Page={Login} /> },
+  { path: "/forgot-password",        element: <LazyRoute Page={ForgotPassword} /> },
+  { path: "/reset-password",         element: <LazyRoute Page={ResetPassword} /> },
+  { path: "/wishlist",               element: <LazyRoute Page={Wishlist} /> },
+  { path: "/track-order",            element: <LazyRoute Page={OrderTracking} /> },
+  { path: "/track-order/:id",        element: <LazyRoute Page={OrderTracking} /> },
   
   // Boutique-scoped routes
   { path: "/brands/:brand_slug",               element: <LazyRoute Page={Home} /> },
@@ -125,6 +135,9 @@ export const router = createBrowserRouter([
   { path: "/brands/:brand_slug/product/:id",   element: <LazyRoute Page={ProductDetails} /> },
   { path: "/brands/:brand_slug/tryon",         element: <LazyRoute Page={TryOn} /> },
   { path: "/brands/:brand_slug/cart",          element: <LazyRoute Page={Cart} /> },
+  { path: "/brands/:brand_slug/wishlist",      element: <LazyRoute Page={Wishlist} /> },
+  { path: "/brands/:brand_slug/track-order",   element: <LazyRoute Page={OrderTracking} /> },
+  { path: "/brands/:brand_slug/track-order/:id", element: <LazyRoute Page={OrderTracking} /> },
   { path: "/brands/:brand_slug/checkout",      element: <ProtectedRoute><LazyRoute Page={Checkout} /></ProtectedRoute> },
   { path: "/brands/:brand_slug/profile",       element: <ProtectedRoute><LazyRoute Page={Profile} /></ProtectedRoute> },
   { path: "/brands/:brand_slug/search-by-image", element: <LazyRoute Page={SearchByImage} /> },
@@ -145,4 +158,5 @@ export const router = createBrowserRouter([
   { path: "/profile",    element: <ProtectedRoute><LazyRoute Page={Profile} /></ProtectedRoute> },
   { path: "/search-by-image",                     element: <LazyRoute Page={SearchByImage} /> },
 ]);
+
 

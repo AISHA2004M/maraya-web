@@ -1,6 +1,6 @@
 from typing import Optional, List
 from datetime import datetime
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class TryOnRequest(BaseModel):
@@ -16,6 +16,8 @@ class TryOnRequest(BaseModel):
 
 
 class TryOnSessionOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: str
     user_id: Optional[str] = None
     product_id: Optional[str] = None
@@ -33,9 +35,6 @@ class TryOnSessionOut(BaseModel):
     body_hips: Optional[int] = None
     created_at: Optional[datetime] = None
 
-    class Config:
-        from_attributes = True
-
 
 class TryOnDispatchOut(BaseModel):
     """Immediate response returned after submitting a try-on job."""
@@ -46,6 +45,8 @@ class TryOnDispatchOut(BaseModel):
 
 class TryOnStatusOut(BaseModel):
     """Real-time status response for polling."""
+    model_config = ConfigDict(from_attributes=True)
+
     session_id: str
     status: str                              # queued | processing | completed | failed
     progress: Optional[int] = 0
@@ -54,8 +55,6 @@ class TryOnStatusOut(BaseModel):
     ai_model_version: Optional[str] = None
     created_at: Optional[datetime] = None
 
-    class Config:
-        from_attributes = True
 
 
 class TryOnResponse(BaseModel):

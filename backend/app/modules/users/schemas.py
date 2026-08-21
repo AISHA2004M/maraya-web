@@ -1,5 +1,5 @@
 from typing import Optional
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, ConfigDict
 
 
 class UserCreate(BaseModel):
@@ -9,6 +9,8 @@ class UserCreate(BaseModel):
 
 
 class UserOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: str
     email: str
     full_name: Optional[str] = None
@@ -21,8 +23,6 @@ class UserOut(BaseModel):
     brand_preferences: Optional[str] = None
     style_preferences: Optional[str] = None
 
-    class Config:
-        from_attributes = True
 
 
 class UserUpdate(BaseModel):
