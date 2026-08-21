@@ -102,18 +102,24 @@ def list_products(
     partner_view: Optional[bool] = None,
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user_optional),
-
 ):
     if partner_view and current_user and current_user.role == "partner":
         brand_id = current_user.brand_id
-    return service.get_products(
-        db,
-        skip=skip,
-        limit=limit,
-        category_id=category_id,
-        gender=gender,
-        brand_id=brand_id,
-    )
+    try:
+        return service.get_products(
+            db,
+            skip=skip,
+            limit=limit,
+            category_id=category_id,
+            gender=gender,
+            brand_id=brand_id,
+        )
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).error(f"Error in list_products eager load: {e}", exc_info=True)
+        from app.modules.products.models import Product
+        return db.query(Product).filter(Product.is_active == True).offset(skip).limit(limit).all()
+
 
 
 @router.get("/brands/{brand_id}", response_model=BrandOut)

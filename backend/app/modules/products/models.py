@@ -26,7 +26,8 @@ class GUID(TypeDecorator):
             return value
         return str(value)
 
-ID_TYPE = GUID
+ID_TYPE = String(255)
+
 
 
 

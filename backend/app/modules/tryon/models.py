@@ -48,8 +48,9 @@ class TryOnSession(Base):
 
     id = Column(ID_TYPE, primary_key=True, default=lambda: str(uuid.uuid4()))
     user_id = Column(ID_TYPE, ForeignKey("users.id", ondelete="CASCADE"))
-    product_id = Column(ID_TYPE, ForeignKey("products.id", ondelete="CASCADE"), nullable=True)
+    product_id = Column(String(255), ForeignKey("products.id", ondelete="CASCADE"), nullable=True)
     user_image_id = Column(ID_TYPE, ForeignKey("user_images.id"), nullable=True)
+
     result_image_url = Column(Text, nullable=True)
     status = Column(String(50), default="processing")
     progress = Column(Integer, default=0)

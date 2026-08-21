@@ -43,7 +43,7 @@ class CartItem(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     cart_id = Column(ID_TYPE, ForeignKey("carts.id", ondelete="CASCADE"))
-    product_id = Column(ID_TYPE, ForeignKey("products.id"))
+    product_id = Column(String(255), ForeignKey("products.id"))
     quantity = Column(Integer, default=1)
     added_at = Column(DateTime, server_default=func.now())
 
@@ -86,7 +86,7 @@ class OrderItem(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     order_id = Column(ID_TYPE, ForeignKey("orders.id", ondelete="CASCADE"))
-    product_id = Column(ID_TYPE, ForeignKey("products.id"))
+    product_id = Column(String(255), ForeignKey("products.id"))
     quantity = Column(Integer, nullable=False)
     price_at_purchase = Column(Numeric(10, 2))
     created_at = Column(DateTime, server_default=func.now())
@@ -99,7 +99,8 @@ class Favorite(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(ID_TYPE, ForeignKey("users.id"))
-    product_id = Column(ID_TYPE, ForeignKey("products.id"))
+    product_id = Column(String(255), ForeignKey("products.id"))
     created_at = Column(DateTime, server_default=func.now())
+
 
 
