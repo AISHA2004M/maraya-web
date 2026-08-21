@@ -6,8 +6,8 @@ import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import { useLanguageStore } from "../store/useLanguageStore";
 import { Camera, ArrowLeft, Sparkles, Sliders, RefreshCw, Upload, ShoppingBag, CheckCircle2 } from "lucide-react";
-import { FALLBACK_PRODUCTS, FALLBACK_BRANDS, FALLBACK_CATEGORIES } from "../utils/fallbackData";
 import ProductCard from "../components/product/ProductCard";
+
 
 const OPENROUTER_KEY = atob("c2stb3ItdjEtZDZmZDg0YmM1ZjBmNDk2OWMxNjkwZDQ5ZDZmMDU1ZTViM2FhMDkyOGQ0YTRhZjIzYzcxOTcyYmQ2MDJmNTA5MQ==");
 
@@ -249,8 +249,9 @@ export default function SearchByImage() {
   const [hasSearched, setHasSearched]   = useState(false);
 
   // Filters
-  const [brands, setBrands]                     = useState(FALLBACK_BRANDS);
-  const [categories, setCategories]             = useState(FALLBACK_CATEGORIES);
+  const [catalogProducts, setCatalogProducts]   = useState([]);
+  const [brands, setBrands]                     = useState([]);
+  const [categories, setCategories]             = useState([]);
   const [selectedBrand, setSelectedBrand]       = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedColor, setSelectedColor]       = useState("");
@@ -263,6 +264,7 @@ export default function SearchByImage() {
   ];
 
   useEffect(() => {
+    api.get("/products?limit=100").then(r => r.data?.length && setCatalogProducts(r.data)).catch(() => {});
     api.get("/products/brands/all").then(r => r.data?.length && setBrands(r.data)).catch(() => {});
     api.get("/products/categories/all").then(r => r.data?.length && setCategories(r.data)).catch(() => {});
   }, []);
@@ -288,7 +290,16 @@ export default function SearchByImage() {
     setLoading(true);
     setHasSearched(false);
 
-    const allCatalog = [...FALLBACK_PRODUCTS];
+    let allCatalog = catalogProducts;
+    if (!allCatalog || allCatalog.length === 0) {
+      try {
+        const res = await api.get("/products?limit=100");
+        allCatalog = res.data || [];
+        setCatalogProducts(allCatalog);
+      } catch {
+        allCatalog = [];
+      }
+    }
 
     try {
       // 1. Try Gemini Vision
@@ -303,6 +314,7 @@ export default function SearchByImage() {
       console.warn("[VisualSearch] Falling back to background subtraction:", err);
       // 2. High-Precision Background Subtraction Fallback
       const matches = await analyzeImageFallback(activeFile, allCatalog);
+
       setResults(matches);
       setHasSearched(true);
     } finally {

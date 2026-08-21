@@ -19,8 +19,8 @@ import { useLanguageStore } from "../store/useLanguageStore";
 import { formatPrice } from "../utils/formatPrice";
 import { resolveImageUrl } from "../utils/resolveImageUrl";
 import { parseAnglesImages } from "../utils/parseAnglesImages";
-import { findFallbackProduct } from "../utils/fallbackData";
 import SEO from "../components/ui/SEO";
+
 import ReviewsSection from "../components/product/ReviewsSection";
 import WishlistButton from "../components/ui/WishlistButton";
 
@@ -368,9 +368,8 @@ export default function ProductDetails() {
   const isInWishlist = useWishlistStore((s) => s.isInWishlist(id));
 
   const { t, language } = useLanguageStore();
-  const { data: dbProduct, isLoading, isError } = useProduct(id);
-  const fallbackProduct = findFallbackProduct(id);
-  const product = dbProduct || fallbackProduct;
+  const { data: product, isLoading, isError } = useProduct(id);
+
 
   // Security & Scoping Redirect: ensure the product belongs to the current brand scope
   useEffect(() => {

@@ -11,7 +11,6 @@ import { formatPrice } from "../utils/formatPrice";
 import { useLanguageStore } from "../store/useLanguageStore";
 import SEO from "../components/ui/SEO";
 
-import { FALLBACK_PRODUCTS, FALLBACK_BRANDS, FALLBACK_CATEGORIES } from "../utils/fallbackData";
 
 
 export default function Shop() {
@@ -161,25 +160,12 @@ export default function Shop() {
     setSortBy("default");
   };
 
-  // Merge database products with fallback products to ensure all brands have items shown
-  const dbProducts = products || [];
-  const activeProducts = [...dbProducts];
-  FALLBACK_PRODUCTS.forEach((fp) => {
-    const exists = dbProducts.some(
-      (dp) => dp.name.toLowerCase() === fp.name.toLowerCase()
-    );
-    if (!exists) {
-      activeProducts.push(fp);
-    }
-  });
+  // Purely dynamic database products
+  const activeProducts = products || [];
+  const activeBrand = brand || (brands ? brands.find((b) => b.slug.toLowerCase() === (brand_slug || "").toLowerCase()) : null);
+  const activeBrands = brands || [];
+  const activeCategories = categories || [];
 
-  const fallbackBrand = brand_slug
-    ? FALLBACK_BRANDS.find((b) => b.slug.toLowerCase() === brand_slug.toLowerCase())
-    : null;
-  const activeBrand = brand || fallbackBrand;
-
-  const activeBrands = (brands && brands.length > 0) ? brands : FALLBACK_BRANDS;
-  const activeCategories = (categories && categories.length > 0) ? categories : FALLBACK_CATEGORIES;
 
   // Filter products
   const filteredProducts = activeProducts.filter((product) => {
