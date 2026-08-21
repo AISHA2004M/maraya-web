@@ -186,6 +186,16 @@ class ProductCreate(BaseModel):
     closure_type: Optional[str] = None
     sizes: Optional[List[ProductSizeIn]] = None
 
+    @field_validator("brand_id", "category_id", mode="before")
+    @classmethod
+    def clean_optional_int(cls, v):
+        if v is None or v == "" or v == "null" or v == 0:
+            return None
+        try:
+            return int(v)
+        except (ValueError, TypeError):
+            return None
+
 
 class ProductUpdate(BaseModel):
     name: Optional[str] = None
@@ -208,6 +218,17 @@ class ProductUpdate(BaseModel):
     angles_images_url: Optional[str] = None
     # Iraq market — essential buyer details
     garment_length: Optional[str] = None
+
+    @field_validator("brand_id", "category_id", mode="before")
+    @classmethod
+    def clean_update_optional_int(cls, v):
+        if v is None or v == "" or v == "null" or v == 0:
+            return None
+        try:
+            return int(v)
+        except (ValueError, TypeError):
+            return None
+
     care_instructions: Optional[str] = None
     color: Optional[str] = None
     material_details: Optional[str] = None
