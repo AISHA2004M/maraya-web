@@ -94,14 +94,13 @@ class ProductOut(BaseModel):
 
     id: str
     name: str
-
     description: Optional[str] = None
     price: Decimal
-    currency: str
+    currency: str = "IQD"
     gender: Optional[str] = None
-    main_image_url: str
-    stock_quantity: int
-    is_active: bool
+    main_image_url: Optional[str] = None
+    stock_quantity: int = 0
+    is_active: bool = True
     editorial_tags: Optional[str] = None
     storytelling_title: Optional[str] = None
     storytelling_description: Optional[str] = None
@@ -110,6 +109,7 @@ class ProductOut(BaseModel):
     cinematic_video_url: Optional[str] = None
     angles_images_url: Optional[str] = None
     # Iraq market — essential buyer details
+    fabric_type: Optional[str] = None
     garment_length: Optional[str] = None
     care_instructions: Optional[str] = None
     color: Optional[str] = None
@@ -127,7 +127,7 @@ class ProductOut(BaseModel):
     @field_validator("main_image_url", mode="before")
     @classmethod
     def resolve_main_image(cls, v):
-        if not v:
+        if not v or not isinstance(v, str):
             return v
         if v.startswith("/uploads/"):
             from app.core.config import settings
@@ -137,7 +137,7 @@ class ProductOut(BaseModel):
     @field_validator("angles_images_url", mode="before")
     @classmethod
     def resolve_angles_images(cls, v):
-        if not v:
+        if not v or not isinstance(v, str):
             return v
         from app.core.config import settings
         resolved = []
@@ -148,6 +148,7 @@ class ProductOut(BaseModel):
             else:
                 resolved.append(part)
         return ",".join(resolved)
+
 
 
 
