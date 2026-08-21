@@ -23,6 +23,15 @@
       ]
     },
     {
+      "source": "/admin/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
+    },
+    {
       "source": "/assets/(.*)",
       "headers": [
         {
@@ -33,6 +42,14 @@
     }
   ],
   "rewrites": [
+    {
+      "source": "/admin/:path*",
+      "destination": "/admin/index.html"
+    },
+    {
+      "source": "/partner/:path*",
+      "destination": "/admin/index.html"
+    },
     {
       "source": "/(.*)",
       "destination": "/index.html"
