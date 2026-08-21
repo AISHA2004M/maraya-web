@@ -93,17 +93,9 @@ function PageSkeleton() {
 // in its own separate vendor chunk so it doesn't block initial load.
 
 function PageTransition({ children }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -12 }}
-      transition={{ duration: 0.55, ease: [0.25, 0.46, 0.45, 0.94] }}
-    >
-      {children}
-    </motion.div>
-  );
+  return <>{children}</>;
 }
+
 
 // ─── Route Wrapper ────────────────────────────────────────────────────────────
 // Combines Suspense + PageTransition for every route.

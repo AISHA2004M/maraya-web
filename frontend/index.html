@@ -86,16 +86,8 @@
         -moz-osx-font-smoothing: grayscale;
       }
       #root { min-height: 100svh; }
-      /* Page load spinner — prevents blank white flash */
-      #root:empty::before {
-        content: '';
-        position: fixed;
-        inset: 0;
-        display: grid;
-        place-items: center;
-        background: #faf9f7;
-      }
     </style>
+
   </head>
   <body>
     <div id="root"></div>
