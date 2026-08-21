@@ -52,13 +52,15 @@ export default function Navbar() {
   const { currentCurrency, setCurrency } = useCurrencyStore();
 
 
-  const logoLink = brand_slug ? `/brands/${brand_slug}` : "/discover";
-  const brandDisplayName = brand_slug ? brand_slug.toUpperCase() : "VRITAL";
+  const isValidBrandSlug = Boolean(brand_slug && brand_slug !== "undefined" && brand_slug !== "null");
+  const logoLink = isValidBrandSlug ? `/brands/${brand_slug}` : "/discover";
+  const brandDisplayName = isValidBrandSlug ? (brand?.name || brand_slug).toUpperCase() : "VRITAL";
 
-  const navLinks = brand_slug ? [
+  const navLinks = isValidBrandSlug ? [
     { to: `/brands/${brand_slug}`, label: t("atelier") },
     { to: `/brands/${brand_slug}/shop`, label: t("shop_all") },
   ] : [];
+
 
 
   // Fetch search candidates
@@ -187,7 +189,7 @@ export default function Navbar() {
 
             {/* Wishlist Link */}
             <Link
-              to={brand_slug ? `/brands/${brand_slug}/wishlist` : "/wishlist"}
+              to={isValidBrandSlug ? `/brands/${brand_slug}/wishlist` : "/wishlist"}
               aria-label="Wishlist"
               className="relative hover:text-secondary transition-colors hidden sm:block"
               title="Saved Items"
@@ -229,9 +231,10 @@ export default function Navbar() {
                   </a>
                 )}
                 <Link
-                  to={brand_slug ? `/brands/${brand_slug}/profile` : "/profile"}
+                  to={isValidBrandSlug ? `/brands/${brand_slug}/profile` : "/profile"}
                   className="label-upper hover:text-ink transition-colors hidden md:block"
                 >
+
                   {t("profile")}
                 </Link>
                 <button

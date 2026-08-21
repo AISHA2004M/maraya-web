@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload, selectinload
 from app.modules.products.models import Product, Brand, Category, ProductSize
 from app.modules.products.schemas import ProductCreate, ProductUpdate, BrandCMSUpdate
 from typing import Optional
@@ -12,7 +12,15 @@ def get_products(
     gender: Optional[str] = None,
     brand_id: Optional[int] = None,
 ):
-    q = db.query(Product).filter(Product.is_active == True)
+    q = (
+        db.query(Product)
+        .options(
+            joinedload(Product.brand),
+            joinedload(Product.category),
+            selectinload(Product.sizes),
+        )
+        .filter(Product.is_active == True)
+    )
     if category_id:
         q = q.filter(Product.category_id == category_id)
     if gender:
@@ -20,6 +28,7 @@ def get_products(
     if brand_id:
         q = q.filter(Product.brand_id == brand_id)
     return q.offset(skip).limit(limit).all()
+
 
 
 def get_brand_by_id(db: Session, brand_id: int) -> Optional[Brand]:
@@ -81,7 +90,16 @@ CUSTOM_PIECES = [
 
 
 def get_product_by_id(db: Session, product_id: str):
-    p = db.query(Product).filter(Product.id == product_id).first()
+    p = (
+        db.query(Product)
+        .options(
+            joinedload(Product.brand),
+            joinedload(Product.category),
+            selectinload(Product.sizes),
+        )
+        .filter(Product.id == product_id)
+        .first()
+    )
     if p:
         return p
     for cp in CUSTOM_PIECES:
@@ -97,8 +115,11 @@ def get_product_by_id(db: Session, product_id: str):
                 gender = cp["gender"]
                 main_image_url = cp["main_image_url"]
                 category = MockCategory()
+                brand = None
+                sizes = []
             return CustomProductWrapper()
     return None
+
 
 
 def create_product(db: Session, data: ProductCreate) -> Product:

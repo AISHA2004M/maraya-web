@@ -85,9 +85,14 @@ export default function Shop() {
           setBrandLoading(false);
         });
     } else {
+      if (brand_slug === "undefined" || brand_slug === "null") {
+        window.history.replaceState(null, "", "/shop");
+      }
+      setBrand(null);
       setBrandLoading(false);
     }
   }, [brand_slug]);
+
 
 
   // Apply typography and dynamic accents
@@ -233,12 +238,14 @@ export default function Shop() {
     ? Math.ceil(Math.max(...activeProducts.map((p) => Number(p.price))))
     : 1000;
 
+  const isValidBrand = Boolean(brand && brand.name && brand.name !== "undefined");
+
   return (
     <div className="min-h-screen bg-surface font-sans text-primary">
       <SEO
-        title={brand ? `${brand.name} Catalog` : "Shop Luxury Fashion Collection"}
-        description={brand ? brand.description : "Browse designer apparel with AI Virtual Try-On and visual search."}
-        canonical={brand_slug ? `/brands/${brand_slug}/shop` : "/shop"}
+        title={isValidBrand ? `${brand.name} Catalog` : "Shop Luxury Fashion Collection"}
+        description={isValidBrand && brand.description ? brand.description : "Browse designer apparel with AI Virtual Try-On and visual search."}
+        canonical={isValidBrand && brand_slug ? `/brands/${brand_slug}/shop` : "/shop"}
       />
       <Navbar />
 
@@ -247,16 +254,17 @@ export default function Shop() {
       <section className="bg-white border-b border-rule pt-28 pb-12 px-6 md:px-12">
         <div className="max-w-[1600px] mx-auto space-y-4">
           <span className="text-[9px] font-bold tracking-[0.3em] text-secondary uppercase block">
-            {brand ? `${brand.name} Atelier` : "L'Atelier Lookbook"}
+            {isValidBrand ? `${brand.name} Atelier` : "L'Atelier Lookbook"}
           </span>
           <h1 className="heading-serif text-4xl md:text-6xl text-primary font-light">
-            {brand ? `${brand.name} Catalog` : "The Catalog"}
+            {isValidBrand ? `${brand.name} Catalog` : "The Catalog"}
           </h1>
           <p className="text-secondary text-sm font-light max-w-xl leading-relaxed">
-            {brand
+            {isValidBrand && brand.description
               ? brand.description
               : "Browse our unified edit of high-fashion garments from the world's most progressive design houses. Filter, select, and try them on virtually."}
           </p>
+
 
           {/* AI Visual Discovery Pill */}
           <div className="pt-2">

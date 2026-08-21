@@ -124,7 +124,9 @@ def health_check():
 
 
 @app.get("/health")
+@app.get("/api/v1/health")
 def detailed_health():
+
     """
     Detailed health check for load balancers and monitoring.
     Checks DB, Redis connectivity and reports status of each.
