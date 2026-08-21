@@ -71,10 +71,12 @@ export default function ProductForm() {
     setUploading(true);
     const formData = new FormData();
     formData.append("file", file);
+    formData.append("folder", `${brand_slug || "brand"}/products`);
     try {
       const res = await api.post("/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
+
       const url = res.data.url;
       setAngles((prev) => {
         const updated = { ...prev, [slot]: url };

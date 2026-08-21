@@ -28,4 +28,5 @@ class User(Base):
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
-    brand = relationship("app.modules.products.models.Brand")
+    brand = relationship("Brand", foreign_keys=[brand_id])
+
