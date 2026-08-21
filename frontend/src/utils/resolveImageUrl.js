@@ -8,15 +8,15 @@ export function resolveImageUrl(url) {
   if (
     url.startsWith("http://") || 
     url.startsWith("https://") || 
-    url.startsWith("data:") ||
-    url.startsWith("/uploads/")
+    url.startsWith("data:")
   ) {
     return url;
   }
   
-  // Prepend backend base URL
+  // Prepend backend base URL for relative paths (e.g. /uploads/...)
   const base = import.meta.env.VITE_API_URL || 
     (import.meta.env.PROD ? "https://vrital-api.onrender.com" : "http://127.0.0.1:8000");
     
   return `${base.replace(/\/$/, "")}/${url.replace(/^\//, "")}`;
 }
+
