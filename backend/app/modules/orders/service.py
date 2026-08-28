@@ -9,10 +9,11 @@ from app.modules.orders.schemas import (
 from app.modules.products.service import get_product_by_id
 from fastapi import HTTPException, status
 from typing import List, Optional
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 import uuid
 import os
+
 
 
 def validate_promo_code(db: Session, code_str: str, subtotal: Decimal) -> PromoValidateResponse:
@@ -152,8 +153,10 @@ def create_order(db: Session, user_id: Optional[str] = None, data: OrderCreate =
             total_amount = promo_res.new_subtotal
 
     # Generate tracking info
-    tracking_num = f"VRTL-{datetime.utcnow().strftime('%Y%m%d')}-{uuid.uuid4().hex[:6].upper()}"
-    est_delivery = datetime.utcnow() + timedelta(days=4)
+    now_utc = datetime.now(timezone.utc)
+    tracking_num = f"VRTL-{now_utc.strftime('%Y%m%d')}-{uuid.uuid4().hex[:6].upper()}"
+    est_delivery = now_utc + timedelta(days=4)
+
 
     # Create Order
     order = Order(

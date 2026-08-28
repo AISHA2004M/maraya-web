@@ -14,7 +14,8 @@ Enterprise-grade configuration (same patterns as Zara, ASOS, Farfetch):
 """
 
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
+
 
 from fastapi import FastAPI, Response, Depends
 from fastapi.security import HTTPBearer
@@ -196,52 +197,54 @@ def analytics_dashboard(response: Response, partner = Depends(get_current_partne
     brand_id = partner.brand_id if partner.role == "partner" else None
 
     try:
-        today = datetime.utcnow().date()
+        today = datetime.now(timezone.utc).date()
+        start_date = datetime.combine(today - timedelta(days=29), datetime.min.time())
 
+        # 1. Aggregated Orders & Revenue in a single query
+        day_trunc = func.date(Order.created_at)
+        orders_q = (
+            db.query(
+                day_trunc.label("day"),
+                func.count(func.distinct(Order.id)).label("orders_count"),
+                func.coalesce(func.sum(OrderItem.price_at_purchase * OrderItem.quantity), 0).label("revenue"),
+            )
+            .join(OrderItem, OrderItem.order_id == Order.id)
+            .join(Product, Product.id == OrderItem.product_id)
+            .filter(Order.created_at >= start_date)
+        )
+        if brand_id is not None:
+            orders_q = orders_q.filter(Product.brand_id == brand_id)
+        
+        orders_rows = orders_q.group_by(day_trunc).all()
+        orders_map = {str(r.day)[:10]: (r.orders_count, float(r.revenue)) for r in orders_rows}
+
+        # 2. Aggregated Try-On sessions in a single query
+        tryon_day_trunc = func.date(TryOnSession.created_at)
+        tryon_q = (
+            db.query(
+                tryon_day_trunc.label("day"),
+                func.count(TryOnSession.id).label("tryon_count"),
+            )
+            .join(Product, Product.id == TryOnSession.product_id)
+            .filter(
+                TryOnSession.created_at >= start_date,
+                TryOnSession.status == "completed",
+            )
+        )
+        if brand_id is not None:
+            tryon_q = tryon_q.filter(Product.brand_id == brand_id)
+            
+        tryon_rows = tryon_q.group_by(tryon_day_trunc).all()
+        tryon_map = {str(r.day)[:10]: r.tryon_count for r in tryon_rows}
+
+        # 3. Assemble 30-day timeline in memory (O(1) lookups)
         for days_ago in range(29, -1, -1):
             day = today - timedelta(days=days_ago)
-            day_start = datetime.combine(day, datetime.min.time())
-            day_end = datetime.combine(day, datetime.max.time())
+            day_str = str(day)
             label = day.strftime("%b %d")
 
-            # Orders placed that day
-            orders_q = (
-                db.query(func.count(func.distinct(Order.id)))
-                .join(OrderItem, OrderItem.order_id == Order.id)
-                .join(Product, Product.id == OrderItem.product_id)
-                .filter(Order.created_at >= day_start, Order.created_at <= day_end)
-            )
-            if brand_id is not None:
-                orders_q = orders_q.filter(Product.brand_id == brand_id)
-            orders_count = orders_q.scalar() or 0
-
-            # Revenue that day
-            revenue_q = (
-                db.query(func.coalesce(func.sum(OrderItem.price_at_purchase * OrderItem.quantity), 0))
-                .join(Order, Order.id == OrderItem.order_id)
-                .join(Product, Product.id == OrderItem.product_id)
-                .filter(Order.created_at >= day_start, Order.created_at <= day_end)
-            )
-            if brand_id is not None:
-                revenue_q = revenue_q.filter(Product.brand_id == brand_id)
-            revenue = revenue_q.scalar() or 0
-
-            # AI try-on sessions that day
-            tryon_q = (
-                db.query(func.count(TryOnSession.id))
-                .join(Product, Product.id == TryOnSession.product_id)
-                .filter(
-                    TryOnSession.created_at >= day_start,
-                    TryOnSession.created_at <= day_end,
-                    TryOnSession.status == "completed",
-                )
-            )
-            if brand_id is not None:
-                tryon_q = tryon_q.filter(Product.brand_id == brand_id)
-            tryon_count = tryon_q.scalar() or 0
-
-            # Estimate views as 8x orders (realistic e-commerce ratio)
-            # In production replace with a real page_views table
+            orders_count, revenue = orders_map.get(day_str, (0, 0.0))
+            tryon_count = tryon_map.get(day_str, 0)
             views = max(orders_count * 8, tryon_count * 3)
 
             data.append({
@@ -249,7 +252,7 @@ def analytics_dashboard(response: Response, partner = Depends(get_current_partne
                 "views": views,
                 "orders": orders_count,
                 "tryon": tryon_count,
-                "revenue": float(revenue),
+                "revenue": revenue,
             })
 
     except Exception as exc:
@@ -265,6 +268,7 @@ def analytics_dashboard(response: Response, partner = Depends(get_current_partne
         db.close()
 
     return data
+
 
 
 # ─── Brand Analytics ──────────────────────────────────────────────────────────

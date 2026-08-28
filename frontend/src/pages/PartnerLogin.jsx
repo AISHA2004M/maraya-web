@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Eye, EyeOff, Loader2, Store } from "lucide-react";
-import { useAuthStore } from "../store/useAuthStore";
+import { useUserStore } from "../store/useUserStore";
 import api from "../api/client";
 
 export default function PartnerLogin() {
@@ -10,7 +10,8 @@ export default function PartnerLogin() {
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const setAuth = useAuthStore((s) => s.setAuth);
+  const setAuth = useUserStore((s) => s.setAuth);
+
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {

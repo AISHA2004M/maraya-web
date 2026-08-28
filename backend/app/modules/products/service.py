@@ -35,90 +35,18 @@ def get_brand_by_id(db: Session, brand_id: int) -> Optional[Brand]:
     return db.query(Brand).filter(Brand.id == brand_id).first()
 
 
-CUSTOM_PIECES = [
-    {
-        "id": "eb838ca7-45be-4986-a77b-96e87e2245ee",
-        "name": "Zara Draped Asymmetric Midi Dress",
-        "description": "An elegant sleeveless draped midi dress in deep chocolate brown, featuring an asymmetric hem and defined waistband.",
-        "price": 145000,
-        "currency": "IQD",
-        "gender": "women",
-        "main_image_url": "/uploads/eb838ca7-45be-4986-a77b-96e87e2245ee.jpg",
-        "category_name": "Dresses",
-    },
-    {
-        "id": "8750612d-0446-4251-9d9c-c299d1d1eb75",
-        "name": "Gucci Red Velvet Double-Breasted Blazer",
-        "description": "A luxurious double-breasted blazer in vibrant red velvet, featuring peak lapels, flap pockets, and structured shoulders. Made in Italy.",
-        "price": 2450000,
-        "currency": "IQD",
-        "gender": "unisex",
-        "main_image_url": "/uploads/8750612d-0446-4251-9d9c-c299d1d1eb75.jpg",
-        "category_name": "Outerwear",
-    },
-    {
-        "id": "f02a279c-c827-466d-8bc4-a698ba672fba",
-        "name": "Zara Oversized Sky Blue Poplin Shirt",
-        "description": "Classic relaxed-fit button-down poplin shirt in crisp sky blue, crafted from 100% organic cotton.",
-        "price": 85000,
-        "currency": "IQD",
-        "gender": "unisex",
-        "main_image_url": "/uploads/f02a279c-c827-466d-8bc4-a698ba672fba.jpg",
-        "category_name": "Tops",
-    },
-    {
-        "id": "3c6b5f9b-6fc2-4fc4-bc8c-02cfdd01c70e",
-        "name": "H&M Botanical Print Maxi Dress",
-        "description": "Flowing airy maxi dress with an all-over vibrant floral botanical print in light breathable viscose.",
-        "price": 110000,
-        "currency": "IQD",
-        "gender": "women",
-        "main_image_url": "/uploads/3c6b5f9b-6fc2-4fc4-bc8c-02cfdd01c70e.png",
-        "category_name": "Dresses",
-    },
-    {
-        "id": "313f681a-67d7-4228-bdc1-196160898a39",
-        "name": "Zara Off-White Ruffled Mini Dress",
-        "description": "Chic romantic mini dress featuring delicate ruffled trim, smocked bodice, and airy layered hem in pure off-white cotton.",
-        "price": 165000,
-        "currency": "IQD",
-        "gender": "women",
-        "main_image_url": "/uploads/313f681a-67d7-4228-bdc1-196160898a39.jpg",
-        "category_name": "Dresses",
-    }
-]
-
-
-def get_product_by_id(db: Session, product_id: str):
-    p = (
+def get_product_by_id(db: Session, product_id: str) -> Optional[Product]:
+    return (
         db.query(Product)
         .options(
             joinedload(Product.brand),
             joinedload(Product.category),
             selectinload(Product.sizes),
         )
-        .filter(Product.id == product_id)
+        .filter(Product.id == str(product_id))
         .first()
     )
-    if p:
-        return p
-    for cp in CUSTOM_PIECES:
-        if cp["id"] == str(product_id) or str(product_id).lower() in cp["id"].lower():
-            class MockCategory:
-                name = cp["category_name"]
-            class CustomProductWrapper:
-                id = cp["id"]
-                name = cp["name"]
-                description = cp["description"]
-                price = cp["price"]
-                currency = cp["currency"]
-                gender = cp["gender"]
-                main_image_url = cp["main_image_url"]
-                category = MockCategory()
-                brand = None
-                sizes = []
-            return CustomProductWrapper()
-    return None
+
 
 
 

@@ -12,7 +12,7 @@
  */
 import { Heart } from "lucide-react";
 import useWishlistStore from "../../store/useWishlistStore";
-import { useAuthStore } from "../../store/useAuthStore";
+import { useUserStore } from "../../store/useUserStore";
 import { useNavigate } from "react-router-dom";
 
 export default function WishlistButton({
@@ -22,7 +22,7 @@ export default function WishlistButton({
   showLabel = false,
 }) {
   const { isSaved, toggle } = useWishlistStore();
-  const { isAuthenticated } = useAuthStore ? useAuthStore() : { isAuthenticated: false };
+  const token = useUserStore((s) => s.token);
   const navigate = useNavigate();
   const saved = isSaved(productId);
 
@@ -30,10 +30,11 @@ export default function WishlistButton({
     e.preventDefault();
     e.stopPropagation();
 
-    if (!isAuthenticated) {
+    if (!token) {
       navigate("/login");
       return;
     }
+
     toggle(productId);
   };
 

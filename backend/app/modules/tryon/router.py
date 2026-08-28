@@ -27,8 +27,10 @@ from app.modules.tryon.models import TryOnSession, UserImage
 from app.modules.users.models import User
 import json
 import logging
+from datetime import datetime, timedelta, timezone
 
 logger = logging.getLogger(__name__)
+
 
 
 router = APIRouter()
@@ -280,7 +282,8 @@ async def create_ai_try_on(
     logger.info(f"[TryOn API] Image hash computed: {image_hash}. Checking cache...")
     
     # Check if a completed try-on session already exists for this image + exact garments list
-    cache_cutoff = datetime.utcnow() - timedelta(hours=24)
+    cache_cutoff = datetime.now(timezone.utc) - timedelta(hours=24)
+
     cached_session = (
         db.query(TryOnSession)
         .filter(
