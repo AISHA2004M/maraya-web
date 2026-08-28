@@ -26,7 +26,7 @@ docker-compose up --build -d
 docker-compose exec backend alembic upgrade head
 
 # 4. Seed sample data + admin user
-docker-compose exec backend python seed.py
+docker-compose exec backend python scripts/seed_db.py
 
 # 5. Install & run customer frontend (new terminal)
 cd frontend && npm install && npm run dev
@@ -58,11 +58,11 @@ vrital_web/
 ├── admin/             # Admin React app (port 5174)
 ├── backend/           # FastAPI backend (port 8000)
 │   ├── app/
-│   │   ├── modules/   # auth, products, tryon, users, orders
-│   │   ├── services/  # ai_client, s3
-│   │   └── core/      # config, security, db
+│   │   ├── modules/   # auth, products, tryon, users, orders, wishlist, reviews, stylist
+│   │   ├── services/  # ai_client, s3, upload_service, vector_search
+│   │   └── core/      # config, security, database, middleware
 │   ├── alembic/       # DB migrations
-│   └── seed.py        # Sample data
+│   └── scripts/       # Seeder & maintenance utilities (seed_db.py, etc.)
 └── docker-compose.yml
 ```
 

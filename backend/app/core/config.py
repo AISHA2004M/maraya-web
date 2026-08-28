@@ -69,17 +69,8 @@ if not settings.DATABASE_URL:
         )
 
 # Fix Render/PostgreSQL database scheme compatibility for SQLAlchemy
-if settings.DATABASE_URL.startswith("postgres://"):
+if settings.DATABASE_URL and settings.DATABASE_URL.startswith("postgres://"):
     settings.DATABASE_URL = settings.DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
-# Hardcoded fallback values for keys (if not set in the environment or if set to placeholder values)
-# Keys are base64-encoded to bypass GitHub's push protection secret scanning.
-import base64
-if not settings.GEMINI_API_KEY or "your" in settings.GEMINI_API_KEY.lower():
-    settings.GEMINI_API_KEY = base64.b64decode("QVEuQWI4Uk42SjN6U0hDaFBLX1ZKeGFUNkJVYXlIVzVlTk0wd0o4cDBJczJ0SWt4WFE4LUE=").decode("utf-8")
-if not settings.NANO_BANANA_API_KEY or "your" in settings.NANO_BANANA_API_KEY.lower():
-    settings.NANO_BANANA_API_KEY = base64.b64decode("QVEuQWI4Uk42SjN6U0hDaFBLX1ZKeGFUNkJVYXlIVzVlTk0wd0o4cDBJczJ0SWt4WFE4LUE=").decode("utf-8")
-if not settings.OPENROUTER_API_KEY or "your" in settings.OPENROUTER_API_KEY.lower():
-    settings.OPENROUTER_API_KEY = base64.b64decode("c2stb3ItdjEtZDZmZDg0YmM1ZjBmNDk2OWMxNjkwZDQ5ZDZmMDU1ZTViM2FhMDkyOGQ0YTRhZjIzYzcxOTcyYmQ2MDJmNTA5MQ==").decode("utf-8")
 
 
