@@ -15,8 +15,9 @@ class Review(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    product_id = Column(String(36), ForeignKey("products.id", ondelete="CASCADE"), nullable=False)
+    product_id = Column(String(255), ForeignKey("products.id", ondelete="CASCADE"), nullable=False)
     rating = Column(Integer, nullable=False)     # 1-5
+
     title = Column(String(200), nullable=True)
     body = Column(Text, nullable=True)
     verified_purchase = Column(Integer, default=0)  # 1 if user actually bought the product

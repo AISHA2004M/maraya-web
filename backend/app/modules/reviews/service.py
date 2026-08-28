@@ -23,8 +23,16 @@ def get_product_reviews(db: Session, product_id: str, skip: int = 0, limit: int 
 
 
 def get_product_rating_summary(db: Session, product_id: str) -> dict:
-    reviews = db.query(Review).filter(Review.product_id == product_id).all()
-    if not reviews:
+    stats = (
+        db.query(
+            func.coalesce(func.avg(Review.rating), 0).label("avg_rating"),
+            func.count(Review.id).label("total_reviews"),
+        )
+        .filter(Review.product_id == str(product_id))
+        .first()
+    )
+
+    if not stats or stats.total_reviews == 0:
         return {
             "product_id": product_id,
             "average_rating": 0.0,
@@ -32,18 +40,25 @@ def get_product_rating_summary(db: Session, product_id: str) -> dict:
             "rating_breakdown": {1: 0, 2: 0, 3: 0, 4: 0, 5: 0},
         }
 
+    # Group counts by star rating
+    breakdown_rows = (
+        db.query(Review.rating, func.count(Review.id))
+        .filter(Review.product_id == str(product_id))
+        .group_by(Review.rating)
+        .all()
+    )
     breakdown = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
-    total_score = 0
-    for r in reviews:
-        breakdown[r.rating] = breakdown.get(r.rating, 0) + 1
-        total_score += r.rating
+    for rating_val, count in breakdown_rows:
+        if rating_val in breakdown:
+            breakdown[rating_val] = count
 
     return {
         "product_id": product_id,
-        "average_rating": round(total_score / len(reviews), 1),
-        "total_reviews": len(reviews),
+        "average_rating": round(float(stats.avg_rating), 1),
+        "total_reviews": stats.total_reviews,
         "rating_breakdown": breakdown,
     }
+
 
 
 def create_review(db: Session, user_id: str, data: ReviewCreate) -> Review:

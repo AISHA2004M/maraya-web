@@ -111,7 +111,8 @@ export default function ProductForm() {
       } else {
         await createProduct(data);
       }
-      navigate(`/partner/${brand_slug}/products`);
+      navigate(brand_slug ? `/partner/${brand_slug}/products` : (role === "admin" ? "/admin/products" : "/admin"));
+
     } catch (err) {
       alert(err.response?.data?.detail || "Failed to save product");
     } finally {

@@ -1,27 +1,37 @@
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 from jose import jwt, JWTError
+import bcrypt
 import hashlib
 import hmac
-import os
 from app.core.config import settings
 
-# Use a fixed salt for HMAC-SHA256 password hashing so that token rotation (JWT_SECRET changes)
-# does not invalidate existing user passwords in the database.
+
+# Use a fixed salt for backward-compatible verification of legacy HMAC-SHA256 hashes
 _HASH_SECRET = b"vrital_platform_hash_salt_2026"
 
 
 def hash_password(password: str) -> str:
-    """HMAC-SHA256 password hash (dev-compatible; swap to bcrypt for production)."""
-    token = hmac.new(_HASH_SECRET, password.encode("utf-8"), hashlib.sha256).hexdigest()
-    return f"sha256${token}"
+    """Standard bcrypt password hash with auto-salt."""
+    pwd_bytes = password.encode("utf-8")[:72]
+    salt = bcrypt.gensalt(rounds=12)
+    return bcrypt.hashpw(pwd_bytes, salt).decode("utf-8")
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """Verifies passwords supporting both bcrypt and legacy sha256$ hashes."""
+    if not hashed_password or not plain_password:
+        return False
     if hashed_password.startswith("sha256$"):
-        expected = hash_password(plain_password)
+        token = hmac.new(_HASH_SECRET, plain_password.encode("utf-8"), hashlib.sha256).hexdigest()
+        expected = f"sha256${token}"
         return hmac.compare_digest(hashed_password, expected)
-    return False
+    try:
+        return bcrypt.checkpw(plain_password.encode("utf-8")[:72], hashed_password.encode("utf-8"))
+    except Exception:
+        return False
+
+
 
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:

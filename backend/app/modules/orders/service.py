@@ -315,9 +315,9 @@ def get_all_orders(db: Session, skip: int = 0, limit: int = 100, brand_id: Optio
         from app.modules.products.models import Product
         orders = (
             db.query(Order)
-            .options(joinedload(Order.items))
-            .join(OrderItem)
-            .join(Product)
+            .options(joinedload(Order.items).joinedload(OrderItem.product))
+            .join(OrderItem, OrderItem.order_id == Order.id)
+            .join(Product, Product.id == OrderItem.product_id)
             .filter(Product.brand_id == brand_id)
             .distinct()
             .order_by(Order.created_at.desc())
@@ -331,7 +331,7 @@ def get_all_orders(db: Session, skip: int = 0, limit: int = 100, brand_id: Optio
             filtered_items = []
             new_total = 0
             for item in items_list:
-                product = db.query(Product).filter(Product.id == item.product_id).first()
+                product = item.product
                 if product and product.brand_id == brand_id:
                     filtered_items.append(item)
                     new_total += float(item.price_at_purchase) * item.quantity
@@ -346,6 +346,7 @@ def get_all_orders(db: Session, skip: int = 0, limit: int = 100, brand_id: Optio
         .limit(limit)
         .all()
     )
+
 
 
 def update_order_status(db: Session, order_id: str, status_str: str, tracking_number: Optional[str] = None, carrier: Optional[str] = None) -> Optional[Order]:

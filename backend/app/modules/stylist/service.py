@@ -1,7 +1,7 @@
 import os
 import json
 import httpx
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from app.modules.products.models import Product, Brand
 from app.modules.stylist.schemas import StylistChatRequest, StylistChatResponse, StylistProductRecommendation
 from app.core.config import settings
@@ -12,8 +12,15 @@ from typing import List
 def get_stylist_advice(db: Session, request: StylistChatRequest) -> StylistChatResponse:
     user_prompt = request.message.strip()
     
-    # Query catalog products to give to the LLM or matching engine
-    products = db.query(Product).filter(Product.is_active == True).limit(40).all()
+    # Query catalog products to give to the LLM or matching engine with eager loading
+    products = (
+        db.query(Product)
+        .options(joinedload(Product.brand), joinedload(Product.category))
+        .filter(Product.is_active == True)
+        .limit(40)
+        .all()
+    )
+
     
     catalog_summary = []
     for p in products:

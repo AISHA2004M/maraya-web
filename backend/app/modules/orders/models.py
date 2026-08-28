@@ -92,6 +92,8 @@ class OrderItem(Base):
     created_at = Column(DateTime, server_default=func.now())
 
     order = relationship("Order", back_populates="items")
+    product = relationship("app.modules.products.models.Product")
+
 
 
 class Favorite(Base):
