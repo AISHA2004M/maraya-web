@@ -194,11 +194,13 @@ export default function CartDrawer() {
                       className="flex gap-4 py-3 border-b border-rule/50 last:border-b-0 items-center"
                     >
                       <img
-                        src={resolveImageUrl(item.main_image_url || item.image)}
+                        src={resolveImageUrl(item.main_image_url || item.image, 200, 80)}
                         alt={item.name}
+                        loading="lazy"
+                        decoding="async"
                         className="w-16 h-20 object-cover bg-neutral-50 border border-rule flex-shrink-0"
                         onError={(e) => {
-                          e.target.src = "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=300";
+                          e.target.src = "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=300&q=75&fm=webp&auto=format";
                         }}
                       />
                       <div className="flex-1 min-w-0">

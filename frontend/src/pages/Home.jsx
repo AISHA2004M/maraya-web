@@ -61,6 +61,9 @@ export default function Home() {
           <img
             src={brand?.hero_image_url || "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=75&w=1600&fm=webp"}
             alt={brand?.name || "Brand Campaign"}
+            fetchpriority="high"
+            loading="eager"
+            decoding="async"
             className="absolute inset-0 w-full h-full object-cover object-center"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
@@ -109,6 +112,8 @@ export default function Home() {
               <img
                 src={brand?.story_image_url || "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=1000&q=80"}
                 alt="Brand Story Atelier"
+                loading="lazy"
+                decoding="async"
                 className="w-full h-full object-cover"
               />
             </div>

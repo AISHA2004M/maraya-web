@@ -86,6 +86,9 @@ export default function BrandDetails() {
             <img
               src={brand.banner_url}
               alt={brand.name}
+              fetchpriority="high"
+              loading="eager"
+              decoding="async"
               className="absolute inset-0 w-full h-full object-cover transition-transform duration-[12000ms] hover:scale-105"
             />
           ) : (

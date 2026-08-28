@@ -17,7 +17,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useUserStore } from "../store/useUserStore";
 import { useLanguageStore } from "../store/useLanguageStore";
 import { formatPrice } from "../utils/formatPrice";
-import { resolveImageUrl } from "../utils/resolveImageUrl";
+import { resolveImageUrl, buildSrcSet } from "../utils/resolveImageUrl";
 import { parseAnglesImages } from "../utils/parseAnglesImages";
 import SEO from "../components/ui/SEO";
 
@@ -518,9 +518,11 @@ export default function ProductDetails() {
     );
   }
 
-  // Create list of images for 360 rotation simulator using database values if present
+  // Create list of images for 360 rotation simulator
   const rawRotationImages = parseAnglesImages(product);
-  const rotationImages = rawRotationImages.map(resolveImageUrl);
+  // 1200px WebP — full-width detail view on desktop
+  const rotationImages = rawRotationImages.map((url) => resolveImageUrl(url, 1200, 85));
+  const rotationSrcSets = rawRotationImages.map((url) => buildSrcSet(url, 85));
 
   const handleAccordionToggle = (accordion) => {
     setActiveAccordion(activeAccordion === accordion ? null : accordion);
@@ -746,10 +748,15 @@ export default function ProductDetails() {
                 onTouchEnd={handleStop360Drag}
                 className={`w-full aspect-[3/4] bg-white border border-rule overflow-hidden rounded-lg flex items-center justify-center select-none relative group ${rotationImages.length > 1 ? "cursor-grab" : ""}`}
               >
-                {/* Clean, high-quality flat product image (no waving or ripples) */}
+                {/* Clean, high-quality flat product image */}
                 <img
                   src={rotationImages[rotationIndex]}
+                  srcSet={rotationSrcSets[rotationIndex]}
+                  sizes="(max-width: 768px) 100vw, 55vw"
                   alt={product.name}
+                  fetchpriority="high"
+                  loading="eager"
+                  decoding="async"
                   className="w-full h-full object-cover pointer-events-none select-none"
                 />
 
@@ -1439,8 +1446,10 @@ export default function ProductDetails() {
                 >
                   <div className="aspect-[3/4] bg-white border border-rule overflow-hidden rounded-sm relative">
                     <img
-                      src={rec.main_image_url}
+                      src={resolveImageUrl(rec.main_image_url, 400, 75)}
                       alt={rec.name}
+                      loading="lazy"
+                      decoding="async"
                       className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-700"
                     />
                     {rec.mood_aesthetic && (

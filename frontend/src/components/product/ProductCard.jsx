@@ -20,8 +20,7 @@ import { Heart, Sparkles } from "lucide-react";
 import { useCartStore } from "../../store/useCartStore";
 import { useWishlistStore } from "../../store/useWishlistStore";
 import { formatPrice } from "../../utils/formatPrice";
-import { resolveImageUrl } from "../../utils/resolveImageUrl";
-
+import { resolveImageUrl, buildSrcSet } from "../../utils/resolveImageUrl";
 import { parseAnglesImages } from "../../utils/parseAnglesImages";
 
 export default function ProductCard({ product }) {
@@ -44,8 +43,11 @@ export default function ProductCard({ product }) {
 
   // ─── Image angles ──────────────────────────────────────────────────────────
   const rawAngles = parseAnglesImages(product);
-
-  const angles = rawAngles.map(resolveImageUrl);
+  // Resolve to optimized 800px WebP for card display (grid cards are ≤400px wide,
+  // but 800px gives 2x retina sharpness without loading the full original)
+  const angles = rawAngles.map((url) => resolveImageUrl(url, 800, 80));
+  // Raw angles kept for srcSet generation (needs original Supabase URL)
+  const srcSets = rawAngles.map((url) => buildSrcSet(url, 80));
 
   // ─── Hover handlers ────────────────────────────────────────────────────────
   const handleMouseEnter = useCallback(() => {
@@ -107,13 +109,15 @@ export default function ProductCard({ product }) {
       <div className="product-card-img aspect-[3/4] mb-4 bg-neutral-50 overflow-hidden relative transition-all duration-500 ease-out group-hover:shadow-[0_15px_30px_rgba(26,28,28,0.04)]">
         <img
           src={angles[activeImgIndex]}
+          srcSet={srcSets[activeImgIndex]}
+          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
           alt={product.name}
           loading="lazy"
           decoding="async"
           className="w-full h-full object-cover transition-transform duration-[8000ms] ease-out group-hover:scale-[1.02] will-change-transform"
           onError={(e) => {
             e.target.src =
-              "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=600";
+              "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=600&q=75&fm=webp&auto=format";
           }}
         />
 
