@@ -17,7 +17,8 @@ import os
 from datetime import datetime, timedelta, timezone
 
 
-from fastapi import FastAPI, Response, Depends
+from fastapi import FastAPI, Response, Request, HTTPException, Depends
+from fastapi.responses import JSONResponse
 from fastapi.security import HTTPBearer
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
@@ -111,6 +112,23 @@ app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 # ─── Exception Handlers ───────────────────────────────────────────────────────
 app.add_exception_handler(AppException, app_exception_handler)
+
+@app.exception_handler(HTTPException)
+async def custom_http_exception_handler(request: Request, exc: HTTPException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.detail, "success": False},
+        headers=getattr(exc, "headers", None),
+    )
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    import traceback
+    logger.error(f"Global unhandled exception on {request.method} {request.url.path}: {exc}\n{traceback.format_exc()}")
+    return JSONResponse(
+        status_code=500,
+        content={"detail": f"Internal server error: {str(exc)}", "type": type(exc).__name__, "success": False},
+    )
 
 
 # ─── API Routes ───────────────────────────────────────────────────────────────
