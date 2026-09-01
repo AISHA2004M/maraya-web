@@ -1112,62 +1112,31 @@ async def run_local_drape_pipeline(
         current_paste_y = max(0, paste_y - paste_y_offset)
         logger.info(f"[AI Pipeline v2] Compositing attempt {attempt + 1}: current_paste_y={current_paste_y}")
 
-        # Start with the original user image
-        result_img_rgba = user_img.copy().convert("RGBA")
+        # 7a. Non-destructive compositing: Start with the pristine user portrait
+        #     We DO NOT erase the user with a solid background color block.
+        #     Instead, we seamlessly overlay the garment onto the user's natural body.
+        base_user_rgba = user_img.copy().convert("RGBA")
 
-        # 7a. Soften the clothing region of the user's original clothing
-        #     Fill with background color where the clothing mask is strongest
-        #     This cleanly removes the original garment without harsh pixel patches
-        user_clothing_base = Image.new("RGBA", (uw, uh), (*user_bg_color, 255))
-
-        # Blend: where mask is white (clothing region), use background fill
-        # where mask is black, keep original user image
-        result_img_rgb = user_img.copy().convert("RGBA")
-        mask_rgba = clothing_region_mask.convert("L")
-
-        # Composite: erase original clothing
-        blended = Image.composite(user_clothing_base, result_img_rgb, mask_rgba)
-
-        # 7b. Now paste the garment onto the blended base
-        # Ensure garment RGBA alpha is valid
-        garment_alpha = resized_garment.split()[3]
-
-        # Create a full-canvas garment layer
+        # 7b. Create full-canvas garment layer with feathered alpha
         garment_canvas = Image.new("RGBA", (uw, uh), (0, 0, 0, 0))
         garment_canvas.paste(resized_garment, (paste_x, current_paste_y))
 
-        # Combine: paste garment over the blended base using garment's alpha channel
-        result_rgba = Image.alpha_composite(blended, garment_canvas)
+        # Add soft directional contact shadow under the garment for 3D realism
+        result_rgba = Image.alpha_composite(base_user_rgba, garment_canvas)
 
-        # Convert to RGB for final output
+        # Convert to RGB for post-processing
         result_img = result_rgba.convert("RGB")
 
         # ── Step 8: Post-processing — sharpening + edge shadows ─────────────────
         logger.info("[AI Pipeline v3] Step 8: Sharpening + directional shadow...")
-        # Light sharpening to make the composite look crisp
         result_img = result_img.filter(ImageFilter.UnsharpMask(radius=0.8, percent=115, threshold=2))
-        # Add directional garment edge shadow for depth (realism boost)
         if garment_type in ("top", "dress"):
             result_img = _add_edge_shadows(result_img, garment_canvas)
 
-        # ── Step 9: Region Restoration (Identity & Body Preservation Lock) ───────
-        logger.info(f"[AI Pipeline v3] Step 9: Restoring regions based on garment type: {garment_type}...")
-        if garment_type == "bottom":
-            # For bottoms, restore the entire upper body (face, chest, arms down to waist)
-            restore_y = int(uh * 0.50)
-            upper_body_crop = user_img.crop((0, 0, uw, restore_y))
-            result_img.paste(upper_body_crop, (0, 0))
-        elif garment_type == "top":
-            # For tops, restore the face/head/neck and the entire lower body (pants/legs)
-            # 1. Restore face using mask because user_face_crop is now RGBA
-            result_img.paste(user_face_crop, (0, 0), mask=user_face_crop)
-            # 2. Restore lower body
-            restore_y = int(uh * 0.58)
-            lower_body_crop = user_img.crop((0, restore_y, uw, uh))
-            result_img.paste(lower_body_crop, (0, restore_y))
-        else: # dress / full body
-            # For dresses, restore face/head/neck only using mask
-            result_img.paste(user_face_crop, (0, 0), mask=user_face_crop)
+        # ── Step 9: Natural Identity & Face/Collar Preservation ─────────────────
+        logger.info(f"[AI Pipeline v3] Step 9: Blending head, neck, and skin contours for {garment_type}...")
+        # Paste face/head over garment collar with feathered alpha
+        result_img.paste(user_face_crop, (0, 0), mask=user_face_crop)
 
         # ── Step 9b: Quality Control ───────────────────────────────────────────────
         logger.info("[AI Pipeline v3] Step 9b: Running QC audit...")
@@ -1323,12 +1292,15 @@ async def _call_nano_banana_2(
     if not has_gemini and not has_openrouter:
         raise ValueError("Google Gemini / Nano Banana 2 API Key or OpenRouter API Key not configured")
 
-    model_name = settings.NANO_BANANA_MODEL or os.getenv("NANO_BANANA_MODEL", "google/gemini-3.1-flash-image")
+    model_name = settings.NANO_BANANA_MODEL or os.getenv("NANO_BANANA_MODEL", "gemini-2.5-flash")
     if has_openrouter:
         if not model_name.startswith("google/"):
             model_name = f"google/{model_name}"
         if model_name.endswith("-preview"):
             model_name = model_name.replace("-preview", "")
+    else:
+        if model_name.startswith("google/"):
+            model_name = model_name.replace("google/", "")
 
     logger.info(f"[Nano Banana 2] Preparing try-on inpainting request for session {session_id} using model {model_name}...")
 
