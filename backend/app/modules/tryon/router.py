@@ -288,22 +288,32 @@ async def create_ai_try_on(
         # Check if a completed try-on session already exists for this image + exact garments list
         cache_cutoff = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(hours=24)
 
+        cache_filters = [
+            TryOnSession.image_hash == image_hash,
+            TryOnSession.garments_list == json.dumps(parsed_ids),
+            TryOnSession.status == "completed",
+            TryOnSession.result_image_url.isnot(None),
+            TryOnSession.result_image_url != "",
+            TryOnSession.created_at >= cache_cutoff,
+        ]
+        if avatar:
+            cache_filters.append(TryOnSession.avatar == avatar)
+        else:
+            cache_filters.append(TryOnSession.avatar.is_(None))
+
+        if height:
+            cache_filters.append(TryOnSession.height == height)
+        else:
+            cache_filters.append(TryOnSession.height.is_(None))
+
+        if weight:
+            cache_filters.append(TryOnSession.weight == weight)
+        else:
+            cache_filters.append(TryOnSession.weight.is_(None))
+
         cached_session = (
             db.query(TryOnSession)
-            .filter(
-                TryOnSession.image_hash == image_hash,
-                TryOnSession.garments_list == json.dumps(parsed_ids),
-                TryOnSession.avatar == avatar,
-                TryOnSession.height == height,
-                TryOnSession.weight == weight,
-                TryOnSession.body_bust == body_bust,
-                TryOnSession.body_waist == body_waist,
-                TryOnSession.body_hips == body_hips,
-                TryOnSession.status == "completed",
-                TryOnSession.result_image_url.isnot(None),
-                TryOnSession.result_image_url != "",
-                TryOnSession.created_at >= cache_cutoff,
-            )
+            .filter(*cache_filters)
             .order_by(TryOnSession.created_at.desc())
             .first()
         )
