@@ -245,103 +245,187 @@ async def create_ai_try_on(
     db: Session = Depends(get_db),
     credentials=Depends(security),
 ):
-    request_id = request.headers.get("X-Request-ID", "-")
-    logger.info(f"[TryOn API] req={request_id} | Received try-on request. Product ID: {product_id}, Variant: {model_variant}")
-    from app.services.ai_client import validate_image_bytes, ImageValidationError
-    from app.services.upload_service import save_file_from_bytes
-    from app.services.image_optimizer import calculate_image_hash, compress_and_resize_image
-    from app.modules.products.service import get_product_by_id
-    from app.core.security import decode_token
+    try:
+        request_id = request.headers.get("X-Request-ID", "-")
+        logger.info(f"[TryOn API] req={request_id} | Received try-on request. Product ID: {product_id}, Variant: {model_variant}")
+        from app.services.ai_client import validate_image_bytes, ImageValidationError
+        from app.services.upload_service import save_file_from_bytes
+        from app.services.image_optimizer import calculate_image_hash, compress_and_resize_image
+        from app.modules.products.service import get_product_by_id
+        from app.core.security import decode_token
 
-    from datetime import datetime, timedelta
+        # ── Resolve user (optional auth — guest-friendly) ─────────────────────
+        user_id = "guest"
+        if credentials:
+            try:
+                payload = decode_token(credentials.credentials)
+                if payload:
+                    sub = payload.get("sub")
+                    if sub:
+                        user = db.query(User).filter(User.id == sub).first()
+                        if user:
+                            user_id = user.id
+            except Exception:
+                pass
 
-    # ── Resolve user (optional auth — guest-friendly) ─────────────────────
-    user_id = "guest"
-    if credentials:
-        try:
-            payload = decode_token(credentials.credentials)
-            if payload:
-                sub = payload.get("sub")
-                if sub:
-                    user = db.query(User).filter(User.id == sub).first()
-                    if user:
-                        user_id = user.id
-        except Exception:
-            pass
+        # Read original image
+        contents = await user_image.read()
 
-    # Read original image
-    contents = await user_image.read()
+        # ── Parse product IDs list ───────────────────────────────────────────
+        parsed_ids = [product_id]
+        if product_ids:
+            try:
+                temp_ids = json.loads(product_ids)
+                if isinstance(temp_ids, list) and len(temp_ids) > 0:
+                    parsed_ids = [str(pid) for pid in temp_ids]
+            except Exception:
+                pass
 
-    
-    # ── Parse product IDs list ───────────────────────────────────────────
-    parsed_ids = [product_id]
-    if product_ids:
-        try:
-            temp_ids = json.loads(product_ids)
-            if isinstance(temp_ids, list) and len(temp_ids) > 0:
-                parsed_ids = [str(pid) for pid in temp_ids]
-        except Exception:
-            pass
+        # ── Hashing & Caching Check ──────────────────────────────────────────
+        image_hash = calculate_image_hash(contents)
+        logger.info(f"[TryOn API] Image hash computed: {image_hash}. Checking cache...")
+        
+        # Check if a completed try-on session already exists for this image + exact garments list
+        cache_cutoff = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(hours=24)
 
-    # ── Hashing & Caching Check ──────────────────────────────────────────
-    image_hash = calculate_image_hash(contents)
-    logger.info(f"[TryOn API] Image hash computed: {image_hash}. Checking cache...")
-    
-    # Check if a completed try-on session already exists for this image + exact garments list
-    cache_cutoff = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(hours=24)
-
-    cached_session = (
-        db.query(TryOnSession)
-        .filter(
-            TryOnSession.image_hash == image_hash,
-            TryOnSession.garments_list == json.dumps(parsed_ids),
-            TryOnSession.avatar == avatar,
-            TryOnSession.height == height,
-            TryOnSession.weight == weight,
-            TryOnSession.body_bust == body_bust,
-            TryOnSession.body_waist == body_waist,
-            TryOnSession.body_hips == body_hips,
-            TryOnSession.status == "completed",
-            TryOnSession.result_image_url.isnot(None),
-            TryOnSession.result_image_url != "",
-            TryOnSession.created_at >= cache_cutoff,
+        cached_session = (
+            db.query(TryOnSession)
+            .filter(
+                TryOnSession.image_hash == image_hash,
+                TryOnSession.garments_list == json.dumps(parsed_ids),
+                TryOnSession.avatar == avatar,
+                TryOnSession.height == height,
+                TryOnSession.weight == weight,
+                TryOnSession.body_bust == body_bust,
+                TryOnSession.body_waist == body_waist,
+                TryOnSession.body_hips == body_hips,
+                TryOnSession.status == "completed",
+                TryOnSession.result_image_url.isnot(None),
+                TryOnSession.result_image_url != "",
+                TryOnSession.created_at >= cache_cutoff,
+            )
+            .order_by(TryOnSession.created_at.desc())
+            .first()
         )
-        .order_by(TryOnSession.created_at.desc())
-        .first()
-    )
-    
-    if cached_session:
-        logger.info(f"[TryOn API] Cache HIT for image {image_hash} + garments {parsed_ids}. Reusing result session {cached_session.id} immediately.")
         
-        # Create a new TryOnSession record for the user's history but mark it completed immediately
+        if cached_session:
+            logger.info(f"[TryOn API] Cache HIT for image {image_hash} + garments {parsed_ids}. Reusing result session {cached_session.id} immediately.")
+            
+            # Create a new TryOnSession record for the user's history but mark it completed immediately
+            import uuid as _uuid
+            effective_user_id = user_id if user_id != "guest" else f"guest-{str(_uuid.uuid4())[:8]}"
+            
+            # Resolve UserImage mapping
+            user_image_obj = None
+            if user_id != "guest" and not user_id.startswith("guest-"):
+                user_image_obj = db.query(UserImage).filter(UserImage.image_hash == image_hash, UserImage.user_id == user_id).first()
+                if not user_image_obj:
+                    user_image_obj = UserImage(
+                        user_id=user_id, 
+                        image_url=cached_session.user_image.image_url if cached_session.user_image else cached_session.result_image_url, 
+                        image_hash=image_hash
+                    )
+                    db.add(user_image_obj)
+                    db.flush()
+            
+            new_session = TryOnSession(
+                id=str(_uuid.uuid4()),
+                user_id=user_id if (user_id and user_id != "guest" and not user_id.startswith("guest-")) else None,
+                product_id=product_id,
+                user_image_id=user_image_obj.id if user_image_obj else (cached_session.user_image_id if cached_session.user_image_id else None),
+                result_image_url=cached_session.result_image_url,
+                status="completed",
+                progress=100,
+                image_hash=image_hash,
+                model_variant=model_variant,
+                ai_model_version=cached_session.ai_model_version,
+                inference_time_ms=0, # Cache hit is instantaneous!
+                garments_list=json.dumps(parsed_ids),
+                avatar=avatar,
+                height=height,
+                weight=weight,
+                body_bust=body_bust,
+                body_waist=body_waist,
+                body_hips=body_hips,
+            )
+            db.add(new_session)
+            db.commit()
+            db.refresh(new_session)
+            
+            return TryOnResponse(
+                job_id=str(new_session.id),
+                status=new_session.status,
+                progress=100,
+                result_image_url=new_session.result_image_url,
+                inference_time_ms=0,
+            )
+
+        logger.info(f"[TryOn API] Cache MISS for image {image_hash} + garments {parsed_ids}. Validating image...")
+        # ── Image Validation ─────────────────────────────────────────────────
+        try:
+            validate_image_bytes(contents, user_image.filename or "upload.jpg")
+        except ImageValidationError as exc:
+            raise HTTPException(status_code=422, detail=str(exc))
+
+        # ── Compress and resize image ────────────────────────────────────────
+        logger.info(f"[TryOn API] Image validation passed. Optimizing & compressing portrait...")
+        optimized_contents = compress_and_resize_image(contents, max_dim=2048, quality=95)
+
+        # ── Save optimized portrait ──────────────────────────────────────────
+        try:
+            logger.info(f"[TryOn API] Saving portrait to storage...")
+            portrait_url = await save_file_from_bytes(
+                optimized_contents,
+                original_filename=user_image.filename or "portrait.jpg",
+                folder="portraits",
+            )
+        except Exception as exc:
+            raise HTTPException(
+                status_code=500,
+                detail=f"Failed to save portrait image: {exc}",
+            )
+
+        # ── Resolve product ──────────────────────────────────────────────────
+        product = get_product_by_id(db, product_id)
+        if not product:
+            if garment_image_url:
+                class CustomProductWrapper:
+                    id = product_id
+                    name = "Apparel Garment"
+                    description = "luxury apparel product piece"
+                    main_image_url = garment_image_url
+                    category = None
+                product = CustomProductWrapper()
+            else:
+                raise HTTPException(status_code=404, detail="Product not found.")
+
+        if not getattr(product, "main_image_url", None) and not garment_image_url:
+            raise HTTPException(
+                status_code=422,
+                detail="This product does not have a qualifying image for try-on.",
+            )
+
+        # ── Create and Dispatch Session ──────────────────────────────────────
+        logger.info(f"[TryOn API] Portrait saved at {portrait_url}. Preparing TryOnSession database record...")
+        effective_user_id = user_id if user_id != "guest" else f"guest-{str(uuid.uuid4())[:8]}"
+
+        # Save to TryOnSession (use user_id=None for guests to satisfy FK constraints while preserving URL)
+        effective_db_user_id = user_id if (user_id != "guest" and not user_id.startswith("guest-")) else None
+        user_image_obj = UserImage(user_id=effective_db_user_id, image_url=portrait_url, image_hash=image_hash)
+        db.add(user_image_obj)
+        db.flush()
+
         import uuid as _uuid
-        effective_user_id = user_id if user_id != "guest" else f"guest-{str(_uuid.uuid4())[:8]}"
-        
-        # Resolve UserImage mapping
-        user_image_obj = None
-        if user_id != "guest" and not user_id.startswith("guest-"):
-            user_image_obj = db.query(UserImage).filter(UserImage.image_hash == image_hash, UserImage.user_id == user_id).first()
-            if not user_image_obj:
-                user_image_obj = UserImage(
-                    user_id=user_id, 
-                    image_url=cached_session.user_image.image_url if cached_session.user_image else cached_session.result_image_url, 
-                    image_hash=image_hash
-                )
-                db.add(user_image_obj)
-                db.flush()
-        
-        new_session = TryOnSession(
+        session = TryOnSession(
             id=str(_uuid.uuid4()),
             user_id=user_id if (user_id and user_id != "guest" and not user_id.startswith("guest-")) else None,
             product_id=product_id,
-            user_image_id=user_image_obj.id if user_image_obj else (cached_session.user_image_id if cached_session.user_image_id else None),
-            result_image_url=cached_session.result_image_url,
-            status="completed",
-            progress=100,
+            user_image_id=user_image_obj.id if user_image_obj else None,
+            result_image_url=None,
+            status="queued",
+            progress=0,
             image_hash=image_hash,
             model_variant=model_variant,
-            ai_model_version=cached_session.ai_model_version,
-            inference_time_ms=0, # Cache hit is instantaneous!
             garments_list=json.dumps(parsed_ids),
             avatar=avatar,
             height=height,
@@ -350,117 +434,38 @@ async def create_ai_try_on(
             body_waist=body_waist,
             body_hips=body_hips,
         )
-        db.add(new_session)
+        db.add(session)
         db.commit()
-        db.refresh(new_session)
-        
+        db.refresh(session)
+
+        # Dispatch Celery task
+        logger.info(f"[TryOn API] req={request_id} | Dispatching background task for session ID: {session.id}...")
+        dispatched = service._dispatch_tryon_task(session.id)
+        if not dispatched:
+            logger.warning(f"[TryOn API] req={request_id} | Celery worker unavailable. Executing sync fallback inline.")
+            try:
+                session = await service._run_sync_fallback(db, session)
+            except Exception as fallback_err:
+                logger.error(f"[TryOn API] req={request_id} | Sync fallback failed: {fallback_err}", exc_info=True)
+                session.status = "failed"
+                session.progress = 0
+                db.commit()
+
+        logger.info(f"[TryOn API] req={request_id} | Dispatch: {'Async Celery' if dispatched else 'Sync Fallback'}. Status: {session.status}. Job ID: {session.id}.")
         return TryOnResponse(
-            job_id=str(new_session.id),
-            status=new_session.status,
-            progress=100,
-            result_image_url=new_session.result_image_url,
-            inference_time_ms=0,
+            job_id=str(session.id),
+            status=session.status,
+            progress=session.progress or (100 if session.status == "completed" else 0),
+            result_image_url=session.result_image_url,
+            inference_time_ms=session.inference_time_ms,
         )
-
-    logger.info(f"[TryOn API] Cache MISS for image {image_hash} + garments {parsed_ids}. Validating image...")
-    # ── Image Validation ─────────────────────────────────────────────────
-    try:
-        validate_image_bytes(contents, user_image.filename or "upload.jpg")
-    except ImageValidationError as exc:
-        raise HTTPException(status_code=422, detail=str(exc))
-
-    # ── Compress and resize image ────────────────────────────────────────
-    logger.info(f"[TryOn API] Image validation passed. Optimizing & compressing portrait...")
-    optimized_contents = compress_and_resize_image(contents, max_dim=2048, quality=95)
-
-    # ── Save optimized portrait ──────────────────────────────────────────
-    try:
-        logger.info(f"[TryOn API] Saving portrait to storage...")
-        portrait_url = await save_file_from_bytes(
-            optimized_contents,
-            original_filename=user_image.filename or "portrait.jpg",
-            folder="portraits",
-        )
+    except HTTPException:
+        raise
     except Exception as exc:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to save portrait image: {exc}",
-        )
-
-    # ── Resolve product ──────────────────────────────────────────────────
-    product = get_product_by_id(db, product_id)
-    if not product:
-        if garment_image_url:
-            class CustomProductWrapper:
-                id = product_id
-                name = "Apparel Garment"
-                description = "luxury apparel product piece"
-                main_image_url = garment_image_url
-                category = None
-            product = CustomProductWrapper()
-        else:
-            raise HTTPException(status_code=404, detail="Product not found.")
-
-    if not getattr(product, "main_image_url", None) and not garment_image_url:
-        raise HTTPException(
-            status_code=422,
-            detail="This product does not have a qualifying image for try-on.",
-        )
-
-    # ── Create and Dispatch Session ──────────────────────────────────────
-    logger.info(f"[TryOn API] Portrait saved at {portrait_url}. Preparing TryOnSession database record...")
-    effective_user_id = user_id if user_id != "guest" else f"guest-{str(uuid.uuid4())[:8]}"
-
-    # Save to TryOnSession (use user_id=None for guests to satisfy FK constraints while preserving URL)
-    effective_db_user_id = user_id if (user_id != "guest" and not user_id.startswith("guest-")) else None
-    user_image_obj = UserImage(user_id=effective_db_user_id, image_url=portrait_url, image_hash=image_hash)
-    db.add(user_image_obj)
-    db.flush()
-
-    import uuid as _uuid
-    session = TryOnSession(
-        id=str(_uuid.uuid4()),
-        user_id=user_id if (user_id and user_id != "guest" and not user_id.startswith("guest-")) else None,
-        product_id=product_id,
-        user_image_id=user_image_obj.id if user_image_obj else None,
-        result_image_url=None,
-        status="queued",
-        progress=0,
-        image_hash=image_hash,
-        model_variant=model_variant,
-        garments_list=json.dumps(parsed_ids),
-        avatar=avatar,
-        height=height,
-        weight=weight,
-        body_bust=body_bust,
-        body_waist=body_waist,
-        body_hips=body_hips,
-    )
-    db.add(session)
-    db.commit()
-    db.refresh(session)
-
-    # Dispatch Celery task
-    logger.info(f"[TryOn API] req={request_id} | Dispatching background task for session ID: {session.id}...")
-    dispatched = service._dispatch_tryon_task(session.id)
-    if not dispatched:
-        logger.warning(f"[TryOn API] req={request_id} | Celery worker unavailable. Executing sync fallback inline.")
-        try:
-            session = await service._run_sync_fallback(db, session)
-        except Exception as fallback_err:
-            logger.error(f"[TryOn API] req={request_id} | Sync fallback failed: {fallback_err}", exc_info=True)
-            session.status = "failed"
-            session.progress = 0
-            db.commit()
-
-    logger.info(f"[TryOn API] req={request_id} | Dispatch: {'Async Celery' if dispatched else 'Sync Fallback'}. Status: {session.status}. Job ID: {session.id}.")
-    return TryOnResponse(
-        job_id=str(session.id),
-        status=session.status,
-        progress=session.progress or (100 if session.status == "completed" else 0),
-        result_image_url=session.result_image_url,
-        inference_time_ms=session.inference_time_ms,
-    )
+        import traceback
+        tb = traceback.format_exc()
+        logger.error(f"[TryOn API] FATAL ERROR in create_ai_try_on: {exc}\n{tb}")
+        raise HTTPException(status_code=500, detail=f"TryOn fatal error: {type(exc).__name__}: {exc}")
 
 
 @ai_router.get("/try-on/status/{job_id}", response_model=TryOnResponse)
