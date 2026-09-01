@@ -549,12 +549,15 @@ export default function TryOnModal({ isOpen, onClose, product }) {
       const jobId = dispatch.job_id || dispatch.session_id;
 
       if (dispatch.status === "completed" || dispatch.progress === 100) {
-        // Cache hit / sync completion
-        const resultRes = await getTryOnResult(jobId);
+        let finalImageUrl = dispatch.result_image_url;
+        if (!finalImageUrl) {
+          const resultRes = await getTryOnResult(jobId);
+          finalImageUrl = resultRes?.result_image_url;
+        }
         if (cancelRef.current) return;
-        if (resultRes && resultRes.result_image_url) {
+        if (finalImageUrl) {
           stopProgress(100);
-          setResult(resultRes.result_image_url);
+          setResult(finalImageUrl);
           setStage(STAGES.result);
         } else {
           throw new Error("Virtual try-on result was empty.");
@@ -572,8 +575,8 @@ export default function TryOnModal({ isOpen, onClose, product }) {
             else if (progressPct <= 85) setLabel("Neural drape rendering…");
             else setLabel("Almost ready…");
           },
-          1000,
-          120000,
+          1500,
+          185000,
           pollingOptionsRef.current
         );
         if (cancelRef.current) return;

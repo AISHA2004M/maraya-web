@@ -18,12 +18,19 @@ class GUID(TypeDecorator):
 
     def process_bind_param(self, value, dialect):
         if value is None:
-            return value
+            return None
+        if dialect.name == 'postgresql':
+            if isinstance(value, uuid.UUID):
+                return value
+            try:
+                return uuid.UUID(str(value))
+            except (ValueError, AttributeError, TypeError):
+                return None
         return str(value)
 
     def process_result_value(self, value, dialect):
         if value is None:
-            return value
+            return None
         return str(value)
 
 ID_TYPE = GUID

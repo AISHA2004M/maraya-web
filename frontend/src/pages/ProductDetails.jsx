@@ -640,12 +640,16 @@ export default function ProductDetails() {
       }
 
       if (dispatch.status === "completed" || dispatch.progress === 100) {
-        const finalResult = await getTryOnResult(activeJobId);
+        let finalImageUrl = dispatch.result_image_url;
+        if (!finalImageUrl) {
+          const finalResult = await getTryOnResult(activeJobId);
+          finalImageUrl = finalResult?.result_image_url;
+        }
         if (activeTryonInstanceRef.current === currentInstanceId) {
-          if (finalResult && finalResult.result_image_url) {
+          if (finalImageUrl) {
             clearInterval(progressTicker);
             setTryonProgress(100);
-            setTryonResult(finalResult.result_image_url);
+            setTryonResult(finalImageUrl);
             setLoadingPhase(language === "en" ? "Generated successfully" : "تم التوليد بنجاح");
           } else {
             throw new Error("Virtual try-on output was empty.");
@@ -658,8 +662,8 @@ export default function ProductDetails() {
             if (activeTryonInstanceRef.current !== currentInstanceId) return;
             setTryonProgress(pct);
           },
-          1000,
-          60000,
+          1500,
+          185000,
           pollingOptionsRef.current
         );
 

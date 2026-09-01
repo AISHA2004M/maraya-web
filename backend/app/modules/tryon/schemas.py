@@ -61,6 +61,8 @@ class TryOnResponse(BaseModel):
     job_id: str
     status: str
     progress: int
+    result_image_url: Optional[str] = None
+    inference_time_ms: Optional[int] = None
 
 
 class TryOnResultResponse(BaseModel):

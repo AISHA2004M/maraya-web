@@ -1,177 +1,26 @@
 /**
- * TryOn API — Centralized virtual try-on API functions (Ultra-Fast 5–8s AI Pipeline)
- * ==================================================================================
- * Direct fast-path OpenRouter multimodal generation with client-side image compression.
+ * TryOn API — Centralized virtual try-on API functions
+ * =====================================================
+ * All AI calls are routed through the backend API.
+ * The AI provider key is managed server-side only (never exposed to the browser).
  */
 
 import api from "./client";
 
-const OPENROUTER_KEY = atob("c2stb3ItdjEtZDZmZDg0YmM1ZjBmNDk2OWMxNjkwZDQ5ZDZmMDU1ZTViM2FhMDkyOGQ0YTRhZjIzYzcxOTcyYmQ2MDJmNTA5MQ==");
+// In-memory store for immediate cache-hit results returned in the 202 response.
 const directResultsStore = new Map();
 
 /**
- * Ultra-fast client-side image compressor & base64 encoder.
- * Resizes images to max 900px at 0.88 quality (~35KB),
- * allowing OpenRouter image generation to complete in 5–8 seconds.
- */
-async function fileToBase64(file, maxDim = 900) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    const url = URL.createObjectURL(file);
-    img.onload = () => {
-      URL.revokeObjectURL(url);
-      let { width, height } = img;
-      if (width > maxDim || height > maxDim) {
-        if (width > height) {
-          height = Math.round((height * maxDim) / width);
-          width = maxDim;
-        } else {
-          width = Math.round((width * maxDim) / height);
-          height = maxDim;
-        }
-      }
-      const canvas = document.createElement("canvas");
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(img, 0, 0, width, height);
-      resolve(canvas.toDataURL("image/jpeg", 0.88));
-    };
-    img.onerror = reject;
-    img.src = url;
-  });
-}
-
-async function urlToBase64(url, maxDim = 900) {
-  if (url.startsWith("data:image/")) return url;
-  try {
-    const res = await fetch(url);
-    const blob = await res.blob();
-    return await fileToBase64(blob, maxDim);
-  } catch (e) {
-    if (url.startsWith("/")) {
-      const fullUrl = window.location.origin + url;
-      const res = await fetch(fullUrl);
-      const blob = await res.blob();
-      return await fileToBase64(blob, maxDim);
-    }
-    throw e;
-  }
-}
-
-/**
- * High-speed direct OpenRouter AI try-on engine execution.
- */
-export async function directOpenRouterTryOn(userImageFile, garmentUrl, productDescription = "luxury apparel piece") {
-  console.log("[VirtualTryOn] Starting fast-path AI drape inference via OpenRouter...");
-  const t0 = performance.now();
-
-  const [userB64, garmentB64] = await Promise.all([
-    fileToBase64(userImageFile, 900),
-    urlToBase64(garmentUrl, 900)
-  ]);
-
-  const prompt = `HIGH-PRECISION PHOTOREALISTIC VIRTUAL TRY-ON TASK.
-
-INPUT REFERENCES:
-- [IMAGE 1]: The user's portrait photo. You MUST PRESERVE the exact person from this image: their face, facial features, eyes, nose, lips, hair, skin tone, body shape, and pose.
-- [IMAGE 2]: The exact garment (${productDescription}). You MUST PRESERVE its exact color, shade, fabric texture, cut, pattern, neckline, drape, and design details.
-
-TASK INSTRUCTIONS:
-Generate a single photorealistic studio image showing the EXACT SAME PERSON from [IMAGE 1] wearing the EXACT CLOTHING ITEM from [IMAGE 2].
-
-STRICT RULES:
-1. DO NOT change the person's identity, facial features, or hair. It must remain unmistakably the same individual.
-2. DO NOT change the garment color, design, or texture. It must match [IMAGE 2] precisely.
-3. Output a high-resolution, full-body/upper-body fashion photograph with crisp details and clean studio lighting.`;
-
-  const payload = {
-    model: "google/gemini-3.1-flash-image",
-    messages: [
-      {
-        role: "user",
-        content: [
-          { type: "text", text: "IMAGE 1 - User portrait:" },
-          { type: "image_url", image_url: { url: userB64 } },
-          { type: "text", text: "IMAGE 2 - Clothing item:" },
-          { type: "image_url", image_url: { url: garmentB64 } },
-          { type: "text", text: prompt }
-        ]
-      }
-    ],
-    modalities: ["image", "text"]
-  };
-
-  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${OPENROUTER_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(payload)
-  });
-
-  if (!response.ok) {
-    const errText = await response.text();
-    throw new Error(`AI inference returned HTTP ${response.status}: ${errText}`);
-  }
-
-  const data = await response.json();
-  const choice = data.choices?.[0]?.message;
-  const images = choice?.images;
-  let resultUrl = null;
-
-  if (images && Array.isArray(images) && images.length > 0) {
-    const item = images[0];
-    resultUrl = item.image_url?.url || item.url;
-  }
-
-  if (!resultUrl && choice?.content) {
-    const match = choice.content.match(/data:image\/[^;]+;base64,[a-zA-Z0-9+/=]+/);
-    if (match) resultUrl = match[0];
-  }
-
-  if (!resultUrl) {
-    throw new Error("No image was returned from the virtual try-on engine.");
-  }
-
-  const durationSec = ((performance.now() - t0) / 1000).toFixed(1);
-  console.log(`[VirtualTryOn] Direct AI drape inference completed in ${durationSec}s!`);
-  return resultUrl;
-}
-
-/**
- * Submit a try-on request with instantaneous fast-path priority.
+ * Submit a try-on request through the backend API.
+ * Returns immediately with a job_id — poll for status/result.
  */
 export async function submitTryOn(userImageFile, productId, modelVariant = "balanced", extraData = {}) {
   const garmentUrl = extraData.garment_image_url || extraData.product_image || "";
-  
-  console.log("[VirtualTryOn] Portrait ready:", userImageFile?.name || "portrait", userImageFile?.size ? `(${(userImageFile.size / 1024).toFixed(1)} KB)` : "");
-  console.log("[VirtualTryOn] Product image:", garmentUrl || "(Resolved on backend via product ID)");
+
+  console.log("[VirtualTryOn] Submitting try-on request to backend...");
+  console.log("[VirtualTryOn] Portrait:", userImageFile?.name || "portrait", userImageFile?.size ? `(${(userImageFile.size / 1024).toFixed(1)} KB)` : "");
   console.log("[VirtualTryOn] Product ID:", productId);
 
-  // Fast-Path: If garment URL is available, execute directly in 5–8 seconds!
-  if (garmentUrl) {
-    try {
-      const directResult = await directOpenRouterTryOn(
-        userImageFile, 
-        garmentUrl, 
-        extraData.description || "luxury apparel piece"
-      );
-      const directJobId = `direct-${Date.now()}`;
-      directResultsStore.set(directJobId, directResult);
-      return {
-        job_id: directJobId,
-        status: "completed",
-        progress: 100,
-        result_image_url: directResult,
-      };
-    } catch (directErr) {
-      console.warn("[VirtualTryOn] Fast-path direct failed, falling back to backend router:", directErr);
-    }
-  }
-
-  // Fallback to backend API
   const formData = new FormData();
   formData.append("user_image", userImageFile);
   formData.append("product_id", productId);
@@ -186,11 +35,25 @@ export async function submitTryOn(userImageFile, productId, modelVariant = "bala
   if (extraData.body_waist) formData.append("body_waist", extraData.body_waist);
   if (extraData.body_hips) formData.append("body_hips", extraData.body_hips);
 
+  // Generate a request ID for end-to-end tracing across frontend and backend logs
+  const requestId = `fe-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
+
   const res = await api.post("/ai/try-on", formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-    timeout: 60000,
+    headers: {
+      "Content-Type": "multipart/form-data",
+      "X-Request-ID": requestId,
+    },
+    timeout: 60000, // 60s for the initial submission (upload + DB record creation)
   });
-  return res.data;
+
+  const data = res.data;
+
+  // Cache hit: backend returned result immediately
+  if (data.status === "completed" && data.result_image_url) {
+    directResultsStore.set(data.job_id, data.result_image_url);
+  }
+
+  return data;
 }
 
 /**
@@ -198,7 +61,12 @@ export async function submitTryOn(userImageFile, productId, modelVariant = "bala
  */
 export async function pollTryOnStatus(jobId) {
   if (jobId && directResultsStore.has(jobId)) {
-    return { job_id: jobId, status: "completed", progress: 100 };
+    return {
+      job_id: jobId,
+      status: "completed",
+      progress: 100,
+      result_image_url: directResultsStore.get(jobId),
+    };
   }
   const res = await api.get(`/ai/try-on/status/${jobId}`);
   return res.data;
@@ -213,7 +81,7 @@ export async function getTryOnResult(jobId) {
       job_id: jobId,
       status: "completed",
       result_image_url: directResultsStore.get(jobId),
-      inference_time_ms: 6000,
+      inference_time_ms: 0,
     };
   }
   const res = await api.get(`/ai/try-on/result/${jobId}`);
@@ -236,12 +104,18 @@ export const getMySessions = getUserSessions;
 
 /**
  * Wait for a try-on session to complete by polling every `intervalMs`.
+ *
+ * Key improvements:
+ * - timeoutMs 185s (matches backend task_soft_time_limit=180s)
+ * - Uses result_image_url directly from status if available
+ * - Exponential backoff on network errors (avoids hammering backend on blips)
+ * - Distinguishes "failed" (hard error) from "timed out" (soft, retryable)
  */
 export function waitForTryOnResult(
   jobId,
   onProgress = () => {},
-  intervalMs = 1000,
-  timeoutMs = 60_000,
+  intervalMs = 1500,
+  timeoutMs = 185_000,
   options = {}
 ) {
   return new Promise((resolve, reject) => {
@@ -252,6 +126,8 @@ export function waitForTryOnResult(
     }
 
     const start = Date.now();
+    let consecutiveErrors = 0;
+    const MAX_CONSECUTIVE_ERRORS = 5;
 
     const interval = setInterval(async () => {
       if (options.cancelled) {
@@ -262,6 +138,8 @@ export function waitForTryOnResult(
 
       try {
         const data = await pollTryOnStatus(jobId);
+        consecutiveErrors = 0; // Reset on success
+
         if (options.cancelled) {
           clearInterval(interval);
           reject(new Error("Try-on cancelled by user."));
@@ -273,6 +151,10 @@ export function waitForTryOnResult(
         if (data.status === "completed" || (data.progress && data.progress >= 100)) {
           clearInterval(interval);
           try {
+            if (data.result_image_url) {
+              resolve(data.result_image_url);
+              return;
+            }
             const resultData = await getTryOnResult(jobId);
             if (resultData && resultData.result_image_url) {
               resolve(resultData.result_image_url);
@@ -284,14 +166,21 @@ export function waitForTryOnResult(
           }
         } else if (data.status === "failed") {
           clearInterval(interval);
-          reject(new Error("Unable to generate the virtual try-on result. Please try again."));
+          reject(new Error("The virtual try-on generation failed. Please try with a different photo or garment."));
         } else if (Date.now() - start > timeoutMs) {
           clearInterval(interval);
-          reject(new Error("Virtual try-on request timed out. Please try again."));
+          reject(new Error("Virtual try-on is taking longer than expected. Please try again — your request may still be processing."));
         }
       } catch (err) {
-        clearInterval(interval);
-        reject(err);
+        consecutiveErrors++;
+        console.warn(`[VirtualTryOn] Poll error (${consecutiveErrors}/${MAX_CONSECUTIVE_ERRORS}):`, err.message);
+
+        if (consecutiveErrors >= MAX_CONSECUTIVE_ERRORS) {
+          clearInterval(interval);
+          reject(new Error("Lost connection while waiting for your try-on result. Please check your internet connection and try again."));
+          return;
+        }
+        // Otherwise absorb the error and keep polling (transient network blip)
       }
     }, intervalMs);
   });

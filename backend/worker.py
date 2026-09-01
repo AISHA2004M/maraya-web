@@ -76,6 +76,41 @@ def _get_worker_db():
 
 
 # ---------------------------------------------------------------------------
+# Transient exception classifier — only retry network/server errors
+# ---------------------------------------------------------------------------
+
+def _is_transient_error(exc: Exception) -> bool:
+    """
+    Returns True only for errors that are worth retrying (transient):
+      - Network timeouts / connection resets
+      - HTTP 5xx from external AI APIs
+      - Rate-limit (429) from external APIs
+
+    Returns False for permanent errors that retrying can't fix:
+      - ValueError (bad data, missing images, empty garment)
+      - ImageValidationError (invalid file — will always fail)
+      - KeyError / AttributeError (programming bug — retrying hides it)
+      - session_not_found (DB record missing)
+    """
+    import httpx
+
+    # Transient: network-level errors
+    if isinstance(exc, (httpx.TimeoutException, httpx.ConnectError, httpx.RemoteProtocolError)):
+        return True
+
+    # Transient: HTTP 5xx or 429 from upstream AI APIs
+    if isinstance(exc, httpx.HTTPStatusError):
+        return exc.response.status_code in (429, 500, 502, 503, 504)
+
+    # Transient: generic OSError / connection reset
+    if isinstance(exc, (OSError, ConnectionError, TimeoutError)):
+        return True
+
+    # Permanent: all others (ValueError, KeyError, ImageValidationError, etc.)
+    return False
+
+
+# ---------------------------------------------------------------------------
 # AI Generation Task
 # ---------------------------------------------------------------------------
 
@@ -96,18 +131,21 @@ def generate_tryon_task(self, session_id: str):
     from app.modules.tryon.models import TryOnSession, UserImage
     from app.modules.products.models import Product
 
+    # Job-level request ID for end-to-end tracing across logs
+    job_id = self.request.id or session_id[:8]
+
     db = _get_worker_db()
     session = None
 
     try:
-        logger.info(f"[TryOn Worker] Job {session_id} started. Fetching session from database...")
+        logger.info(f"[TryOn Worker] job={job_id} session={session_id} | Started. Fetching session from database...")
         # 1. Fetch the session record
         session = db.query(TryOnSession).filter(TryOnSession.id == session_id).first()
         if not session:
-            logger.error(f"[TryOn Worker] Session {session_id} not found.")
+            logger.error(f"[TryOn Worker] job={job_id} session={session_id} | Session not found in database.")
             return {"status": "error", "reason": "session_not_found"}
 
-        logger.info(f"[TryOn Worker] Session {session_id} fetched successfully. Marking status='processing', progress=20...")
+        logger.info(f"[TryOn Worker] job={job_id} session={session_id} | Session fetched. Marking status='processing', progress=20...")
         # 2. Mark as processing
         session.status = "processing"
         session.progress = 20
@@ -120,17 +158,19 @@ def generate_tryon_task(self, session_id: str):
             if product and product.main_image_url:
                 cloth_image = product.main_image_url
             else:
-                logger.warning(f"[TryOn Worker] Product {session.product_id} not found or main_image_url is missing.")
+                logger.warning(f"[TryOn Worker] job={job_id} session={session_id} | Product {session.product_id} not found or missing main_image_url.")
 
-        user_image_url = session.user_image.image_url if session.user_image else ""
-        
-        # If user_image_url is not set but image override is there, use it (fallback for guests)
-        if not user_image_url and hasattr(session, "_user_image_url_override") and session._user_image_url_override:
-            user_image_url = session._user_image_url_override
+        # 4. Resolve user portrait URL
+        user_image_url = ""
+        if session.user_image and session.user_image.image_url:
+            user_image_url = session.user_image.image_url
 
-        logger.info(f"[TryOn Worker] Resolved image URLs for session {session_id}. Portrait: {user_image_url}, Clothing Garment: {cloth_image}")
+        if not user_image_url:
+            raise ValueError(f"No portrait URL available for session {session_id}. user_image_id={session.user_image_id}")
 
-        # 4. Multi-garment composite logic
+        logger.info(f"[TryOn Worker] job={job_id} session={session_id} | Portrait: {user_image_url[:80]}... | Garment: {cloth_image[:80]}...")
+
+        # 5. Multi-garment composite logic
         garments_ids = []
         if session.garments_list:
             try:
@@ -151,16 +191,18 @@ def generate_tryon_task(self, session_id: str):
                         "description": desc
                     })
 
-        logger.info(f"[TryOn Worker] Session {session_id} progress set to 40%...")
+        logger.info(f"[TryOn Worker] job={job_id} session={session_id} | Progress 40% — {len(garment_details)} garment(s) resolved.")
         session.progress = 40
         db.commit()
 
-        # 5. Call AI service (async call bridged into sync Celery task)
+        # 6. Call AI service
+        #    FIX (Bug 3): asyncio.run() crashes when an event loop already exists in the
+        #    Celery worker process. Use a new dedicated loop per task instead.
         from app.services.ai_client import AIClient
         ai_client_instance = AIClient()
 
         model_variant = getattr(session, "model_variant", "balanced") or "balanced"
-        
+
         # Retrieve product category name and description
         category_name = ""
         description = "apparel garment product description"
@@ -173,61 +215,77 @@ def generate_tryon_task(self, session_id: str):
                     description = product.description
                 elif product.name:
                     description = product.name
-                
-        logger.info(f"[TryOn Worker] Session {session_id} progress set to 60%. Invoking AI generation (category={category_name}, variant={model_variant}, desc={description})...")
-        logger.info(f"[TryOn Worker] AI generation started for session {session_id} with portrait: {user_image_url} and garment: {cloth_image}")
+
+        logger.info(f"[TryOn Worker] job={job_id} session={session_id} | Progress 60% — Invoking AI (category={category_name}, variant={model_variant})...")
         session.progress = 60
         db.commit()
 
-        result = asyncio.run(
-            ai_client_instance.generate_tryon(
-                user_image_url, 
-                cloth_image,
-                category=category_name,
-                model_variant=model_variant,
-                session_id=session_id,
-                description=description,
-                garment_details=garment_details,
-                avatar=session.avatar,
-                height=session.height,
-                weight=session.weight,
-                body_bust=session.body_bust,
-                body_waist=session.body_waist,
-                body_hips=session.body_hips
+        # Create a brand-new event loop for this Celery task.
+        # asyncio.run() would fail if the worker process already has a loop running.
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        try:
+            result = loop.run_until_complete(
+                ai_client_instance.generate_tryon(
+                    user_image_url,
+                    cloth_image,
+                    category=category_name,
+                    model_variant=model_variant,
+                    session_id=session_id,
+                    description=description,
+                    garment_details=garment_details,
+                    avatar=session.avatar,
+                    height=session.height,
+                    weight=session.weight,
+                    body_bust=session.body_bust,
+                    body_waist=session.body_waist,
+                    body_hips=session.body_hips
+                )
             )
-        )
+        finally:
+            loop.close()
+
         result_url = result.get("result_url", "")
-        
-        logger.info(f"[TryOn Worker] AI generation completed for session {session_id}. Result URL: {result_url}")
+
+        logger.info(f"[TryOn Worker] job={job_id} session={session_id} | AI generation done. Result: {result_url[:80]}...")
         session.progress = 85
         db.commit()
 
         # 7. Update session with completed result
-        logger.info(f"[TryOn Worker] Saving result and marking session {session_id} as completed (progress=100)...")
+        logger.info(f"[TryOn Worker] job={job_id} session={session_id} | Saving result, marking completed (progress=100)...")
         session.result_image_url = result_url
         session.status = "completed"
         session.progress = 100
         session.inference_time_ms = result.get("inference_time_ms", 1500)
         session.ai_model_version = result.get("model_version", "vrital-neural-drape-v2")
         db.commit()
-        logger.info(f"[TryOn Worker] Result stored in database for session {session_id}.")
 
-        logger.info(f"[TryOn Worker] Session {session_id} completed successfully in {session.inference_time_ms}ms.")
+        logger.info(f"[TryOn Worker] job={job_id} session={session_id} | Completed in {session.inference_time_ms}ms.")
         return {"status": "completed", "session_id": session_id, "result_url": result_url}
 
     except Exception as exc:
-        logger.error(f"[TryOn Worker] Session {session_id} failed: {exc}", exc_info=True)
+        logger.error(f"[TryOn Worker] job={job_id} session={session_id} | Failed: {type(exc).__name__}: {exc}", exc_info=True)
 
-        # Mark session as failed
+        # Mark session as failed in DB
         if session:
             try:
                 session.status = "failed"
                 db.commit()
-            except Exception:
+            except Exception as db_err:
+                logger.error(f"[TryOn Worker] job={job_id} session={session_id} | Could not mark session failed: {db_err}")
                 db.rollback()
 
-        # Retry on transient errors
-        raise self.retry(exc=exc)
+        # FIX (Bug 4): Smart retry — only retry transient errors.
+        # ValueError, ImageValidationError, missing session, etc. will NOT be retried.
+        if _is_transient_error(exc) and self.request.retries < self.max_retries:
+            backoff = 10 * (2 ** self.request.retries)  # 10s, 20s
+            logger.warning(f"[TryOn Worker] job={job_id} session={session_id} | Transient error, retrying in {backoff}s (attempt {self.request.retries + 1}/{self.max_retries})...")
+            raise self.retry(exc=exc, countdown=backoff)
+        else:
+            if not _is_transient_error(exc):
+                logger.error(f"[TryOn Worker] job={job_id} session={session_id} | Permanent error — NOT retrying: {type(exc).__name__}")
+            # Permanent failure — let it propagate so Celery marks the task failed
+            raise
 
     finally:
         db.close()

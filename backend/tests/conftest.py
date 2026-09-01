@@ -30,6 +30,7 @@ def setup_test_db():
     from app.modules.orders.models import Order, OrderItem
     from app.modules.wishlist.models import WishlistItem
     from app.modules.reviews.models import Review
+    from app.modules.tryon.models import TryOnSession, UserImage
     Base.metadata.create_all(bind=engine)
     yield
     Base.metadata.drop_all(bind=engine)

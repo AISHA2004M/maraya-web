@@ -456,8 +456,8 @@ export default function TryOn() {
             else if (progressPct <= 85) setLabel("Neural drape rendering…");
             else setLabel("Almost ready…");
           },
-          1000,
-          120000,
+          1500,
+          185000,  // matches backend task_soft_time_limit=180s
           pollingOptionsRef.current
         );
         clearTimeout(delayTimerRef.current);

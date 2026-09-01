@@ -9,7 +9,7 @@ Endpoints:
   GET  /tryon/all              — Admin: all sessions
 """
 
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, Request
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from app.core.database import get_db
@@ -180,17 +180,24 @@ def get_tryon_status(
     Returns status and result_image_url once completed.
     Made public (no auth) so guest try-ons can be polled.
     """
+    import uuid as _uuid
+    try:
+        _uuid.UUID(str(session_id))
+    except (ValueError, AttributeError):
+        raise HTTPException(status_code=404, detail="Try-on session not found.")
+
     session = (
         db.query(TryOnSession)
-        .filter(TryOnSession.id == session_id)
+        .filter(TryOnSession.id == str(session_id))
         .first()
     )
     if not session:
         raise HTTPException(status_code=404, detail="Try-on session not found.")
 
     return TryOnStatusOut(
-        session_id=session.id,
+        session_id=str(session.id),
         status=session.status,
+        progress=session.progress or (100 if session.status == "completed" else 0),
         result_image_url=session.result_image_url,
         inference_time_ms=session.inference_time_ms,
         ai_model_version=session.ai_model_version,
@@ -225,6 +232,7 @@ ai_router = APIRouter()
 
 @ai_router.post("/try-on", response_model=TryOnResponse, status_code=202)
 async def create_ai_try_on(
+    request: Request,
     user_image: UploadFile = File(..., description="Front-facing portrait photo (JPEG/PNG/WebP, max 10 MB)"),
     product_id: str = Form(..., description="ID of the clothing product to try on"),
     product_ids: Optional[str] = Form(None, description="JSON array of product IDs to try on"),
@@ -240,7 +248,8 @@ async def create_ai_try_on(
     db: Session = Depends(get_db),
     credentials=Depends(security),
 ):
-    logger.info(f"[TryOn API] Received try-on upload request. Product ID: {product_id}, Variant: {model_variant}")
+    request_id = request.headers.get("X-Request-ID", "-")
+    logger.info(f"[TryOn API] req={request_id} | Received try-on request. Product ID: {product_id}, Variant: {model_variant}")
     from app.services.ai_client import validate_image_bytes, ImageValidationError
     from app.services.upload_service import save_file_from_bytes
     from app.services.image_optimizer import calculate_image_hash, compress_and_resize_image
@@ -282,7 +291,7 @@ async def create_ai_try_on(
     logger.info(f"[TryOn API] Image hash computed: {image_hash}. Checking cache...")
     
     # Check if a completed try-on session already exists for this image + exact garments list
-    cache_cutoff = datetime.now(timezone.utc) - timedelta(hours=24)
+    cache_cutoff = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(hours=24)
 
     cached_session = (
         db.query(TryOnSession)
@@ -349,9 +358,11 @@ async def create_ai_try_on(
         db.refresh(new_session)
         
         return TryOnResponse(
-            job_id=new_session.id,
+            job_id=str(new_session.id),
             status=new_session.status,
-            progress=100
+            progress=100,
+            result_image_url=new_session.result_image_url,
+            inference_time_ms=0,
         )
 
     logger.info(f"[TryOn API] Cache MISS for image {image_hash} + garments {parsed_ids}. Validating image...")
@@ -434,53 +445,71 @@ async def create_ai_try_on(
     db.add(session)
     db.commit()
     db.refresh(session)
-    
-    # Store temporary portrait URL on session object for sync fallback
-    session._user_image_url_override = portrait_url
 
     # Dispatch Celery task
-    logger.info(f"[TryOn API] Dispatching Celery background task for session ID: {session.id}...")
+    logger.info(f"[TryOn API] req={request_id} | Dispatching background task for session ID: {session.id}...")
     dispatched = service._dispatch_tryon_task(session.id)
     if not dispatched:
-        logger.warning(f"[TryOn API] Celery worker unavailable. Executing sync fallback inline.")
-        # Sync fallback: run inline
-        session = await service._run_sync_fallback(db, session)
+        logger.warning(f"[TryOn API] req={request_id} | Celery worker unavailable. Executing sync fallback inline.")
+        try:
+            session = await service._run_sync_fallback(db, session)
+        except Exception as fallback_err:
+            logger.error(f"[TryOn API] req={request_id} | Sync fallback failed: {fallback_err}", exc_info=True)
+            session.status = "failed"
+            session.progress = 0
+            db.commit()
 
-    logger.info(f"[TryOn API] Dispatch result: {'Async Celery' if dispatched else 'Sync Fallback'}. Session status: {session.status}. Returning job ID {session.id}.")
+    logger.info(f"[TryOn API] req={request_id} | Dispatch: {'Async Celery' if dispatched else 'Sync Fallback'}. Status: {session.status}. Job ID: {session.id}.")
     return TryOnResponse(
-        job_id=session.id,
+        job_id=str(session.id),
         status=session.status,
-        progress=session.progress or (100 if session.status == "completed" else 0)
+        progress=session.progress or (100 if session.status == "completed" else 0),
+        result_image_url=session.result_image_url,
+        inference_time_ms=session.inference_time_ms,
     )
 
 
 @ai_router.get("/try-on/status/{job_id}", response_model=TryOnResponse)
 def get_ai_try_on_status(job_id: str, db: Session = Depends(get_db)):
     logger.info(f"[TryOn API] Polling status for job ID: {job_id}")
-    session = db.query(TryOnSession).filter(TryOnSession.id == job_id).first()
+    import uuid as _uuid
+    try:
+        _uuid.UUID(str(job_id))
+    except (ValueError, AttributeError):
+        raise HTTPException(status_code=404, detail="Try-on job not found.")
+
+    session = db.query(TryOnSession).filter(TryOnSession.id == str(job_id)).first()
     if not session:
         logger.warning(f"[TryOn API] Job ID not found: {job_id}")
         raise HTTPException(status_code=404, detail="Try-on job not found.")
     
     logger.info(f"[TryOn API] Job ID: {job_id} current status: {session.status}, progress: {session.progress}%")
     return TryOnResponse(
-        job_id=session.id,
+        job_id=str(session.id),
         status=session.status,
-        progress=session.progress or (100 if session.status == "completed" else 0)
+        progress=session.progress or (100 if session.status == "completed" else 0),
+        result_image_url=session.result_image_url,
+        inference_time_ms=session.inference_time_ms,
     )
 
 
 @ai_router.get("/try-on/result/{job_id}", response_model=TryOnResultResponse)
 def get_ai_try_on_result(job_id: str, db: Session = Depends(get_db)):
     logger.info(f"[TryOn API] Requesting final result for job ID: {job_id}")
-    session = db.query(TryOnSession).filter(TryOnSession.id == job_id).first()
+    import uuid as _uuid
+    try:
+        _uuid.UUID(str(job_id))
+    except (ValueError, AttributeError):
+        raise HTTPException(status_code=404, detail="Try-on job not found.")
+
+    session = db.query(TryOnSession).filter(TryOnSession.id == str(job_id)).first()
     if not session:
         logger.warning(f"[TryOn API] Job ID not found: {job_id}")
         raise HTTPException(status_code=404, detail="Try-on job not found.")
     
     logger.info(f"[TryOn API] Result returned for job ID: {job_id}. Status: {session.status}, URL: {session.result_image_url}")
     return TryOnResultResponse(
-        job_id=session.id,
+        job_id=str(session.id),
         status=session.status,
         result_image_url=session.result_image_url,
         inference_time_ms=session.inference_time_ms
