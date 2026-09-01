@@ -25,6 +25,7 @@ from app.modules.tryon.schemas import (
 )
 from app.modules.tryon.models import TryOnSession, UserImage
 from app.modules.users.models import User
+import uuid
 import json
 import logging
 from datetime import datetime, timedelta, timezone
@@ -121,11 +122,7 @@ async def ai_try_on(
     )
 
     # Guest users get a temporary user_id; sessions are still tracked in DB
-    effective_user_id = user_id if user_id != "guest" else f"guest-{db.bind.url}"
-    # Create a minimal guest user record if needed
-    if user_id == "guest":
-        import uuid as _uuid
-        effective_user_id = f"guest-{str(_uuid.uuid4())[:8]}"
+    effective_user_id = user_id if user_id != "guest" else f"guest-{str(uuid.uuid4())[:8]}"
 
     session = await service.create_tryon_session_async(
         db,
@@ -412,10 +409,7 @@ async def create_ai_try_on(
 
     # ── Create and Dispatch Session ──────────────────────────────────────
     logger.info(f"[TryOn API] Portrait saved at {portrait_url}. Preparing TryOnSession database record...")
-    effective_user_id = user_id if user_id != "guest" else f"guest-{db.bind.url}"
-    if user_id == "guest":
-        import uuid as _uuid
-        effective_user_id = f"guest-{str(_uuid.uuid4())[:8]}"
+    effective_user_id = user_id if user_id != "guest" else f"guest-{str(uuid.uuid4())[:8]}"
 
     # Save to TryOnSession (use user_id=None for guests to satisfy FK constraints while preserving URL)
     effective_db_user_id = user_id if (user_id != "guest" and not user_id.startswith("guest-")) else None

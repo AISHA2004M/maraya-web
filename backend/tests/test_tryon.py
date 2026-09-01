@@ -75,9 +75,33 @@ def test_tryon_upload_and_flow(client, db, test_user, auth_headers):
     assert result_data["status"] in ("completed", "processing", "queued")
 
 
+def test_guest_tryon_upload_and_flow(client, db):
+    prod = _ensure_test_product(db)
+    portrait_buf = _create_sample_jpeg()
+
+    # 1. Submit unauthenticated guest try-on request
+    files = {"user_image": ("portrait_guest.jpg", portrait_buf, "image/jpeg")}
+    data = {
+        "product_id": prod.id,
+        "model_variant": "fast",
+    }
+    res = client.post("/api/v1/ai/try-on", files=files, data=data)
+    assert res.status_code == 202
+    res_data = res.json()
+    assert "job_id" in res_data
+    job_id = res_data["job_id"]
+    assert res_data["status"] in ("completed", "processing", "queued")
+
+    # 2. Guest can poll status
+    status_res = client.get(f"/api/v1/ai/try-on/status/{job_id}")
+    assert status_res.status_code == 200
+    assert status_res.json()["job_id"] == job_id
+
+
 def test_tryon_invalid_job_id_returns_404(client):
     res = client.get("/api/v1/ai/try-on/status/non-existent-or-invalid-uuid")
     assert res.status_code == 404
 
     res2 = client.get(f"/api/v1/ai/try-on/status/{str(uuid.uuid4())}")
     assert res2.status_code == 404
+
