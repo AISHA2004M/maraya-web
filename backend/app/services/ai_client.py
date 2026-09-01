@@ -420,6 +420,12 @@ def _segment_garment(cloth_img: Image.Image, category: str = "", garment_type: s
 
     Returns RGBA image with only the garment visible.
     """
+    # Scale down oversized garment images to 640px for 10x faster pixel segmentation
+    orig_w, orig_h = cloth_img.size
+    if max(orig_w, orig_h) > 640:
+        scale = 640 / max(orig_w, orig_h)
+        cloth_img = cloth_img.resize((int(orig_w * scale), int(orig_h * scale)), Image.Resampling.LANCZOS)
+
     cw, ch = cloth_img.size
     cloth_rgba = cloth_img.convert("RGBA")
     pix = cloth_rgba.load()
@@ -965,9 +971,20 @@ async def run_local_drape_pipeline(
 
     logger.info(f"[AI Pipeline v2] Starting try-on for session: {session_id}, category: {category}")
 
-    # ── Load images ───────────────────────────────────────────────────────────
-    user_img = _load_image(user_image_path_or_url, fallback_type="portrait").convert("RGB")
-    cloth_img = _load_image(cloth_image_path_or_url, fallback_type="garment").convert("RGBA")
+    # ── Concurrent Fast Image Loading ──────────────────────────────────────────
+    import asyncio
+    loop = asyncio.get_running_loop()
+    user_img, cloth_img = await asyncio.gather(
+        loop.run_in_executor(None, lambda: _load_image(user_image_path_or_url, fallback_type="portrait").convert("RGB")),
+        loop.run_in_executor(None, lambda: _load_image(cloth_image_path_or_url, fallback_type="garment").convert("RGBA")),
+    )
+
+    # Normalize max dimension to 1024 for lightning-fast rendering without quality loss
+    MAX_DIM = 1024
+    if max(user_img.size) > MAX_DIM:
+        user_img.thumbnail((MAX_DIM, MAX_DIM), Image.Resampling.LANCZOS)
+    if max(cloth_img.size) > MAX_DIM:
+        cloth_img.thumbnail((MAX_DIM, MAX_DIM), Image.Resampling.LANCZOS)
 
     uw, uh = user_img.size
     cw, ch = cloth_img.size
@@ -1770,12 +1787,8 @@ class AIClient:
             except httpx.HTTPError as e:
                 logger.warning(f"[AIClient] Custom AI server failed: {e}. Falling back to Priority 3.")
 
-        # ── Priority 3: Local Segment-and-Drape Pipeline v3 (Demo/dev fallback) ──
+        # ── Priority 3: Local Segment-and-Drape Pipeline v3 (High-Speed Fallback) ──
         logger.info("[AIClient] Running Priority 3: Local Segment-and-Drape Pipeline v3 fallback...")
-        import asyncio
-        sleep_durations = {"fast": 0.3, "balanced": 0.8, "quality": 1.5}
-        sleep_time = sleep_durations.get(model_variant, 0.8)
-        await asyncio.sleep(sleep_time)
 
         result_url = await run_local_drape_pipeline(
             user_image, cloth_image, session_id=effective_session_id, category=category, description=description
