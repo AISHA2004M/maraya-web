@@ -6,42 +6,16 @@ from sqlalchemy.dialects.postgresql import UUID as pgUUID
 from sqlalchemy.orm import relationship
 from app.core.database import Base
 
-class GUID(TypeDecorator):
-    impl = CHAR
-    cache_ok = True
-
-    def load_dialect_impl(self, dialect):
-        if dialect.name == 'postgresql':
-            return dialect.type_descriptor(pgUUID())
-        else:
-            return dialect.type_descriptor(CHAR(36))
-
-    def process_bind_param(self, value, dialect):
-        if value is None:
-            return None
-        if dialect.name == 'postgresql':
-            if isinstance(value, uuid.UUID):
-                return value
-            try:
-                return uuid.UUID(str(value))
-            except (ValueError, AttributeError, TypeError):
-                return None
-        return str(value)
-
-    def process_result_value(self, value, dialect):
-        if value is None:
-            return None
-        return str(value)
-
-ID_TYPE = GUID
-
+_is_postgres = os.getenv("DATABASE_URL", "").startswith("postgres")
+USER_ID_TYPE = pgUUID(as_uuid=False) if _is_postgres else String(36)
+ID_TYPE = String(36)
 
 
 class UserImage(Base):
     __tablename__ = "user_images"
 
     id = Column(ID_TYPE, primary_key=True, default=lambda: str(uuid.uuid4()))
-    user_id = Column(ID_TYPE, ForeignKey("users.id", ondelete="CASCADE"))
+    user_id = Column(USER_ID_TYPE, ForeignKey("users.id", ondelete="CASCADE"), nullable=True)
     image_url = Column(Text, nullable=False)
     image_hash = Column(String(64), nullable=True, index=True)
     body_type = Column(String(50), nullable=True)
@@ -54,7 +28,7 @@ class TryOnSession(Base):
     __tablename__ = "tryon_sessions"
 
     id = Column(ID_TYPE, primary_key=True, default=lambda: str(uuid.uuid4()))
-    user_id = Column(ID_TYPE, ForeignKey("users.id", ondelete="CASCADE"))
+    user_id = Column(USER_ID_TYPE, ForeignKey("users.id", ondelete="CASCADE"), nullable=True)
     product_id = Column(String(255), ForeignKey("products.id", ondelete="CASCADE"), nullable=True)
     user_image_id = Column(ID_TYPE, ForeignKey("user_images.id"), nullable=True)
 
