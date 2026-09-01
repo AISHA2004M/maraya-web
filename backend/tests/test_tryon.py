@@ -105,3 +105,29 @@ def test_tryon_invalid_job_id_returns_404(client):
     res2 = client.get(f"/api/v1/ai/try-on/status/{str(uuid.uuid4())}")
     assert res2.status_code == 404
 
+
+def test_tryon_quality_validation():
+    import os
+    from PIL import Image, ImageDraw
+    from app.services.ai_client import validate_rendered_tryon_result, TryOnQualityError
+    import pytest
+
+    # 1. Reject solid color / gray canvas
+    corrupted_img = Image.new("RGB", (600, 800), color=(180, 180, 180))
+    with pytest.raises(TryOnQualityError):
+        validate_rendered_tryon_result(corrupted_img)
+
+    # 2. Reject image with giant gray blob over torso
+    bad_torso_img = Image.new("RGB", (600, 800), color=(240, 220, 200))
+    draw = ImageDraw.Draw(bad_torso_img)
+    draw.rectangle([100, 200, 500, 650], fill=(128, 128, 128))
+    with pytest.raises(TryOnQualityError):
+        validate_rendered_tryon_result(bad_torso_img)
+
+    # 3. Accept valid high-texture image
+    random_bytes = os.urandom(600 * 800 * 3)
+    valid_img = Image.frombytes("RGB", (600, 800), random_bytes)
+    # Should not raise
+    validate_rendered_tryon_result(valid_img)
+
+

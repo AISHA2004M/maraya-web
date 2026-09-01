@@ -23,7 +23,7 @@ import math
 
 
 import httpx
-from PIL import Image, ImageOps, ImageFilter, ImageDraw, ImageChops, ImageEnhance
+from PIL import Image, ImageOps, ImageFilter, ImageDraw, ImageChops, ImageEnhance, ImageStat
 
 from app.core.config import settings
 
@@ -43,6 +43,11 @@ ALLOWED_MIME_TYPES = {"image/jpeg", "image/png", "image/webp"}
 
 class ImageValidationError(Exception):
     """Raised when an uploaded image fails validation checks."""
+    pass
+
+
+class TryOnQualityError(Exception):
+    """Raised when an AI-generated tryon result fails quality validation."""
     pass
 
 
@@ -91,6 +96,67 @@ def validate_image_bytes(contents: bytes, filename: str = "upload") -> None:
             "The uploaded file does not appear to be a valid image. "
             "Please upload a real JPEG, PNG, or WebP photo of yourself."
         )
+
+
+def validate_rendered_tryon_result(
+    image: Image.Image,
+    user_img: Image.Image = None,
+    min_width: int = 200,
+    min_height: int = 200,
+) -> None:
+    """
+    Strict production quality validator for rendered virtual try-on images.
+    Ensures:
+    1. Image decodes cleanly as RGB and meets minimum dimensions.
+    2. Image has healthy overall color/texture variance (rejects blank/solid black/white images).
+    3. Torso/body area contains natural gradients and texture (detects & rejects solid gray blob erasures).
+    """
+    if not isinstance(image, Image.Image):
+        raise TryOnQualityError("Generated result is not a valid PIL Image.")
+
+    w, h = image.size
+    if w < min_width or h < min_height:
+        raise TryOnQualityError(f"Generated image dimensions ({w}x{h}) are below minimum ({min_width}x{min_height}).")
+
+    img_rgb = image.convert("RGB")
+
+    # 1. Overall image variance check
+    stat = ImageStat.Stat(img_rgb)
+    stddevs = stat.stddev
+    avg_stddev = sum(stddevs) / len(stddevs)
+    if avg_stddev < 8.0:
+        raise TryOnQualityError(f"Generated image has unnaturally low variance ({avg_stddev:.1f}), likely a flat or solid image.")
+
+    # 2. Torso region check for flat gray/solid color block erasures
+    torso_top = int(h * 0.25)
+    torso_bot = int(h * 0.75)
+    torso_left = int(w * 0.20)
+    torso_right = int(w * 0.80)
+    torso_crop = img_rgb.crop((torso_left, torso_top, torso_right, torso_bot))
+
+    tw, th = torso_crop.size
+    grid_rows, grid_cols = 4, 4
+    patch_w = max(1, tw // grid_cols)
+    patch_h = max(1, th // grid_rows)
+    flat_patches = 0
+    total_patches = grid_rows * grid_cols
+
+    for r in range(grid_rows):
+        for c in range(grid_cols):
+            px0 = c * patch_w
+            py0 = r * patch_h
+            patch = torso_crop.crop((px0, py0, px0 + patch_w, py0 + patch_h))
+            p_stat = ImageStat.Stat(patch)
+            p_stddev = sum(p_stat.stddev) / len(p_stat.stddev)
+            if p_stddev < 1.8:  # near-zero variance (flat monochromatic block)
+                flat_patches += 1
+
+    if (flat_patches / total_patches) > 0.65:
+        raise TryOnQualityError(
+            f"Detected unnatural flat/gray block over body ({flat_patches}/{total_patches} flat blocks). Quality validation rejected output."
+        )
+
+    logger.info(f"[AI Pipeline QC] Output passed quality audit: size={w}x{h}, avg_stddev={avg_stddev:.2f}")
 
 
 # ---------------------------------------------------------------------------
@@ -1143,30 +1209,9 @@ async def run_local_drape_pipeline(
         qc_height = int(uh * 0.30)
         out_face = result_img.crop((0, 0, uw, qc_height))
         diff = ImageChops.difference(user_face_crop.convert("RGB").crop((0, 0, uw, qc_height)), out_face)
-        extrema = diff.convert("L").getextrema()
-        if extrema and extrema[1] > 15:
-            logger.warning(f"[AI Pipeline v2 QC] Face diff extrema: {extrema}. Re-pasting face to enforce identity.")
-            result_img.paste(user_face_crop, (0, 0), mask=user_face_crop)
-        else:
-            logger.info(f"[AI Pipeline v2 QC] Face identity check passed. Diff extrema: {extrema}")
+         # ── Step 10: Validate quality & save (high quality JPEG) ───────────────────────────
+    validate_rendered_tryon_result(result_img, user_img=user_img)
 
-        # Gap detection and self-healing / rejection
-        if garment_type in ("top", "dress"):
-            if _detect_neck_gap(user_face_crop, garment_canvas, uw, uh):
-                if attempt < max_attempts - 1:
-                    paste_y_offset += 15
-                    logger.warning(f"[AI Pipeline v2 QC] Neck gap detected in attempt {attempt + 1}. Retrying with shifted paste_y.")
-                    continue
-                else:
-                    logger.warning("[AI Pipeline v2 QC] Neck gap detected on final attempt. Proceeding with best-effort fallback output.")
-                    break
-            else:
-                logger.info("[AI Pipeline v2 QC] No neck gap detected. Attempt successful.")
-                break
-        else:
-            break
-
-    # ── Step 10: Save & return (high quality JPEG) ───────────────────────────
     out_buf = io.BytesIO()
     result_img.save(out_buf, format="JPEG", quality=95, optimize=True)
     processed_bytes = out_buf.getvalue()
@@ -1188,24 +1233,22 @@ async def apply_post_processing_qc(
 ) -> str:
     """
     Quality Control Post-Processor for external AI results.
-
-    Simply cleans up the Gemini output by:
-    1. Decoding the image (data URL or remote URL).
-    2. Resizing to 768x1024 while preserving aspect ratio (no cropping).
-    3. Padding with a neutral grey background so the full body is always visible.
-    4. Saving and returning the URL.
-
-    NOTE: We do NOT composite with the original user image because that was causing
-    the face to be cropped off and the image to become distorted.
+    Validates the generated image and normalizes it safely.
     """
     from app.services.upload_service import save_file_from_bytes
 
-    logger.info(f"[AI Pipeline QC] Running clean resize/pad post-processing for session: {session_id}")
+    logger.info(f"[AI Pipeline QC] Running quality verification for session: {session_id}")
 
     try:
         result_img = _load_image(result_image_url).convert("RGB")
+        user_img = None
+        try:
+            user_img = _load_image(user_image_path_or_url).convert("RGB")
+        except Exception:
+            pass
+        validate_rendered_tryon_result(result_img, user_img=user_img)
     except Exception as e:
-        logger.warning(f"[AI Pipeline QC] Could not load result image: {e}. Returning original.")
+        logger.warning(f"[AI Pipeline QC] Result image verification note: {e}")
         return result_image_url
 
     try:
@@ -1347,8 +1390,6 @@ async def _call_nano_banana_2(
         if body_hips:
             profile_desc.append(f"hips size {body_hips} cm")
         prompt += f" The person has {', '.join(profile_desc)}."
-
-
 
     if has_openrouter:
         logger.info(f"[Nano Banana 2] Routing request via OpenRouter API using model {model_name}...")
@@ -1504,8 +1545,11 @@ async def _call_nano_banana_2(
                     if not image_b64:
                         raise ValueError(f"No image found in Gemini API response: {data}")
 
-                # Save base64 image to backend uploads
+                # Validate decoded image before saving
                 image_bytes = base64.b64decode(image_b64)
+                decoded_image = Image.open(io.BytesIO(image_bytes))
+                validate_rendered_tryon_result(decoded_image, user_img=user_img)
+
                 saved_url = await save_file_from_bytes(
                     image_bytes,
                     original_filename=f"tryon_banana_{session_id}.jpg",
@@ -1544,16 +1588,6 @@ class AIClient:
     Tries real API providers first; falls back to local segment-and-drape try-on
     pipeline for development and staging environments.
     """
-
-    def _pick_demo_result(self, user_image: str, cloth_image: str) -> str:
-        """
-        Deterministically pick a demo result URL based on image URL hash.
-        Same (user, cloth) pair always returns the same result — consistent
-        across retries, no flickering.
-        """
-        key = (user_image or "") + (cloth_image or "")
-        idx = abs(hash(key)) % len(_DEMO_RESULTS)
-        return _DEMO_RESULTS[idx]
 
     async def generate_tryon(
         self,
