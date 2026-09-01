@@ -852,6 +852,101 @@ def _match_color_lab(source: Image.Image, reference: Image.Image) -> Image.Image
 
 
 # ---------------------------------------------------------------------------
+# Hugging Face IDM-VTON Diffusion API Integration (Primary Real AI Engine)
+# ---------------------------------------------------------------------------
+
+async def _call_hf_idm_vton(
+    user_image: str,
+    cloth_image: str,
+    description: str,
+    session_id: str,
+    denoise_steps: int = 25,
+) -> str:
+    """
+    Direct Neural AI Virtual Try-On using yisol/IDM-VTON diffusion model via Hugging Face API.
+    Synthesizes authentic photorealistic garment draping on the human body.
+    """
+    import tempfile
+    import asyncio
+    from PIL import Image
+    from gradio_client import Client, handle_file
+    from app.services.upload_service import save_file_from_bytes
+
+    hf_token = os.getenv("HF_TOKEN") or getattr(settings, "HF_TOKEN", "") or os.getenv("HUGGINGFACE_API_KEY", "")
+
+    # 1. Download images to local temp files
+    async def _fetch_to_tmp(url: str, prefix: str) -> str:
+        if os.path.exists(url):
+            return url
+        async with httpx.AsyncClient(timeout=30) as client:
+            resp = await client.get(url)
+            resp.raise_for_status()
+            ext = ".jpg"
+            if "png" in resp.headers.get("content-type", ""):
+                ext = ".png"
+            tmp = tempfile.NamedTemporaryFile(delete=False, prefix=prefix, suffix=ext)
+            tmp.write(resp.content)
+            tmp.close()
+            return tmp.name
+
+    logger.info(f"[HF IDM-VTON] Fetching source images for session {session_id}...")
+    tmp_user, tmp_garm = await asyncio.gather(
+        _fetch_to_tmp(user_image, "user_"),
+        _fetch_to_tmp(cloth_image, "garm_"),
+    )
+
+    def _sync_predict():
+        logger.info(f"[HF IDM-VTON] Connecting to yisol/IDM-VTON Space (ZeroGPU)...")
+        client = Client("yisol/IDM-VTON", token=hf_token if hf_token else None)
+        logger.info(f"[HF IDM-VTON] Running neural diffusion prediction (steps={denoise_steps})...")
+        result = client.predict(
+            dict={
+                "background": handle_file(tmp_user),
+                "layers": [],
+                "composite": handle_file(tmp_user),
+            },
+            garm_img=handle_file(tmp_garm),
+            garment_des=description or "luxury apparel garment piece",
+            is_checked=True,
+            is_checked_crop=False,
+            denoise_steps=denoise_steps,
+            seed=42,
+            api_name="/tryon",
+        )
+        res_path = result[0] if isinstance(result, (list, tuple)) else result
+        if isinstance(res_path, dict):
+            res_path = res_path.get("path") or res_path.get("url", "")
+        return str(res_path)
+
+    loop = asyncio.get_running_loop()
+    result_local_path = await loop.run_in_executor(None, _sync_predict)
+
+    # Validate output
+    res_img = Image.open(result_local_path)
+    validate_rendered_tryon_result(res_img)
+
+    with open(result_local_path, "rb") as f:
+        res_bytes = f.read()
+
+    saved_url = await save_file_from_bytes(
+        res_bytes,
+        original_filename=f"tryon_idm_{session_id}.jpg",
+        folder="results"
+    )
+
+    # Cleanup temp files
+    for p in (tmp_user, tmp_garm):
+        try:
+            if os.path.exists(p) and "/tmp" in p:
+                os.remove(p)
+        except Exception:
+            pass
+
+    logger.info(f"[HF IDM-VTON] Neural try-on succeeded! Result saved to: {saved_url}")
+    return saved_url
+
+
+# ---------------------------------------------------------------------------
 # Replicate IDM-VTON API Integration (Real AI Try-On)
 # ---------------------------------------------------------------------------
 
@@ -1659,7 +1754,30 @@ class AIClient:
         except Exception:
             pass
 
-        # ── Priority 1: Nano Banana 2 (Gemini 3.1 Flash Image API) ─────────────
+        # ── Priority 1: Real Neural AI Diffusion (Hugging Face IDM-VTON) ─────────────
+        hf_token = os.getenv("HF_TOKEN") or getattr(settings, "HF_TOKEN", "") or os.getenv("HUGGINGFACE_API_KEY", "")
+        if hf_token:
+            try:
+                logger.info("[AIClient] Trying Priority 1: Hugging Face yisol/IDM-VTON Neural Diffusion...")
+                steps = 25 if model_variant == "quality" else 18
+                result_url = await _call_hf_idm_vton(
+                    user_image=user_image,
+                    cloth_image=cloth_image,
+                    description=description,
+                    session_id=effective_session_id,
+                    denoise_steps=steps,
+                )
+                elapsed = int((time.time() - start) * 1000)
+                logger.info(f"[AIClient] IDM-VTON Neural Try-On completed successfully in {elapsed}ms: {result_url}")
+                return {
+                    "result_url": result_url,
+                    "inference_time_ms": elapsed,
+                    "model_version": f"idm-vton-diffusion-{model_variant}",
+                }
+            except Exception as e:
+                logger.warning(f"[AIClient] Hugging Face IDM-VTON failed: {e}. Falling back to Priority 2.")
+
+        # ── Priority 2: Nano Banana 2 (Gemini 3.1 Flash Image API) ─────────────
         gemini_key = (
             settings.GEMINI_API_KEY 
             or settings.NANO_BANANA_API_KEY 
@@ -1683,9 +1801,9 @@ class AIClient:
         if has_real_gemini or has_real_openrouter:
             try:
                 if has_real_openrouter:
-                    logger.info("[AIClient] Trying Priority 1: Nano Banana 2 (via OpenRouter API proxy)...")
+                    logger.info("[AIClient] Trying Priority 2: Nano Banana 2 (via OpenRouter API proxy)...")
                 else:
-                    logger.info("[AIClient] Trying Priority 1: Nano Banana 2 (Gemini 3.1 Flash Image API)...")
+                    logger.info("[AIClient] Trying Priority 2: Nano Banana 2 (Gemini 3.1 Flash Image API)...")
                 result_url = await _call_nano_banana_2(
                     user_image=user_image,
                     cloth_image=cloth_image,
@@ -1710,14 +1828,13 @@ class AIClient:
                     "model_version": f"banana-{model_variant}",
                 }
             except Exception as e:
-                logger.warning(f"[AIClient] Nano Banana 2 call failed: {e}. Falling back to Priority 2.")
+                logger.warning(f"[AIClient] Nano Banana 2 call failed: {e}. Falling back to Priority 3.")
 
-        # ── Priority 2: IDM-VTON ──────────────────────────────────────────────
-        # Sub-Priority 2.1: Replicate IDM-VTON (cloud service)
+        # ── Priority 3: Replicate IDM-VTON ──────────────────────────────────────────────
         replicate_token = os.getenv("REPLICATE_API_TOKEN", "") or os.getenv("REPLICATE_API_KEY", "")
         if replicate_token:
             try:
-                logger.info("[AIClient] Trying Priority 2.1: Replicate IDM-VTON (cloud)...")
+                logger.info("[AIClient] Trying Priority 3: Replicate IDM-VTON (cloud)...")
                 result_url = await _call_replicate_idm_vton(
                     user_image, cloth_image,
                     garment_type=_garment_type_for_routing,
@@ -1734,7 +1851,7 @@ class AIClient:
                     "model_version": "replicate-idm-vton-sdxl",
                 }
             except Exception as e:
-                logger.warning(f"[AIClient] Replicate IDM-VTON failed: {e}. Trying local bridge.")
+                logger.warning(f"[AIClient] Replicate IDM-VTON failed: {e}. Trying fallback.")
 
         # Sub-Priority 2.2: Custom/Local IDM-VTON Server (port 8001)
         ai_url = settings.AI_SERVICE_URL

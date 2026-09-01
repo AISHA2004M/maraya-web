@@ -34,8 +34,9 @@ class Settings(BaseSettings):
     # Nano Banana 2 / Gemini API
     GEMINI_API_KEY: str = ""
     NANO_BANANA_API_KEY: str = ""
-    NANO_BANANA_MODEL: str = "google/gemini-2.5-flash-image"
+    NANO_BANANA_MODEL: str = "gemini-2.5-flash"
     OPENROUTER_API_KEY: str = ""
+    HF_TOKEN: str = ""
 
     # Supabase Storage
     SUPABASE_URL: str = "https://fyxpczacexydrzpqipfy.supabase.co"
