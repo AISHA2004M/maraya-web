@@ -1209,27 +1209,9 @@ async def apply_post_processing_qc(
         return result_image_url
 
     try:
-        TARGET_W, TARGET_H = 768, 1024
-
-        rw, rh = result_img.size
-        scale = min(TARGET_W / rw, TARGET_H / rh)
-        new_w = int(rw * scale)
-        new_h = int(rh * scale)
-
-        resized = result_img.resize((new_w, new_h), Image.Resampling.LANCZOS)
-
-        # Create a clean neutral grey background (matches typical studio backgrounds)
-        canvas = Image.new("RGB", (TARGET_W, TARGET_H), (240, 240, 240))
-
-        # Center the resized image on the canvas
-        paste_x = (TARGET_W - new_w) // 2
-        paste_y = (TARGET_H - new_h) // 2
-        canvas.paste(resized, (paste_x, paste_y))
-
-        final_result = canvas
-
+        final_result = result_img
     except Exception as e:
-        logger.warning(f"[AI Pipeline QC] Resize/pad failed ({e}). Returning original.")
+        logger.warning(f"[AI Pipeline QC] Post-processing failed ({e}). Returning original.")
         return result_image_url
 
     # Save processed image
