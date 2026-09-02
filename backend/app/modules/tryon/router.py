@@ -318,7 +318,7 @@ async def create_ai_try_on(
             .first()
         )
         
-        if cached_session:
+        if cached_session and not (cached_session.ai_model_version or "").startswith("vrital-local-pipeline"):
             logger.info(f"[TryOn API] Cache HIT for image {image_hash} + garments {parsed_ids}. Reusing result session {cached_session.id} immediately.")
             
             # Create a new TryOnSession record for the user's history but mark it completed immediately

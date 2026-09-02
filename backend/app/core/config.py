@@ -34,7 +34,7 @@ class Settings(BaseSettings):
     # Nano Banana 2 / Gemini API
     GEMINI_API_KEY: str = ""
     NANO_BANANA_API_KEY: str = ""
-    NANO_BANANA_MODEL: str = "gemini-2.5-flash"
+    NANO_BANANA_MODEL: str = "google/gemini-3.1-flash-image"
     OPENROUTER_API_KEY: str = ""
     HF_TOKEN: str = ""
 

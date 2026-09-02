@@ -1429,10 +1429,11 @@ async def _call_nano_banana_2(
     if not has_gemini and not has_openrouter:
         raise ValueError("Google Gemini / Nano Banana 2 API Key or OpenRouter API Key not configured")
 
-    model_name = settings.NANO_BANANA_MODEL or os.getenv("NANO_BANANA_MODEL", "gemini-2.5-flash")
+    model_name = settings.NANO_BANANA_MODEL or os.getenv("NANO_BANANA_MODEL", "google/gemini-3.1-flash-image")
     if has_openrouter:
         if not model_name.startswith("google/"):
             model_name = f"google/{model_name}"
+        # Strip -preview suffix
         if model_name.endswith("-preview"):
             model_name = model_name.replace("-preview", "")
     else:
@@ -1476,16 +1477,18 @@ async def _call_nano_banana_2(
     garment_region = "lower body (legs/pants area)" if garment_type == "bottom" else ("full body" if garment_type == "dress" else "upper body (chest/torso)")
 
     prompt = (
-        f"HIGH-PRECISION PHOTOREALISTIC VIRTUAL TRY-ON TASK.\n\n"
+        f"VIRTUAL TRY-ON — STRICT 1:1 VISUAL CLOTHING REPLACEMENT.\n\n"
         f"INPUT REFERENCES:\n"
-        f"- [IMAGE 1]: The user's portrait photo. You MUST PRESERVE the exact person from this image: their face, facial features, eyes, nose, lips, hair, skin tone, body shape, and pose.\n"
-        f"- [IMAGE 2]: The exact garment ({description}). You MUST PRESERVE its exact color, shade, fabric texture, cut, pattern, neckline, drape, and design details.\n\n"
-        f"TASK INSTRUCTIONS:\n"
-        f"Generate a single photorealistic studio image showing the EXACT SAME PERSON from [IMAGE 1] wearing the EXACT CLOTHING ITEM from [IMAGE 2] on their {garment_region}.\n\n"
-        f"STRICT RULES:\n"
-        f"1. DO NOT change the person's identity, facial features, or hair. It must remain unmistakably the same individual.\n"
-        f"2. DO NOT change the garment color, design, or texture. It must match [IMAGE 2] precisely.\n"
-        f"3. Output a high-resolution, full-body/upper-body fashion photograph with crisp details and clean studio lighting."
+        f"- [IMAGE 1]: The user's portrait photo. You MUST PRESERVE the exact person: their face, facial features, hair, skin tone, body shape, and pose with 100% fidelity.\n"
+        f"- [IMAGE 2]: The EXACT garment to be worn. Look closely at this image and copy it with 100% visual accuracy.\n\n"
+        f"CRITICAL GARMENT ACCURACY RULES:\n"
+        f"1. LOOK CLOSELY AT [IMAGE 2] AND REPLICATE ITS EXACT DESIGN:\n"
+        f"   - Match the EXACT silhouette, cut, and clothing category (e.g. if [IMAGE 2] is a zip-up bomber jacket, output a zip-up bomber jacket; if a hoodie, output a hoodie; if a blazer, output a blazer; if a t-shirt, output a t-shirt).\n"
+        f"   - Copy all visual details from [IMAGE 2]: closures (metal/plastic zipper vs buttons), neckline/collar shape (ribbed bomber collar, lapel, hood, crewneck), ribbed waist hem, ribbed wrist cuffs, pockets, and seams.\n"
+        f"   - Match the EXACT color, shade, fabric sheen, texture (nylon, cotton, leather, wool, silk), and drape shown in [IMAGE 2].\n"
+        f"   - NEVER substitute the garment with a generic blazer, suit, or different clothing style.\n"
+        f"2. The garment must naturally drape on the person's {garment_region}.\n"
+        f"3. STRICT IDENTITY LOCK: The person's face, eyes, smile, hair, arms, hands, and pose from [IMAGE 1] must stay 100% identical and unchanged."
     )
     if avatar or height or weight or body_bust or body_waist or body_hips:
         profile_desc = []
@@ -1520,7 +1523,7 @@ async def _call_nano_banana_2(
                     "content": [
                         {
                             "type": "text",
-                            "text": "IMAGE 1 - Person portrait:"
+                            "text": "IMAGE 1 - Person portrait (preserve face, expression, hair, arms, and pose identically):"
                         },
                         {
                             "type": "image_url",
@@ -1530,7 +1533,7 @@ async def _call_nano_banana_2(
                         },
                         {
                             "type": "text",
-                            "text": "IMAGE 2 - Clothing item to wear:"
+                            "text": "IMAGE 2 - Exact Garment to wear (replicate its exact cut, zipper/buttons, collar, fabric, and color):"
                         },
                         {
                             "type": "image_url",
@@ -1546,11 +1549,11 @@ async def _call_nano_banana_2(
                 }
             ],
             "modalities": ["image", "text"],
-            "max_tokens": 1000
+            "max_tokens": 2000
         }
         max_retries = 2
         backoff = 1.0
-        timeout = 45
+        timeout = 60
     else:
         logger.info(f"[Nano Banana 2] Sending request to Gemini API generateContent endpoint...")
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}"
@@ -1615,16 +1618,22 @@ async def _call_nano_banana_2(
                     images = message.get("images", [])
                     image_url = None
                     
+                    # OpenRouter Gemini image response: images list with {type, image_url: {url}}
                     if images and isinstance(images, list):
                         img_item = images[0]
                         if isinstance(img_item, dict):
-                            image_url = img_item.get("image_url", {}).get("url") or img_item.get("url")
+                            img_url_obj = img_item.get("image_url", {})
+                            if isinstance(img_url_obj, dict):
+                                image_url = img_url_obj.get("url")
+                            else:
+                                image_url = img_item.get("url")
                     
+                    # Fallback: scan text content for embedded base64 image
                     if not image_url:
                         content = message.get("content", "")
-                        if "data:image/" in content:
+                        if "data:image/" in str(content):
                             import re
-                            match = re.search(r'data:image/[^;]+;base64,[a-zA-Z0-9+/=]+', content)
+                            match = re.search(r'data:image/[^;]+;base64,[a-zA-Z0-9+/=]+', str(content))
                             if match:
                                 image_url = match.group(0)
                                 
@@ -1635,6 +1644,7 @@ async def _call_nano_banana_2(
                         image_b64 = image_url.split(",")[1]
                     else:
                         image_b64 = image_url
+
                 else:
                     candidates = data.get("candidates", [])
                     if not candidates:
@@ -1754,30 +1764,7 @@ class AIClient:
         except Exception:
             pass
 
-        # ── Priority 1: Real Neural AI Diffusion (Hugging Face IDM-VTON) ─────────────
-        hf_token = os.getenv("HF_TOKEN") or getattr(settings, "HF_TOKEN", "") or os.getenv("HUGGINGFACE_API_KEY", "")
-        if hf_token:
-            try:
-                logger.info("[AIClient] Trying Priority 1: Hugging Face yisol/IDM-VTON Neural Diffusion...")
-                steps = 25 if model_variant == "quality" else 18
-                result_url = await _call_hf_idm_vton(
-                    user_image=user_image,
-                    cloth_image=cloth_image,
-                    description=description,
-                    session_id=effective_session_id,
-                    denoise_steps=steps,
-                )
-                elapsed = int((time.time() - start) * 1000)
-                logger.info(f"[AIClient] IDM-VTON Neural Try-On completed successfully in {elapsed}ms: {result_url}")
-                return {
-                    "result_url": result_url,
-                    "inference_time_ms": elapsed,
-                    "model_version": f"idm-vton-diffusion-{model_variant}",
-                }
-            except Exception as e:
-                logger.warning(f"[AIClient] Hugging Face IDM-VTON failed: {e}. Falling back to Priority 2.")
-
-        # ── Priority 2: Nano Banana 2 (Gemini 3.1 Flash Image API) ─────────────
+        # ── Priority 1: Nano Banana 2 (Gemini 3.1 Flash Image API via OpenRouter) ─────────────
         gemini_key = (
             settings.GEMINI_API_KEY 
             or settings.NANO_BANANA_API_KEY 
@@ -1801,9 +1788,9 @@ class AIClient:
         if has_real_gemini or has_real_openrouter:
             try:
                 if has_real_openrouter:
-                    logger.info("[AIClient] Trying Priority 2: Nano Banana 2 (via OpenRouter API proxy)...")
+                    logger.info("[AIClient] Trying Priority 1: Nano Banana 2 (via OpenRouter API proxy)...")
                 else:
-                    logger.info("[AIClient] Trying Priority 2: Nano Banana 2 (Gemini 3.1 Flash Image API)...")
+                    logger.info("[AIClient] Trying Priority 1: Nano Banana 2 (Gemini 3.1 Flash Image API)...")
                 result_url = await _call_nano_banana_2(
                     user_image=user_image,
                     cloth_image=cloth_image,
@@ -1828,7 +1815,31 @@ class AIClient:
                     "model_version": f"banana-{model_variant}",
                 }
             except Exception as e:
-                logger.warning(f"[AIClient] Nano Banana 2 call failed: {e}. Falling back to Priority 3.")
+                logger.warning(f"[AIClient] Nano Banana 2 call failed: {e}. Falling back to Priority 2.")
+
+        # ── Priority 2: Real Neural AI Diffusion (Hugging Face IDM-VTON) ─────────────
+        hf_token = os.getenv("HF_TOKEN") or getattr(settings, "HF_TOKEN", "") or os.getenv("HUGGINGFACE_API_KEY", "")
+        if hf_token:
+            try:
+                logger.info("[AIClient] Trying Priority 2: Hugging Face yisol/IDM-VTON Neural Diffusion...")
+                steps = 25 if model_variant == "quality" else 20
+                result_url = await _call_hf_idm_vton(
+                    user_image=user_image,
+                    cloth_image=cloth_image,
+                    description=description,
+                    session_id=effective_session_id,
+                    denoise_steps=steps,
+                )
+                elapsed = int((time.time() - start) * 1000)
+                logger.info(f"[AIClient] IDM-VTON Neural Try-On completed successfully in {elapsed}ms: {result_url}")
+                return {
+                    "result_url": result_url,
+                    "inference_time_ms": elapsed,
+                    "model_version": f"idm-vton-diffusion-{model_variant}",
+                }
+            except Exception as e:
+                logger.warning(f"[AIClient] Hugging Face IDM-VTON failed: {e}. Falling back to Priority 3.")
+
 
         # ── Priority 3: Replicate IDM-VTON ──────────────────────────────────────────────
         replicate_token = os.getenv("REPLICATE_API_TOKEN", "") or os.getenv("REPLICATE_API_KEY", "")

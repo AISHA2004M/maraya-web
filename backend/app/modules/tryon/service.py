@@ -19,23 +19,52 @@ logger = logging.getLogger(__name__)
 # Celery task import — graceful fallback if Celery/Redis not available
 # ---------------------------------------------------------------------------
 
+async def run_tryon_background(session_id: str):
+    """
+    Background worker task running inside the FastAPI event loop.
+    Processes the session asynchronously and updates the DB with the result.
+    """
+    from app.core.database import SessionLocal
+    db = SessionLocal()
+    try:
+        session = db.query(TryOnSession).filter(TryOnSession.id == session_id).first()
+        if session:
+            await _run_sync_fallback(db, session)
+    except Exception as e:
+        logger.error(f"[TryOn] Background execution failed for {session_id}: {e}", exc_info=True)
+    finally:
+        db.close()
+
+
 def _dispatch_tryon_task(session_id: str) -> bool:
     """
-    Dispatch the async Celery task.
-    Falls back to synchronous execution if Celery/Redis is unavailable (dev mode).
-    Returns True if async dispatch succeeded, False if sync fallback was used.
+    Dispatch the async tryon task.
+    First checks if an external Celery worker is actively running and responding to pings.
+    If yes, dispatches to Celery.
+    If no active Celery worker is found, launches an in-process asyncio background task.
     """
+    # 1. Try Celery only if worker is actually responding to pings
     try:
-        from worker import generate_tryon_task
-        # Check if Celery broker is reachable
-        result = generate_tryon_task.delay(session_id)
-        logger.info(f"[TryOn] Dispatched async task {result.id} for session {session_id}")
-        return True
+        from worker import celery_app
+        insp = celery_app.control.inspect(timeout=0.2)
+        ping_res = insp.ping() if insp else None
+        if ping_res:
+            from worker import generate_tryon_task
+            result = generate_tryon_task.delay(session_id)
+            logger.info(f"[TryOn] Dispatched async task {result.id} to active Celery worker for session {session_id}")
+            return True
     except Exception as e:
-        logger.warning(
-            f"[TryOn] Celery unavailable ({type(e).__name__}), falling back to sync execution. "
-            f"To enable async processing: start Redis + run 'celery -A worker.celery_app worker'"
-        )
+        logger.debug(f"[TryOn] Celery check: {e}")
+
+    # 2. Dispatch via in-process asyncio background task
+    try:
+        import asyncio
+        loop = asyncio.get_running_loop()
+        loop.create_task(run_tryon_background(session_id))
+        logger.info(f"[TryOn] Spawned in-process asyncio background task for session {session_id}")
+        return True
+    except RuntimeError:
+        # No running loop (e.g. called from synchronous script)
         return False
 
 
