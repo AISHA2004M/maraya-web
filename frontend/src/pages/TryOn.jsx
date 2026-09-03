@@ -992,7 +992,7 @@ export default function TryOn() {
                         const url = URL.createObjectURL(blob);
                         const a = document.createElement("a");
                         a.href = url;
-                        a.download = "vrital-tryon-result.jpg";
+                        a.download = "maraya-tryon-result.jpg";
                         a.click();
                         URL.revokeObjectURL(url);
                       } catch {
@@ -1051,7 +1051,7 @@ export default function TryOn() {
 
                       {/* Stage message */}
                       <div className="space-y-2">
-                        <p className="text-[9px] font-bold tracking-[0.25em] uppercase text-secondary">الذكاء الاصطناعي (Vrital AI)</p>
+                        <p className="text-[9px] font-bold tracking-[0.25em] uppercase text-secondary">الذكاء الاصطناعي (Maraya AI)</p>
                         <p
                           key={label}
                           className="text-xs font-light text-primary leading-relaxed transition-all duration-500"

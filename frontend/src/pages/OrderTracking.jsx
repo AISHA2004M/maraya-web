@@ -81,7 +81,7 @@ export default function OrderTracking() {
     <div className="min-h-screen bg-[#faf9f7] text-primary flex flex-col">
       <SEO
         title={language === "ar" ? "تتبع حالة الطلب" : "Track Order"}
-        description="Track your Vrital luxury apparel delivery with real-time status updates."
+        description="Track your Maraya luxury apparel delivery with real-time status updates."
         canonical="/track-order"
       />
       <Navbar />

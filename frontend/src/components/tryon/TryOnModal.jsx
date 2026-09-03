@@ -134,7 +134,7 @@ function SilhouetteSkeleton({ pct, label, isDelayed, onCancel }) {
       {/* Labels */}
       <div className="space-y-2 text-center max-w-[220px]">
         <p className="text-[9px] font-bold tracking-[0.3em] uppercase text-secondary">
-          Vrital AI · Neural Drape Engine
+          Maraya AI · Neural Drape Engine
         </p>
         <AnimatePresence mode="wait">
           <motion.p
@@ -198,7 +198,7 @@ function PreparingSkeleton() {
       </div>
       <div className="space-y-2 text-center">
         <p className="text-[9px] font-bold tracking-[0.3em] uppercase text-secondary">
-          Vrital AI · Fitting Room
+          Maraya AI · Fitting Room
         </p>
         <p className="text-sm font-light text-primary">Preparing Try-On…</p>
       </div>
@@ -615,7 +615,7 @@ export default function TryOnModal({ isOpen, onClose, product }) {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `vrital-silhouette-${product?.name?.replace(/\s+/g, "-").toLowerCase() || "result"}.jpg`;
+      a.download = `maraya-silhouette-${product?.name?.replace(/\s+/g, "-").toLowerCase() || "result"}.jpg`;
       a.click();
       URL.revokeObjectURL(url);
     } catch {

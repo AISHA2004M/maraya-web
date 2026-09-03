@@ -699,7 +699,7 @@ export default function ProductDetails() {
       {product && (
         <SEO
           title={product.name}
-          description={product.description || `${product.name} by ${product.brand?.name || "Vrital"} — Shop with AI Virtual Try-On`}
+          description={product.description || `${product.name} by ${product.brand?.name || "Maraya"} — Shop with AI Virtual Try-On`}
           image={product.main_image_url}
           type="product"
           price={product.price}
@@ -1139,7 +1139,7 @@ export default function ProductDetails() {
                     <h3 className="heading-serif text-2xl text-primary">Neural Sizing Advisor</h3>
                   </div>
                   <p className="text-secondary text-xs font-light leading-relaxed">
-                    Compare your measurements and reference house fittings to calculate your tailored Vrital drape silhouette.
+                    Compare your measurements and reference house fittings to calculate your tailored Maraya drape silhouette.
                   </p>
                 </div>
 
@@ -1220,7 +1220,7 @@ export default function ProductDetails() {
                   >
                     <div className="text-center">
                       <p className="text-[9px] font-bold tracking-widest text-secondary uppercase">
-                        Recommended Vrital Fit
+                        Recommended Maraya Fit
                       </p>
                       <p className="text-4xl font-light text-primary mt-1">{sizeRecommendation}</p>
                       <p className="text-[9px] text-green-600 font-bold uppercase tracking-wider mt-1">

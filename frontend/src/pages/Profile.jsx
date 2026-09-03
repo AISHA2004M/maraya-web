@@ -187,7 +187,7 @@ export default function Profile() {
               {language === "ar" ? "أتيلييه العضو المميز" : "Exclusive Member Atelier"}
             </span>
             <h1 className="heading-serif text-3xl md:text-4xl font-light">
-              {fullName || (language === "ar" ? "عضو مرايا" : "Vrital Member")}
+              {fullName || (language === "ar" ? "عضو مرايا" : "Maraya Member")}
             </h1>
             <p className="text-xs text-secondary font-mono mt-1">{email}</p>
           </div>

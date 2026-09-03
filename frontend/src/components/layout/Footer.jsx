@@ -11,7 +11,7 @@ export default function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-16">
           {/* Brand */}
           <div>
-            <p className="font-display text-3xl font-light tracking-widest2 mb-6">VRITAL</p>
+            <p className="font-display text-3xl font-light tracking-widest2 mb-6">MARAYA</p>
             <p className="text-xs text-muted leading-relaxed max-w-[180px]">
               AI-powered virtual try-on. See it on you before you buy it.
             </p>
@@ -36,7 +36,7 @@ export default function Footer() {
         <hr className="rule mb-8" />
 
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-subtle">© 2026 Vrital. All rights reserved.</p>
+          <p className="text-xs text-subtle">© 2026 Maraya. All rights reserved.</p>
           <div className="flex gap-6">
             {["Privacy Policy", "Cookie Policy", "Terms of Use"].map((t) => (
               <Link key={t} to="/" className="text-xs text-subtle hover:text-ink transition-colors">

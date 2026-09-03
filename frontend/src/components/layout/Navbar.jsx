@@ -288,7 +288,7 @@ export default function Navbar() {
             {/* Header Control */}
             <div className="max-w-6xl w-full mx-auto flex items-center justify-between border-b border-rule pb-4 mb-10">
               <span className="text-[10px] font-bold tracking-[0.25em] text-secondary uppercase">
-                VRITAL DIGITAL SEARCH
+                MARAYA DIGITAL SEARCH
               </span>
               <button
                 onClick={() => setSearchOpen(false)}

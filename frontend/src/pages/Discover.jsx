@@ -70,14 +70,14 @@ export default function Discover() {
     <div className="min-h-screen bg-[#faf9f7] text-primary flex flex-col transition-colors duration-500">
       <SEO
         title="Discover Fashion Brands"
-        description="Explore top fashion brands on Vrital. Shop Zara, Gucci, Nike, H&M and more with AI-powered virtual try-on. See how clothes look on you before buying."
+        description="Explore top fashion brands on Maraya. Shop Zara, Gucci, Nike, H&M and more with AI-powered virtual try-on. See how clothes look on you before buying."
         canonical="/discover"
         jsonLd={{
           "@context": "https://schema.org/",
           "@type": "WebPage",
-          name: "Discover Fashion Brands — Vrital",
+          name: "Discover Fashion Brands — Maraya",
           description: "Browse curated fashion brands and shop with AI Virtual Try-On.",
-          url: "https://vrital.com/discover",
+          url: "https://maraya-web.vercel.app/discover",
         }}
       />
       <Navbar />
@@ -171,7 +171,7 @@ export default function Discover() {
 
       {/* Footer */}
       <footer className="border-t border-[#eae6df] bg-white py-16 text-center text-[10px] font-bold tracking-widest text-secondary uppercase">
-        Vrital Ateliers © {new Date().getFullYear()} — Powered by Advanced Fashion Infrastructures
+        Maraya Ateliers © {new Date().getFullYear()} — Powered by Advanced Fashion Infrastructures
       </footer>
     </div>
   );

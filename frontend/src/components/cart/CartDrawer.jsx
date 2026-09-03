@@ -83,8 +83,8 @@ export default function CartDrawer() {
     } catch {
       // Fallback local promo validation
       const code = promoCodeInput.trim().toUpperCase();
-      if (code === "VRITAL10") {
-        setPromo({ code: "VRITAL10", discount_percent: 10, discount_amount: 0 });
+      if (code === "MARAYA10" || code === "VRITAL10") {
+        setPromo({ code: "MARAYA10", discount_percent: 10, discount_amount: 0 });
         setPromoCodeInput("");
       } else if (code === "ELEGANCE20") {
         setPromo({ code: "ELEGANCE20", discount_percent: 20, discount_amount: 0 });
@@ -278,7 +278,7 @@ export default function CartDrawer() {
                   <form onSubmit={handleApplyPromo} className="flex gap-2">
                     <input
                       type="text"
-                      placeholder={language === "ar" ? "رمز الخصم (مثال: VRITAL10)" : "Promo code (e.g. VRITAL10)"}
+                      placeholder={language === "ar" ? "رمز الخصم (مثال: MARAYA10)" : "Promo code (e.g. MARAYA10)"}
                       value={promoCodeInput}
                       onChange={(e) => setPromoCodeInput(e.target.value)}
                       className="flex-1 border border-rule px-3 py-2 text-xs uppercase tracking-wider focus:outline-none focus:border-ink"

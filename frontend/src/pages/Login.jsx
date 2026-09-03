@@ -56,7 +56,7 @@ export default function Login() {
             <div className="w-12 h-12 flex items-center justify-center">
               <Sparkles size={24} className="text-primary" />
             </div>
-            <span className="heading-serif text-2xl text-primary mt-2">Vrital</span>
+            <span className="heading-serif text-2xl text-primary mt-2">{language === "ar" ? "مرايا" : "Maraya"}</span>
           </Link>
         </div>
 
@@ -73,7 +73,7 @@ export default function Login() {
           </h1>
           <p className="text-sm text-secondary mb-6 text-center px-4">
             {isRegister 
-              ? (language === "en" ? "Join Vrital to unlock the digital couture experience." : "انضم إلى مرايا لفتح تجربة الأزياء الرقمية الراقية.") 
+              ? (language === "en" ? "Join Maraya to unlock the digital couture experience." : "انضم إلى مرايا لفتح تجربة الأزياء الرقمية الراقية.") 
               : (language === "en" ? "Enter your exclusive fashion secret to enter the couture experience." : "أدخل الرمز السري الخاص بك للدخول إلى تجربة تصميم الأزياء.")}
           </p>
 

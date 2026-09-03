@@ -43,7 +43,7 @@ export default function AIFashionStylist() {
       role: "assistant",
       content: language === "ar"
         ? "مرحباً بك في أتيلييه مرايا. أنا مستشارك الشخصي للأناقة بالذكاء الاصطناعي. كيف يمكنني تنسيق إطلالتك اليوم؟"
-        : "Welcome to the Vrital Digital Atelier. I am your AI Fashion Stylist. What occasion or aesthetic shall we style for you today?",
+        : "Welcome to the Maraya Digital Atelier. I am your AI Fashion Stylist. What occasion or aesthetic shall we style for you today?",
       recommendations: []
     }
   ]);
@@ -154,7 +154,7 @@ export default function AIFashionStylist() {
                   </div>
                   <div>
                     <h3 className="font-serif text-base font-medium">
-                      {language === "ar" ? "مستشار الأناقة الرقمي" : "Vrital Digital Stylist"}
+                      {language === "ar" ? "مستشار الأناقة الرقمي" : "Maraya Digital Stylist"}
                     </h3>
                     <p className="text-[10px] text-emerald-600 font-bold tracking-wider uppercase flex items-center gap-1">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />

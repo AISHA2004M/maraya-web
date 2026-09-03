@@ -11,8 +11,8 @@
  */
 import { Helmet } from "react-helmet-async";
 
-const SITE_NAME = "Vrital — AI Virtual Try-On Fashion";
-const SITE_URL = "https://vrital.com";
+const SITE_NAME = "Maraya — AI Virtual Try-On Fashion";
+const SITE_URL = "https://maraya-web.vercel.app";
 const DEFAULT_IMAGE = `${SITE_URL}/og-image.jpg`;
 
 export default function SEO({
