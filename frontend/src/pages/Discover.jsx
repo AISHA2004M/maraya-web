@@ -89,15 +89,19 @@ export default function Discover() {
         <div className="max-w-4xl mx-auto text-center mb-32 mt-4 space-y-8">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white border border-[#eae6df] rounded-full">
             <Sparkles size={11} className="text-[#a89f91] animate-pulse" />
-            <span className="text-[8px] font-bold tracking-[0.3em] text-[#8e8577] uppercase">The Collection of Independent Houses</span>
+            <span className="text-[8px] font-bold tracking-[0.3em] text-[#8e8577] uppercase">
+              {language === "ar" ? "المجموعة الحصرية لدور الأزياء" : "The Collection of Independent Houses"}
+            </span>
           </div>
           <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-light tracking-tight leading-none text-black">
-            The Digital <br />
-            <span className="italic font-serif">Ateliers</span>
+            {language === "ar" ? "مرايا" : "The Digital"} <br />
+            <span className="italic font-serif">{language === "ar" ? "دور الأزياء العالمية" : "Ateliers"}</span>
           </h1>
           <div className="w-12 h-[1px] bg-black/20 mx-auto" />
           <p className="text-sm md:text-base text-[#5c564c] font-light leading-relaxed max-w-2xl mx-auto">
-            A single engineering core powering independent digital boutiques. Browse each atelier as an autonomous house of design with its own campaigns, distinct visual rules, and storytelling product records.
+            {language === "ar"
+              ? "منصة مرايا للأزياء الراقية والقياس الافتراضي بالذكاء الاصطناعي. تصفح دور الأزياء العالمية واستكشف التشكيلات الحصرية وجرب الملابس على صورتك مباشرة."
+              : "A single engineering core powering independent digital boutiques. Browse each atelier as an autonomous house of design with its own campaigns, distinct visual rules, and storytelling product records."}
           </p>
         </div>
 
@@ -155,7 +159,7 @@ export default function Discover() {
                       to={`/brands/${brand.slug}`}
                       className="inline-flex items-center justify-center border border-black bg-transparent text-black text-[9px] font-bold tracking-[0.25em] uppercase px-10 py-4 hover:bg-black hover:text-white transition-all duration-500 rounded-none w-full sm:w-auto"
                     >
-                      Enter House
+                      {language === "ar" ? "دخول الدار" : "Enter House"}
                     </Link>
                   </div>
                 </div>

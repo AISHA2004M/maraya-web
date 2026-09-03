@@ -53,13 +53,16 @@ export default function Navbar() {
 
 
   const isValidBrandSlug = Boolean(brand_slug && brand_slug !== "undefined" && brand_slug !== "null");
-  const logoLink = isValidBrandSlug ? `/brands/${brand_slug}` : "/discover";
-  const brandDisplayName = isValidBrandSlug ? (brand?.name || brand_slug).toUpperCase() : "VRITAL";
+  const logoLink = isValidBrandSlug ? `/brands/${brand_slug}` : "/";
+  const brandDisplayName = isValidBrandSlug ? (brand?.name || brand_slug).toUpperCase() : (language === "ar" ? "مرايا" : "MARAYA");
 
   const navLinks = isValidBrandSlug ? [
     { to: `/brands/${brand_slug}`, label: t("atelier") },
     { to: `/brands/${brand_slug}/shop`, label: t("shop_all") },
-  ] : [];
+  ] : [
+    { to: "/", label: t("discover_houses") || "Explore Brands" },
+    { to: "/shop", label: t("shop_all") || "Shop All" },
+  ];
 
 
 
@@ -119,7 +122,7 @@ export default function Navbar() {
             </Link>
 
             {brand_slug && (
-              <Link to="/discover" className="hidden md:inline-flex items-center text-[10px] font-bold tracking-wider text-secondary uppercase hover:text-black transition-colors">
+              <Link to="/" className="hidden md:inline-flex items-center text-[10px] font-bold tracking-wider text-secondary uppercase hover:text-black transition-colors">
                 {t("directory")}
               </Link>
             )}

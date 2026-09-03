@@ -33,6 +33,7 @@ const lazyRetry = (componentImport) => {
 };
 
 import Home from "../pages/Home";
+import Discover from "../pages/Discover";
 
 // ─── Lazy Page Imports ──────────────────────────────────────────────────────
 const Shop          = lazyRetry(() => import("../pages/Shop"));
@@ -44,7 +45,6 @@ const Checkout      = lazyRetry(() => import("../pages/Checkout"));
 const Login         = lazyRetry(() => import("../pages/Login"));
 const BrandDetails  = lazyRetry(() => import("../pages/BrandDetails"));
 const Profile       = lazyRetry(() => import("../pages/Profile"));
-const Discover      = lazyRetry(() => import("../pages/Discover"));
 const SearchByImage = lazyRetry(() => import("../pages/SearchByImage"));
 const PartnerLogin  = lazyRetry(() => import("../pages/PartnerLogin"));
 const Wishlist      = lazyRetry(() => import("../pages/Wishlist"));
@@ -114,8 +114,8 @@ function LazyRoute({ Page }) {
 // ─── Router Configuration ─────────────────────────────────────────────────────
 
 export const router = createBrowserRouter([
-  { path: "/",                                 element: <PageTransition><Home /></PageTransition> },
-  { path: "/discover",                         element: <LazyRoute Page={Discover} /> },
+  { path: "/",                                 element: <PageTransition><Discover /></PageTransition> },
+  { path: "/discover",                         element: <PageTransition><Discover /></PageTransition> },
   { path: "/login",                            element: <LazyRoute Page={Login} /> },
   { path: "/forgot-password",                  element: <LazyRoute Page={ForgotPassword} /> },
   { path: "/reset-password",                   element: <LazyRoute Page={ResetPassword} /> },
