@@ -59,10 +59,7 @@ export default function Navbar() {
   const navLinks = isValidBrandSlug ? [
     { to: `/brands/${brand_slug}`, label: t("atelier") },
     { to: `/brands/${brand_slug}/shop`, label: t("shop_all") },
-  ] : [
-    { to: "/", label: t("discover_houses") || "Explore Brands" },
-    { to: "/shop", label: t("shop_all") || "Shop All" },
-  ];
+  ] : [];
 
 
 
